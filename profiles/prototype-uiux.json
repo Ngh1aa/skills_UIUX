@@ -1,0 +1,24 @@
+{
+  "name": "prototype-uiux",
+  "description": "High-fidelity interactive UI/UX prototype that behaves like a real website without backend-heavy scope.",
+  "skills": [
+    "website-delivery-pipeline",
+    "product-discovery",
+    "brand-guidelines",
+    "ux-research-and-journey",
+    "ux-laws-and-heuristics",
+    "information-architecture",
+    "visual-design-direction",
+    "design-system-and-components",
+    "conversion-and-content",
+    "interaction-patterns-and-form-ux",
+    "motion-and-microinteractions",
+    "asset-media-and-art-direction",
+    "frontend-implementation",
+    "responsive-and-device-strategy",
+    "accessibility",
+    "ui-craft-and-visual-qa",
+    "testing-strategy",
+    "ai-agent-coding-guardrails"
+  ]
+}

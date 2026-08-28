@@ -1,85 +1,97 @@
-# skills_UIUX — Professional Website Agent Skill Library
+# skills_UIUX V2 — Professional Website Agent Operating System
 
-Bộ skill dành cho AI coding agent xây dựng và nâng cấp website theo quy trình chuyên nghiệp từ discovery → UX → UI → design system → implementation → QA → release → monitoring.
+Bộ skill dành cho AI coding agent xây dựng/nâng cấp website theo quy trình chuyên nghiệp từ discovery → UX → IA → brand/visual → design system → implementation → QA → release → monitoring.
 
-## Mục tiêu
+## V2 có gì mới
 
-Không để agent nhảy thẳng vào code. Mỗi quyết định phải có đầu vào, rationale, output và quality gate. Bộ skill ưu tiên:
+- **Progressive disclosure:** core skills lớn được tách `SKILL.md + references + checklists + examples` để giảm context waste.
+- **Profiles:** cài đúng subset skill cho education/corporate/ecommerce/redesign/prototype thay vì load cả library.
+- **Installer:** copy profile vào `.claude/skills/` của project bằng một command.
+- **Agent evals:** capability + regression tasks, rubric và must-not behaviors.
+- **CI validation:** kiểm frontmatter, profile dependencies, eval schema, local resource links.
+- **Governance tooling:** scaffold skill mới và báo skill quá dài/cần refactor.
 
-- User goal và business goal trước decoration.
-- Brand consistency trước trend.
-- Reusable system trước page-by-page styling.
-- Accessibility, responsive, SEO, performance và security từ đầu.
-- Evidence và QA trước khi tuyên bố hoàn tất.
-- Preserve những gì đang tốt khi redesign; không phá SEO/content/code vô lý.
+Chi tiết kiến trúc: [V2-ARCHITECTURE.md](V2-ARCHITECTURE.md)
 
-## Cách dùng
+## Quick start
 
-### Claude Code project skills
+### 1. Chọn profile
 
-Claude Code auto-discover project skills tại:
-
-```text
-.claude/skills/<skill-name>/SKILL.md
+```bash
+python scripts/install-profile.py education --target ../my-school-project --dry-run
+python scripts/install-profile.py education --target ../my-school-project
 ```
 
-Repo này là **skill library ở root** để dễ version và quản lý. Khi dùng cho một project, copy những folder skill cần thiết vào `.claude/skills/` của project hoặc dùng script/quy trình cài đặt riêng của bạn.
+Profiles:
+- `professional-core`
+- `redesign`
+- `education`
+- `corporate`
+- `ecommerce`
+- `prototype-uiux`
 
-### Agent khác
+Installer đặt skills tại:
 
-Nếu agent hỗ trợ `SKILL.md`, giữ mỗi folder như một capability độc lập và chỉ load skill liên quan đến task hiện tại. Không load toàn bộ library cùng lúc.
+```text
+<project>/.claude/skills/<skill-name>/SKILL.md
+```
 
-## Orchestrator
+### 2. Bắt đầu bằng orchestrator
 
-Bắt đầu bằng `website-delivery-pipeline/SKILL.md`. Skill này điều phối thứ tự và gọi các skill chuyên môn khi cần.
+`website-delivery-pipeline/SKILL.md` route phase, domain overlay, conditional skill và quality gates.
 
-## Nhóm skill
+### 3. Không load toàn library
 
-1. Discovery & strategy
-2. Brand & visual direction
-3. UX research, journey, IA, laws
-4. Content & conversion
-5. Design system & components
-6. Interaction, motion, responsive, accessibility
-7. Frontend architecture & implementation
-8. SEO, performance, security, analytics
-9. Testing, visual QA, release
-10. Monitoring & maintenance
-11. Redesign/design-to-code workflows
-12. Domain-specific website playbooks
+Agent chỉ đọc skill/resource liên quan task. Resource chi tiết nằm dưới:
 
-Xem `SKILL-CATALOG.md` để biết toàn bộ coverage và khi nào dùng từng skill.
+```text
+<skill>/references/
+<skill>/checklists/
+<skill>/examples/
+<skill>/scripts/
+```
+
+## Validation
+
+```bash
+python scripts/validate-skills.py
+python scripts/validate-v2.py
+python scripts/skill-stats.py
+```
+
+GitHub Actions chạy validators trên push/PR.
+
+## Agent evals
+
+Xem `evals/README.md`, `evals/tasks/` và `evals/RUBRIC.md`.
+
+Eval philosophy:
+- deterministic grader khi outcome có thể kiểm bằng code;
+- rubric/model/human cho visual/UX judgment;
+- grade outcome hơn exact tool path;
+- capability suite để hill-climb;
+- regression suite để chống backslide.
+
+## Skill authoring
+
+Tạo scaffold:
+
+```bash
+python scripts/scaffold-skill.py my-new-skill
+```
+
+Sau đó đọc `skill-authoring-and-governance/SKILL.md` trước khi merge.
+
+## Design principles
+
+- User/business goal trước decoration.
+- Brand consistency trước trend.
+- Reusable system trước one-off page styling.
+- Preserve content/SEO/behavior tốt khi redesign.
+- Accessibility/responsive/SEO/performance/security là quality gates, không patch cuối.
+- Không áp cùng một SaaS/card-grid grammar cho mọi ngành.
+- Không tuyên bố hoàn tất nếu chưa verify.
 
 ## Standards baseline
 
-Skill phải ưu tiên nguồn chính thức và kiểm tra lại khi tiêu chuẩn thay đổi. Baseline của library hiện tại gồm:
-
-- WCAG 2.2 Level AA cho accessibility.
-- Design Tokens Community Group stable format 2025.10 khi cần interchange token.
-- Core Web Vitals: LCP, INP, CLS; ưu tiên field data và p75.
-- Google Search Essentials cho search eligibility/best practices.
-- OWASP Top 10:2025 cho web application security awareness.
-- Framework production guidance tương ứng với version project đang dùng.
-
-## Nguyên tắc authoring skill
-
-- `name` ngắn, lowercase + hyphen.
-- `description` nói rõ **skill làm gì** và **khi nào dùng**.
-- SKILL.md tập trung vào procedure, decision rules và quality gate.
-- Không nhồi reference dài vào main skill; tách resource nếu cần.
-- Không hardcode công nghệ nếu requirement có thể framework-agnostic.
-- Mọi checklist phải dẫn tới hành động hoặc bằng chứng kiểm chứng.
-
-## Quy tắc chất lượng website
-
-Một website chưa được coi là hoàn tất chỉ vì “nhìn đẹp”. Trước release phải chứng minh:
-
-- Primary user journeys chạy được.
-- Không có dead-end quan trọng.
-- Responsive hoạt động trên viewport mục tiêu.
-- Keyboard/focus/forms usable.
-- Content thật hoặc content model hoàn chỉnh.
-- SEO/indexability không bị phá.
-- Core interactions không gây layout shift/jank.
-- Build/test/audit đạt gate của project.
-- Known issues được ghi rõ.
+Library định hướng theo current official guidance cho Agent Skills, WCAG 2.2, Design Tokens Community Group format khi interchange cần thiết, Core Web Vitals, Google Search Essentials, OWASP và framework production guidance. Version/threshold time-sensitive phải được verify lại khi execution.

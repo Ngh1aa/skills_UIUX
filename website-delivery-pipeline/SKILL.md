@@ -1,169 +1,116 @@
 ---
 name: website-delivery-pipeline
 description: |
-  Meta-skill điều phối toàn bộ lifecycle xây dựng hoặc redesign website chuyên nghiệp.
-  Dùng khi bắt đầu project, task nhiều phase hoặc cần quyết định skill nào phải chạy trước/sau;
-  quản lý dependencies, artifacts, quality gates và domain-specific overlays.
+  Orchestrates the full lifecycle of building or redesigning a professional website. Use at project
+  start, for multi-phase work, or when deciding which UI/UX skills, domain playbooks, artifacts and
+  quality gates are needed before design, implementation, release and production maintenance.
 ---
 
-# Website Delivery Pipeline — Orchestrator
+# Website Delivery Pipeline — V2 Orchestrator
 
 ## Core principle
 
-Không nhảy từ brief thẳng vào code. Pipeline phải nối được:
+`business/user goal → evidence → UX/IA → brand/visual system → content/interaction → implementation → verification → production learning`
 
-`business/user goal → evidence → UX/IA → visual/system → content → implementation → verification → production learning`
+Không load cả library. Route đúng subset skill theo project/task.
 
-Đọc thêm `ai-agent-coding-guardrails` xuyên suốt mọi coding task.
+## Step 0 — Choose execution profile
+
+Khi bắt đầu project, chọn profile gần nhất rồi thêm/bớt skill theo scope:
+- `professional-core`
+- `redesign`
+- `education`
+- `corporate`
+- `ecommerce`
+- `prototype-uiux`
+
+Profiles nằm ở `profiles/*.json`. Có thể cài bằng:
+
+```bash
+python scripts/install-profile.py education --target /path/to/project
+```
+
+Nếu task nhỏ trong project đã có skills, không cần reinstall profile.
 
 ## Pipeline
 
-| Phase | Required skill(s) | Key output / gate |
+| Phase | Required / conditional skills | Gate |
 |---|---|---|
-| 0. Intake | `product-discovery`, `ai-agent-coding-guardrails` | Problem, audience, JTBD, constraints, KPI, scope |
-| 0A. Existing-site audit | `website-audit-and-redesign` | Keep/Improve/Merge/Remove + migration risks |
-| 1. Domain framing | One relevant domain playbook | Domain journeys, proof, conversion patterns |
-| 2. Brand | `brand-guidelines` | Brand roles, voice, visual constraints |
-| 3. UX | `ux-research-and-journey`, `ux-laws-and-heuristics` | Journey, task flows, pain points, edge cases |
-| 4. IA | `information-architecture` | Sitemap, nav, page inventory, URL strategy |
-| 5. Visual direction | `visual-design-direction`, `asset-media-and-art-direction` | Layout/hierarchy/art direction/media rules |
-| 6. System & interaction | `design-system-and-components`, `interaction-patterns-and-form-ux`, `motion-and-microinteractions` | Tokens, component/state contracts, interaction specs |
-| 7. Content | `conversion-and-content`; optional `content-governance-and-cms`, `localization-and-i18n` | Content hierarchy, CTA, schema, locale plan |
-| 8. Architecture & implementation | `frontend-architecture-and-refactoring`, `frontend-implementation`; optional `reference-analysis-and-design-to-code`, `component-driven-development` | Maintainable code matching system |
-| 9. Responsive + accessibility | `responsive-and-device-strategy`, `accessibility` | Target viewport and WCAG-level behavior verified |
-| 10. Quality | `ui-craft-and-visual-qa`, `web-quality-and-performance`, `seo-strategy`, `security-and-privacy` | Visual/UX/SEO/performance/security findings resolved or documented |
-| 11. Testing | `testing-strategy` | Critical path + regression evidence |
-| 12. Analytics & release | `analytics-and-experimentation`, `code-review-and-release` | Tracking, build/release/smoke-test gate |
-| 13. Production | `production-monitoring-and-maintenance` | Health signals, issues, maintenance loop |
+| 0 Intake | `product-discovery`, coding guardrails | problem, audience, JTBD, scope, KPI |
+| 0A Existing site | `website-audit-and-redesign` | keep/improve/merge/remove + migration risk |
+| 1 Domain | one primary domain playbook | domain journeys/proof/conversion patterns |
+| 2 UX/IA | journey + UX laws + IA | primary flow, sitemap/nav/page roles |
+| 3 Brand/visual | brand + visual + media direction | implementable visual grammar |
+| 4 System/interaction | design system + form/pattern UX + optional motion | tokens, component/state contracts |
+| 5 Content | conversion/content + optional CMS/i18n | hierarchy, CTA, proof, schema/locale plan |
+| 6 Architecture/code | frontend architecture + implementation; optional design-to-code/component-driven | maintainable working UI |
+| 7 Inclusive/responsive | responsive + accessibility | critical journeys usable across target contexts |
+| 8 Quality | visual QA + performance + SEO + security | findings resolved/documented |
+| 9 Test/release | testing + analytics + release | evidence, smoke test, known issues |
+| 10 Production | monitoring/maintenance | health loop + regression handling |
 
-## Domain overlay selection
+## Conditional routing
 
-Chọn tối đa domain skill cần thiết thay vì load tất cả:
+- Existing site/redesign → always audit first.
+- Screenshot/Figma/reference → `reference-analysis-and-design-to-code`.
+- Complex UI states → `component-driven-development`.
+- Multilingual → `localization-and-i18n` before route/content hardcoding.
+- CMS/content-heavy → `content-governance-and-cms` before schema lock-in.
+- High motion → `motion-and-microinteractions` + accessibility reduced-motion review.
 
-- Company: `corporate-website`
-- School/education: `education-website`
-- Commerce/catalogue: `ecommerce-website`
-- Office/property: `real-estate-and-building-website`
-- Hotel/resort: `hospitality-website`
-- Studio/individual work: `portfolio-website`
-- Publication: `news-and-media-website`
-- Software product: `saas-website`
-- Campaign: `landing-page`
-- Government/public services: `government-and-public-sector-website`
-- NGO/charity: `nonprofit-website`
-- Accelerator/ecosystem: `startup-and-incubator-website`
+## Artifacts
 
-Nếu project hybrid, chọn primary domain + tối đa một secondary lens có rationale.
-
-## Conditional skills
-
-### Existing website
-
-Luôn audit trước redesign. Không đổi URL/content architecture lớn khi chưa xác định SEO/content migration impact.
-
-### Figma/screenshot/reference website
-
-Dùng `reference-analysis-and-design-to-code`; extract rules và map vào existing design system, không copy pixel/asset mù quáng.
-
-### Complex component/UI states
-
-Dùng `component-driven-development` để cover variants/states trong isolation trước compose page.
-
-### Multilingual
-
-Dùng `localization-and-i18n` trước khi hardcode routes/content/components.
-
-### CMS/content-heavy
-
-Dùng `content-governance-and-cms` trước khi schema bị khóa vào markup.
-
-## Required documents
-
-Tạo artifact khi complexity thực sự cần; không tạo docs vô ích chỉ để tick box.
+Tạo artifacts vì chúng giúp decision/handoff, không vì checklist theater. Common:
 
 ```text
-docs/
-├── product-brief.md
-├── assumption-log.md
-├── decision-log.md
-├── website-audit.md              # existing site only
-├── ux-journey.md
-├── information-architecture.md
-├── brand-guidelines.md
-├── visual-direction.md
-├── design-system.md
-├── interaction-spec.md           # complex interactions
-├── content-model.md
-├── localization-strategy.md      # multilingual only
-├── reference-to-design.md        # reference/Figma flow only
-├── test-plan.md
-├── release-checklist.md
-└── maintenance-plan.md           # long-lived production projects
+docs/product-brief.md
+docs/decision-log.md
+docs/website-audit.md
+docs/ux-journey.md
+docs/information-architecture.md
+docs/brand-guidelines.md
+docs/visual-direction.md
+docs/design-system.md
+docs/content-model.md
+docs/test-plan.md
+docs/release-checklist.md
 ```
 
 ## Quality gates
 
-### Gate A — Before visual design
+### Before visual/system work
+- User/business goal known.
+- Primary journeys/page roles known.
+- Domain/brand constraints known.
 
-- Problem/audience/JTBD known.
-- Primary journeys known.
-- Sitemap/navigation have rationale.
+### Before implementation
+- Content hierarchy and visual grammar clear enough.
+- P0 component/state inventory exists.
+- Responsive/a11y constraints understood.
 
-### Gate B — Before implementation
-
-- Brand/visual direction defined.
-- Component/state inventory exists.
-- Content hierarchy exists for primary templates.
-- Responsive/accessibility constraints understood.
-
-### Gate C — Before release
-
+### Before release
+- Build/type/lint/test requirements checked.
 - Primary journeys manually verified.
-- Build/type/lint/test requirements pass for project.
-- Critical accessibility issues resolved.
-- SEO/indexability migration issues resolved.
-- Performance checked against project budget and Core Web Vitals goals.
-- Security/privacy relevant checks complete.
-- Representative mobile/tablet/desktop visual QA complete.
-- Analytics events verified if in scope.
-- Known issues documented.
+- Representative viewport visual QA done.
+- Critical a11y/SEO/performance/security issues resolved or documented.
+- Analytics verified if in scope.
+- Known limitations explicit.
 
-## Decision log
+## V2 evaluation loop
 
-Important decision format:
+For skill/library changes:
+1. run `python scripts/validate-skills.py`;
+2. run `python scripts/validate-v2.py`;
+3. select representative `evals/tasks/*.json`;
+4. grade outcome with `evals/RUBRIC.md` + deterministic checks;
+5. promote stable capability tests to regression suite.
 
-```markdown
-## Decision: [short name]
-- Context:
-- Options:
-- Decision:
-- Rationale:
-- Trade-offs:
-- Evidence:
-- Revisit when:
-```
+## Progressive resources
 
-## Fast-track mode
-
-Landing page/prototype có thể combine phases nhưng **không bỏ principles**:
-
-1. Brief + domain + brand.
-2. Journey + IA + content narrative.
-3. Visual + lightweight tokens/components.
-4. Implementation + responsive/a11y.
-5. Visual/performance/SEO/test gate.
-6. Release/tracking if applicable.
+- [Profile routing reference](references/profile-routing.md)
+- [Project quality gate](checklists/project-gate.md)
+- [Routing example](examples/project-routing.md)
 
 ## Completion rule
 
-Không tuyên bố “done/perfect/fully responsive” chỉ vì code đã được viết. Completion phải kèm evidence phù hợp scope: build/test result, inspected interactions, representative viewport QA và known limitations.
-
-## Anti-patterns
-
-- Code trước khi hiểu primary user task.
-- Load toàn bộ skills gây context overload.
-- Dùng cùng một SaaS/card-grid visual grammar cho mọi domain.
-- Redesign xóa hết content/URLs tốt.
-- A11y/responsive/SEO/performance làm sau cùng như patch.
-- Thêm animation trước khi layout/content ổn.
-- Tuyên bố hoàn tất mà không verify.
+Không nói `done/perfect/fully responsive/compliant` nếu chưa có evidence tương ứng. Report verified vs unverified rõ ràng.
