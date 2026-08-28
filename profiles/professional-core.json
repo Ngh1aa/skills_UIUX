@@ -1,0 +1,28 @@
+{
+  "name": "professional-core",
+  "description": "Core end-to-end professional website workflow without a domain overlay.",
+  "skills": [
+    "website-delivery-pipeline",
+    "product-discovery",
+    "brand-guidelines",
+    "ux-research-and-journey",
+    "ux-laws-and-heuristics",
+    "information-architecture",
+    "visual-design-direction",
+    "design-system-and-components",
+    "conversion-and-content",
+    "interaction-patterns-and-form-ux",
+    "frontend-architecture-and-refactoring",
+    "frontend-implementation",
+    "responsive-and-device-strategy",
+    "accessibility",
+    "ui-craft-and-visual-qa",
+    "web-quality-and-performance",
+    "seo-strategy",
+    "security-and-privacy",
+    "testing-strategy",
+    "code-review-and-release",
+    "analytics-and-experimentation",
+    "ai-agent-coding-guardrails"
+  ]
+}
