@@ -15,10 +15,10 @@ ROOT = Path(__file__).resolve().parents[1]
 NAME_RE = re.compile(r"^[a-z0-9-]{1,64}$")
 RESERVED = ("anthropic", "claude")
 MAX_DESCRIPTION = 1024
-MAX_BODY_LINES = 500
+RECOMMENDED_MAX_BODY_LINES = 500
 
 
-def parse_frontmatter(text: str, path: Path) -> tuple[str, str, int]:
+def parse_frontmatter(text: str) -> tuple[str, str, int]:
     lines = text.splitlines()
     if not lines or lines[0].strip() != "---":
         raise ValueError("missing opening YAML frontmatter delimiter")
@@ -59,6 +59,7 @@ def parse_frontmatter(text: str, path: Path) -> tuple[str, str, int]:
 def main() -> int:
     skill_files = sorted(ROOT.rglob("SKILL.md"))
     errors: list[str] = []
+    warnings: list[str] = []
     seen: dict[str, Path] = {}
 
     if not skill_files:
@@ -69,7 +70,7 @@ def main() -> int:
         rel = path.relative_to(ROOT)
         try:
             text = path.read_text(encoding="utf-8")
-            name, description, body_lines = parse_frontmatter(text, path)
+            name, description, body_lines = parse_frontmatter(text)
 
             if not NAME_RE.fullmatch(name):
                 errors.append(f"{rel}: invalid name '{name}'")
@@ -79,9 +80,10 @@ def main() -> int:
                 errors.append(
                     f"{rel}: description is {len(description)} chars; max {MAX_DESCRIPTION}"
                 )
-            if body_lines > MAX_BODY_LINES:
-                errors.append(
-                    f"{rel}: body is {body_lines} lines; recommended max {MAX_BODY_LINES}"
+            if body_lines > RECOMMENDED_MAX_BODY_LINES:
+                warnings.append(
+                    f"{rel}: body is {body_lines} lines; consider progressive disclosure "
+                    f"(recommended <= {RECOMMENDED_MAX_BODY_LINES})"
                 )
             if path.parent.name != name:
                 errors.append(
@@ -97,13 +99,18 @@ def main() -> int:
 
     print(f"Validated {len(skill_files)} skills")
 
+    if warnings:
+        print("\nValidation warnings:")
+        for warning in warnings:
+            print(f"- {warning}")
+
     if errors:
         print("\nValidation errors:", file=sys.stderr)
         for error in errors:
             print(f"- {error}", file=sys.stderr)
         return 1
 
-    print("All skill structure checks passed")
+    print("\nAll required skill structure checks passed")
     return 0
 
 
