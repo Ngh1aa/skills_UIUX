@@ -1,78 +1,82 @@
 ---
 name: skill-authoring-and-governance
 description: |
-  Viết, review và bảo trì SKILL.md cho library này. Dùng khi thêm skill mới, tách skill quá dài,
-  sửa trigger/description, loại bỏ overlap hoặc cập nhật quy trình theo tiêu chuẩn mới để agent
-  discover đúng capability và không bị context overload.
+  Reviews, creates and maintains SKILL.md packages in this UI/UX library. Use when adding a new
+  capability, splitting an oversized skill, improving discovery descriptions, reducing overlap,
+  adding progressive-disclosure resources, profiles or evals, or updating skills after standards change.
 ---
 
 # Skill Authoring & Governance
 
 ## Goal
 
-Skill phải giống SOP cho một chuyên gia mới vào team: discoverable, actionable, testable và không lặp với skill khác.
+Mỗi skill phải **discoverable, actionable, composable, testable và context-efficient**.
 
-## Frontmatter
+## Authoring workflow
 
-- `name`: lowercase, number, hyphen; ngắn và cụ thể.
-- `description`: phải nói **what + when** và chứa keyword user có thể dùng để trigger.
-- Giữ metadata nhẹ.
+1. Search existing skill catalog trước khi tạo mới.
+2. Define capability boundary: decision nào skill này sở hữu?
+3. Write third-person `description` nêu rõ **what + when + trigger vocabulary**.
+4. Keep `SKILL.md` focused on decisions/workflow/output/gates.
+5. Move detailed knowledge/code/examples sang resource khi nó không luôn cần.
+6. Link resource trực tiếp từ `SKILL.md`; tránh reference chain sâu.
+7. Add at least representative positive, negative/near-miss và complex eval cases cho capability quan trọng.
+8. Run structural validators + representative agent evals trước merge.
+9. Update catalog/profile nếu capability cần được routed/cài.
 
-## Main body
+## Package pattern
 
-Ưu tiên cấu trúc:
+```text
+skill-name/
+├── SKILL.md
+├── references/      # optional deep knowledge
+├── checklists/      # optional deterministic review gates
+├── examples/        # optional concrete examples
+└── scripts/         # optional deterministic helpers
+```
 
-1. Purpose/goal.
-2. Preconditions/prerequisites.
-3. Decision rules.
-4. Step-by-step workflow.
-5. Output.
-6. Acceptance criteria.
-7. Anti-patterns.
+Không tạo folder/resource rỗng để “đúng template”.
 
-Nếu main skill trở nên dài, tách reference/examples/scripts để progressive disclosure. Không biến SKILL.md thành textbook.
+## Frontmatter rules
+
+- `name`: lowercase letters/numbers/hyphens, <=64 chars, match folder name.
+- `description`: non-empty, <=1024 chars, third person, what + when.
+- Không dùng reserved/model/vendor name trong `name`.
+- Metadata phải stable; time-sensitive facts nằm trong reference với verify-current rule khi cần.
+
+## Progressive disclosure rules
+
+- Target `SKILL.md` body <500 lines; ngắn hơn nữa nếu capability cho phép.
+- Main file phải đủ để agent quyết định bước tiếp theo mà chưa cần load encyclopedia.
+- Resource file có tên mô tả nội dung; tránh `notes.md`, `misc.md`.
+- Scripts nên giải quyết deterministic work, không chỉ wrap prompt khác.
 
 ## Overlap test
 
-Trước skill mới hỏi:
+Tạo skill mới chỉ khi capability boundary khác rõ. Nếu >70% workflow/rules trùng skill hiện có, ưu tiên extend/refactor.
 
-- Capability này khác existing skill ở decision nào?
-- Có thể thêm section vào skill hiện tại không?
-- Trigger có phân biệt được không?
-- Agent có cần load hai skill cùng lúc không?
+## Evaluation
 
-Nếu overlap >70%, ưu tiên merge/refactor thay vì tạo folder mới.
+Chấm outcome hơn exact path. Evals nên có:
+- task realistic;
+- expected outcomes;
+- must-not failure modes;
+- deterministic assertions khi có thể;
+- rubric cho judgment dimensions;
+- regression cases cho behavior đã ổn.
 
-## Time-sensitive knowledge
+## V2 resources
 
-Không hardcode version/threshold nếu không cần. Nếu cần baseline, ghi rõ cần verify current official guidance khi execution.
-
-## Quality evaluation
-
-Test skill bằng ít nhất các case:
-
-- Positive trigger: task rõ ràng phải load skill.
-- Negative trigger: task gần giống nhưng không nên load.
-- Complex case: cần compose với 2–3 skill khác.
-- Failure case: missing input/edge case.
-
-Đánh giá output có tuân procedure và quality gate không, không chỉ xem agent có nhắc lại lý thuyết.
-
-## Governance
-
-Mỗi lần standard/framework đổi:
-
-1. Xác định skill bị ảnh hưởng.
-2. Update minimal authoritative section.
-3. Ghi source/date nếu knowledge time-sensitive.
-4. Re-run representative evaluations.
-5. Tránh fork nhiều version skill không cần thiết.
+- [Authoring standard](references/v2-authoring-standard.md)
+- [Review gate](checklists/review-gate.md)
+- [Good package example](examples/good-skill-layout.md)
 
 ## Acceptance criteria
 
-- [ ] Trigger description rõ what + when.
-- [ ] Workflow action-oriented.
-- [ ] Có output/gate.
-- [ ] Không overlap vô lý.
-- [ ] Main body đủ ngắn để load hiệu quả.
-- [ ] Time-sensitive claims có strategy cập nhật.
+- Trigger không quá broad/vague.
+- Workflow action-oriented, không textbook.
+- Output + quality gate rõ.
+- Không duplicate capability vô lý.
+- Progressive resources có reason và link rõ.
+- Relevant eval/profile/catalog được cập nhật.
+- `python scripts/validate-skills.py` và `python scripts/validate-v2.py` pass.
