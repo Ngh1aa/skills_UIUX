@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "profile": "uiux-corporate",
-  "packs": ["research-validation", "inclusive-trust", "designops-governance"],
+  "packs": ["research-validation", "experience-strategy", "inclusive-trust", "designops-governance"],
   "additional_skills": ["website-audit-and-redesign"],
   "exclude_skills": [],
   "project": {
