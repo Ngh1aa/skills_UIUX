@@ -6,8 +6,9 @@
   "required": ["schema_version", "profile"],
   "additionalProperties": false,
   "properties": {
-    "schema_version": {"const": 1},
+    "schema_version": {"enum": [1, 2]},
     "profile": {"type": "string", "minLength": 1},
+    "packs": {"type": "array", "items": {"type": "string"}, "uniqueItems": true, "default": []},
     "additional_skills": {"type": "array", "items": {"type": "string"}, "uniqueItems": true, "default": []},
     "exclude_skills": {"type": "array", "items": {"type": "string"}, "uniqueItems": true, "default": []},
     "project": {
@@ -21,5 +22,11 @@
     },
     "source_of_truth": {"type": "array", "items": {"type": "string"}, "uniqueItems": true, "default": []},
     "constraints": {"type": "array", "items": {"type": "string"}, "uniqueItems": true, "default": []}
-  }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"schema_version": {"const": 1}}},
+      "then": {"properties": {"packs": {"maxItems": 0}}}
+    }
+  ]
 }
