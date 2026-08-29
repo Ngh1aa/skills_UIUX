@@ -1,65 +1,84 @@
-# Skill Catalog
+# Skill Catalog — V3
 
 ## Core pipeline
 
 | Skill | Vai trò |
 |---|---|
-| `website-delivery-pipeline` | Orchestrator toàn bộ lifecycle |
+| `website-delivery-pipeline` | Orchestrator lifecycle + pack routing |
+| `project-context` | Project config, constraints and source-of-truth |
 | `product-discovery` | Problem, audience, JTBD, constraints, KPI, scope |
-| `website-audit-and-redesign` | Audit website live/legacy trước redesign |
+| `website-audit-and-redesign` | Audit live/legacy site before redesign |
 | `brand-guidelines` | Brand foundation, color, type, voice |
-| `ux-research-and-journey` | Persona, journey, task analysis, flows |
+| `ux-research-and-journey` | Journey, task analysis and flows |
 | `information-architecture` | Sitemap, nav, URL, hierarchy |
-| `ux-laws-and-heuristics` | UX laws + heuristic review |
-| `visual-design-direction` | Layout, hierarchy, art direction, visual style |
-| `conversion-and-content` | Value proposition, CTA, content model, microcopy |
+| `ux-laws-and-heuristics` | Heuristic review |
+| `visual-design-direction` | Layout, hierarchy and visual grammar |
+| `conversion-and-content` | Value proposition, CTA, content model |
 | `design-system-and-components` | Tokens, components, variants, states |
-| `interaction-patterns-and-form-ux` | Forms, search, filters, menus, dialogs, onboarding |
-| `motion-and-microinteractions` | Purposeful motion + reduced motion |
-| `asset-media-and-art-direction` | Image/video/icon selection and delivery |
-| `responsive-and-device-strategy` | Mobile-first and device behavior |
-| `accessibility` | WCAG/keyboard/focus/ARIA/forms |
-| `localization-and-i18n` | Multilingual architecture and content UX |
-| `frontend-architecture-and-refactoring` | Structure, boundaries, reuse, safe refactor |
+| `interaction-patterns-and-form-ux` | Common forms/search/filter/dialog patterns |
+| `motion-and-microinteractions` | Purposeful motion |
+| `asset-media-and-art-direction` | Image/video/icon direction |
+| `responsive-and-device-strategy` | Responsive/device behavior |
+| `accessibility` | WCAG, semantic, keyboard/focus baseline |
+| `localization-and-i18n` | Multilingual UX architecture |
+| `frontend-architecture-and-refactoring` | Structure, reuse, safe refactor |
 | `frontend-implementation` | Semantic implementation |
 | `component-driven-development` | Isolated component states/stories/tests |
-| `reference-analysis-and-design-to-code` | Convert reference/Figma/screenshot to original system/code |
-| `ai-agent-coding-guardrails` | Safe AI coding behavior and change discipline |
+| `reference-analysis-and-design-to-code` | Reference/Figma/screenshot to system/code |
+| `ai-agent-coding-guardrails` | Safe AI coding/change discipline |
 | `seo-strategy` | Technical/on-page SEO |
-| `web-quality-and-performance` | CWV, budgets, quality |
+| `web-quality-and-performance` | CWV and performance budgets |
 | `security-and-privacy` | Security/privacy baseline |
 | `analytics-and-experimentation` | Tracking, funnels, experiments |
-| `testing-strategy` | Unit/integration/E2E/cross-browser tests |
-| `ui-craft-and-visual-qa` | Visual polish, consistency, responsive visual QA |
-| `code-review-and-release` | Review, release and deployment gate |
-| `production-monitoring-and-maintenance` | Post-release health and maintenance |
-| `content-governance-and-cms` | Content schema, ownership, migration, CMS readiness |
-| `skill-authoring-and-governance` | Maintain and improve this skill library |
+| `testing-strategy` | Unit/integration/E2E/cross-browser |
+| `ui-craft-and-visual-qa` | Visual craft and responsive QA |
+| `code-review-and-release` | Review/release gate |
+| `production-monitoring-and-maintenance` | Post-release health |
+| `content-governance-and-cms` | Content schema/ownership/CMS |
+| `skill-authoring-and-governance` | Maintain this library |
+
+## V3 specialist skills
+
+### Research & validation
+- `user-research-planning-and-recruitment`
+- `moderated-usability-testing`
+- `research-synthesis-and-insight-management`
+- `ux-benchmarking-and-metrics`
+- `card-sorting-and-tree-testing`
+- `service-blueprinting`
+- `prototype-strategy-and-concept-testing`
+
+### Advanced interaction & enterprise
+- `site-search-and-findability`
+- `complex-forms-and-wizards`
+- `state-feedback-and-error-recovery`
+- `complex-workflow-and-progress-ux`
+- `data-tables-and-enterprise-ux`
+- `data-visualization-and-dashboard-ux`
+- `authentication-account-and-recovery-ux`
+- `personalization-and-preference-ux`
+
+### Inclusive, content & trust
+- `content-design-and-question-design`
+- `inclusive-design-and-cognitive-accessibility`
+- `assistive-technology-testing`
+- `trust-credibility-and-transparency`
+- `ethical-ux-and-deceptive-patterns`
+
+### DesignOps & AI
+- `design-critique-and-rationale`
+- `design-system-governance-and-adoption`
+- `human-ai-interaction-design`
+
+## V3 capability packs
+- `research-validation`
+- `advanced-interaction`
+- `inclusive-trust`
+- `designops-governance`
+- `human-ai`
 
 ## Domain playbooks
+`corporate-website`, `education-website`, `ecommerce-website`, `real-estate-and-building-website`, `hospitality-website`, `portfolio-website`, `news-and-media-website`, `saas-website`, `landing-page`, `government-and-public-sector-website`, `nonprofit-website`, `startup-and-incubator-website`.
 
-Domain skills are overlays. Chúng không thay thế core pipeline; chúng thêm các user goals, page patterns, conversion paths và pitfalls đặc thù ngành.
-
-- `corporate-website`
-- `education-website`
-- `ecommerce-website`
-- `real-estate-and-building-website`
-- `hospitality-website`
-- `portfolio-website`
-- `news-and-media-website`
-- `saas-website`
-- `landing-page`
-- `government-and-public-sector-website`
-- `nonprofit-website`
-- `startup-and-incubator-website`
-
-## Skill selection rules
-
-- New website: chạy core pipeline từ discovery.
-- Existing website redesign: thêm `website-audit-and-redesign` trước khi thay IA/UI.
-- Có Figma/screenshot/reference: thêm `reference-analysis-and-design-to-code`.
-- UI phức tạp hoặc nhiều state: thêm `component-driven-development` + `interaction-patterns-and-form-ux`.
-- Site nhiều ảnh/video: thêm `asset-media-and-art-direction`.
-- Site song ngữ/đa ngôn ngữ: thêm `localization-and-i18n` trước implementation.
-- Trước release: luôn dùng `ui-craft-and-visual-qa`, `testing-strategy`, `accessibility`, `web-quality-and-performance`, `seo-strategy`, `security-and-privacy`, `code-review-and-release`.
-- Sau release: dùng `production-monitoring-and-maintenance`.
+## Selection rule
+Keep base profiles small. Add packs for risk/complexity, then add individual specialists only for narrower needs. Do not install V3 packs merely because they exist.

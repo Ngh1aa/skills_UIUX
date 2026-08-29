@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 """Install the correct skills_UIUX subset from a project's .uiux-profile.json.
 
+V3 adds opt-in capability packs while preserving schema-version-1 project configs.
+
 Examples:
   python scripts/install-project.py ../QTSC --dry-run
   python scripts/install-project.py ../QTSC
   python scripts/install-project.py ../QTSC --clean
-
-The installer keeps a manifest so normal sync removes only skills previously managed by
-skills_UIUX. Unmanaged/custom project skills are preserved unless --clean is explicitly used.
 """
 
 from __future__ import annotations
@@ -19,6 +18,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 PROFILES = ROOT / "profiles"
+PACKS = ROOT / "packs"
 CONFIG_NAME = ".uiux-profile.json"
 MANIFEST_NAME = ".skills-uiux-manifest.json"
 PROJECT_CONTEXT = "project-context"
@@ -40,24 +40,43 @@ def load_profile(name: str, stack: tuple[str, ...] = ()) -> list[str]:
     return list(dict.fromkeys(skills))
 
 
+def load_pack(name: str) -> list[str]:
+    path = PACKS / f"{name}.json"
+    if not path.exists():
+        available = ", ".join(sorted(p.stem for p in PACKS.glob("*.json")))
+        raise ValueError(f"unknown pack '{name}'. Available: {available}")
+    data = json.loads(path.read_text(encoding="utf-8"))
+    if data.get("name") != name:
+        raise ValueError(f"pack name mismatch: {name}")
+    return list(dict.fromkeys(data.get("skills", [])))
+
+
 def load_config(project: Path) -> dict:
     path = project / CONFIG_NAME
     if not path.exists():
         raise ValueError(f"missing {CONFIG_NAME} in {project}")
     data = json.loads(path.read_text(encoding="utf-8"))
-    if data.get("schema_version") != 1:
-        raise ValueError("schema_version must be 1")
+    version = data.get("schema_version")
+    if version not in {1, 2}:
+        raise ValueError("schema_version must be 1 or 2")
     if not isinstance(data.get("profile"), str) or not data["profile"].strip():
         raise ValueError("profile must be a non-empty string")
     for key in ("additional_skills", "exclude_skills", "source_of_truth", "constraints"):
         value = data.get(key, [])
         if not isinstance(value, list) or not all(isinstance(item, str) for item in value):
             raise ValueError(f"{key} must be an array of strings")
+    packs = data.get("packs", [])
+    if version == 1 and packs:
+        raise ValueError("packs require schema_version 2")
+    if not isinstance(packs, list) or not all(isinstance(item, str) for item in packs):
+        raise ValueError("packs must be an array of strings")
     return data
 
 
 def resolve_project_skills(config: dict) -> list[str]:
     skills = load_profile(config["profile"])
+    for pack in config.get("packs", []):
+        skills.extend(load_pack(pack))
     skills.extend(config.get("additional_skills", []))
     excluded = set(config.get("exclude_skills", []))
     skills = [s for s in dict.fromkeys(skills) if s not in excluded]
@@ -97,6 +116,8 @@ def main() -> int:
 
     print(f"Project: {config.get('project', {}).get('name', project.name)}")
     print(f"Profile: {config['profile']}")
+    if config.get("packs"):
+        print("Packs: " + ", ".join(config["packs"]))
     print(f"Destination: {destination}")
     print(f"Skills ({len(skills)}): {', '.join(skills)}")
     if config.get("source_of_truth"):
@@ -124,9 +145,10 @@ def main() -> int:
         shutil.copytree(src, dst)
 
     manifest = {
-        "schema_version": 1,
+        "schema_version": 2,
         "library": "Ngh1aa/skills_UIUX",
         "profile": config["profile"],
+        "packs": config.get("packs", []),
         "skills": skills,
     }
     (destination / MANIFEST_NAME).write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
