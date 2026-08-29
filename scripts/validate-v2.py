@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate V2 profiles, eval schemas and local markdown resource links."""
+"""Validate V2/V2.1 profiles, project configs, eval schemas and local markdown resource links."""
 
 from __future__ import annotations
 
@@ -34,22 +34,50 @@ def markdown_files_for_link_check() -> list[Path]:
         if top.exists():
             files.add(top)
     for pattern in [
-        "*/SKILL.md",
-        "*/references/*.md",
-        "*/checklists/*.md",
-        "*/examples/*.md",
-        "evals/*.md",
+        "*/SKILL.md", "*/references/*.md", "*/checklists/*.md", "*/examples/*.md",
+        "evals/*.md", "examples/projects/*.md",
     ]:
         files.update(ROOT.glob(pattern))
     return sorted(files)
+
+
+def validate_project_config(path: Path, profile_names: set[str], skill_names: set[str]) -> list[str]:
+    errors: list[str] = []
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError) as exc:
+        return [f"{path.relative_to(ROOT)}: {exc}"]
+    if data.get("schema_version") != 1:
+        errors.append(f"{path.relative_to(ROOT)}: schema_version must be 1")
+    profile = data.get("profile")
+    if profile not in profile_names:
+        errors.append(f"{path.relative_to(ROOT)}: unknown profile {profile}")
+    for key in ("additional_skills", "exclude_skills"):
+        value = data.get(key, [])
+        if not isinstance(value, list) or not all(isinstance(item, str) for item in value):
+            errors.append(f"{path.relative_to(ROOT)}: {key} must be an array of strings")
+        else:
+            unknown = sorted(set(value) - skill_names)
+            if unknown:
+                errors.append(f"{path.relative_to(ROOT)}: unknown {key} {unknown}")
+    overlap = set(data.get("additional_skills", [])) & set(data.get("exclude_skills", []))
+    if overlap:
+        errors.append(f"{path.relative_to(ROOT)}: skills cannot be both added and excluded {sorted(overlap)}")
+    for key in ("source_of_truth", "constraints"):
+        value = data.get(key, [])
+        if not isinstance(value, list) or not all(isinstance(item, str) for item in value):
+            errors.append(f"{path.relative_to(ROOT)}: {key} must be an array of strings")
+    return errors
 
 
 def main() -> int:
     errors: list[str] = []
     warnings: list[str] = []
     skill_names = {p.parent.name for p in ROOT.glob("*/SKILL.md")}
+    profile_paths = sorted((ROOT / "profiles").glob("*.json"))
+    profile_names = {p.stem for p in profile_paths}
 
-    for profile in sorted((ROOT / "profiles").glob("*.json")):
+    for profile in profile_paths:
         try:
             data = json.loads(profile.read_text(encoding="utf-8"))
             if data.get("name") != profile.stem:
@@ -62,6 +90,10 @@ def main() -> int:
                 warnings.append(f"{profile.relative_to(ROOT)}: resolves to {len(resolved)} skills; consider a smaller profile")
         except (ValueError, json.JSONDecodeError, OSError) as exc:
             errors.append(f"{profile.relative_to(ROOT)}: {exc}")
+
+    project_configs = sorted(ROOT.glob("examples/projects/*/.uiux-profile.json"))
+    for config in project_configs:
+        errors.extend(validate_project_config(config, profile_names, skill_names))
 
     ids: set[str] = set()
     for task in sorted((ROOT / "evals" / "tasks").glob("*.json")):
@@ -100,14 +132,14 @@ def main() -> int:
             if not resolved.exists():
                 errors.append(f"{md.relative_to(ROOT)}: broken local link -> {raw}")
 
-    print(f"V2: {len(skill_names)} skills, {len(list((ROOT/'profiles').glob('*.json')))} profiles, {len(ids)} eval tasks")
+    print(f"V2.1: {len(skill_names)} skills, {len(profile_paths)} profiles, {len(project_configs)} project examples, {len(ids)} eval tasks")
     for warning in warnings:
         print(f"WARNING: {warning}")
     if errors:
         for error in errors:
             print(f"ERROR: {error}", file=sys.stderr)
         return 1
-    print("V2 validation passed")
+    print("V2.1 validation passed")
     return 0
 
 
