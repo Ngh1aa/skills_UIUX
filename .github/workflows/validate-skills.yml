@@ -14,7 +14,9 @@ jobs:
           python-version: '3.12'
       - name: Validate SKILL.md structure
         run: python scripts/validate-skills.py
-      - name: Validate V2 profiles, evals and resources
+      - name: Validate V2.1 profiles, project configs, evals and resources
         run: python scripts/validate-v2.py
       - name: Dry-run core profile installer
         run: python scripts/install-profile.py professional-core --target /tmp/skills-uiux-smoke --dry-run
+      - name: Dry-run project-aware installer
+        run: python scripts/install-project.py examples/projects/qtsc --dry-run

@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "profile": "uiux-corporate",
+  "additional_skills": ["website-audit-and-redesign"],
+  "exclude_skills": [],
+  "project": {
+    "name": "QTSC",
+    "mode": "interactive-prototype",
+    "domain": "technology-park-corporate"
+  },
+  "source_of_truth": [
+    "docs/digital-brand-guideline.md",
+    "docs/ui-foundation.md",
+    "docs/source-architecture.md"
+  ],
+  "constraints": [
+    "Prioritize UI/UX fidelity and realistic interactions over production backend scope",
+    "Reuse existing design tokens and shared components before adding local styles"
+  ]
+}

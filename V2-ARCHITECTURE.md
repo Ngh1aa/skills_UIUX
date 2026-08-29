@@ -1,72 +1,89 @@
-# skills_UIUX V2 Architecture
+# skills_UIUX V2.1 Architecture
 
-V2 biến repository từ một collection `SKILL.md` thành một **UI/UX Agent Operating System** có progressive disclosure, profile routing, deterministic validation và agent evals.
+V2.1 biến repository thành **UI/UX Agent Operating System cho nhiều project**: progressive disclosure + profile routing + project context + deterministic validation + agent evals.
 
 ## 1. Skill package contract
-
-Một skill trưởng thành có thể dùng cấu trúc:
 
 ```text
 <skill>/
 ├── SKILL.md                 # Trigger + workflow + routing, ưu tiên ngắn
 ├── references/              # Kiến thức chi tiết chỉ đọc khi cần
-│   └── *.md
-├── checklists/              # Quality gates có thể tick
-│   └── *.md
-├── examples/                # Concrete examples, không phải lorem ipsum
-│   └── *.md
-└── scripts/                 # Deterministic helpers nếu thật sự hữu ích
-    └── *
+├── checklists/              # Quality gates
+├── examples/                # Concrete patterns
+└── scripts/                 # Deterministic helpers nếu hữu ích
 ```
 
-Không bắt buộc mọi skill có đủ bốn folder. Chỉ thêm resource khi nó giảm context, tăng tính chính xác hoặc tạo verification loop.
+Không bắt buộc skill có đủ mọi folder. Resource chỉ nên tồn tại khi giúp giảm context, tăng accuracy hoặc verification.
 
 ## 2. Progressive disclosure
 
-- Level 1: `name` + `description` giúp agent discover skill.
-- Level 2: `SKILL.md` chứa quyết định và workflow cốt lõi.
-- Level 3: `references/`, `checklists/`, `examples/`, `scripts/` chỉ load/chạy khi task cần.
-- Không duplicate cùng một rule ở nhiều file. `SKILL.md` phải chỉ rõ resource nào dùng cho tình huống nào.
+- Level 1: `name` + `description` luôn available để discovery.
+- Level 2: `SKILL.md` được đọc khi request match.
+- Level 3: references/checklists/examples/scripts chỉ dùng khi task cần.
+- Main SKILL.md là runbook, không phải textbook.
 
-## 3. Profiles
+## 3. Library profiles
 
-`profiles/*.json` là preset skill cho loại project. Installer copy đúng subset vào `.claude/skills/` để tránh context/tool clutter.
+`profiles/*.json` là capability presets. V2.1 có hai lớp:
 
-Profiles V2:
-- `professional-core`
-- `redesign`
-- `education`
-- `corporate`
-- `ecommerce`
-- `prototype-uiux`
+### Base/production profiles
 
-Profile không thay thế orchestrator. Nó chỉ chọn capability có khả năng cần thiết.
+`professional-core`, `redesign`, `education`, `corporate`, `ecommerce`, `prototype-uiux`.
 
-## 4. Eval-driven skill development
+### Hybrid UIUX profiles
 
-Mỗi capability quan trọng phải có representative evals. V2 phân hai loại:
+`uiux-corporate`, `uiux-education`, `uiux-ecommerce`, `uiux-real-estate`, `uiux-saas`, `uiux-startup`, `uiux-news`, `uiux-nonprofit`, `uiux-hospitality`, `uiux-government`, `uiux-landing`, `uiux-portfolio`.
+
+Hybrid profiles extend `prototype-uiux` rồi thêm đúng domain lens. Redesign là một concern độc lập và được thêm qua `additional_skills` khi cần.
+
+## 4. Project-level contract
+
+Mỗi project có thể khai báo `.uiux-profile.json`:
+
+```text
+project/
+├── .uiux-profile.json
+├── .claude/
+│   └── skills/
+├── docs/
+└── ...
+```
+
+Config chọn profile, specialist bổ sung, exclusions, project metadata, source-of-truth và constraints. Schema nằm tại `schemas/uiux-profile.schema.json`.
+
+`project-context` là bridge giữa generic library và project-specific truth. Rule priority:
+
+`current user instruction → .uiux-profile.json → source-of-truth docs → specialist/domain skill → generic defaults`
+
+## 5. Project-aware install & safe sync
+
+`scripts/install-project.py` resolve profile inheritance + additions/exclusions rồi copy đúng skill vào `.claude/skills/`.
+
+Manifest `.claude/skills/.skills-uiux-manifest.json` ghi các folder do library quản lý. Lần sync sau chỉ remove managed skills không còn cần; custom skill khác trong project được giữ. `--clean` là destructive opt-in.
+
+## 6. Why this matches Agent Skills architecture
+
+Repository skills phải nằm đúng `.claude/skills/<skill-name>/SKILL.md`. Chỉ metadata luôn được announce; full instructions/resources được đọc on demand. Vì vậy project-level selection giảm capability clutter và vẫn giữ progressive disclosure bên trong từng skill.
+
+## 7. Eval-driven development
 
 ### Structural/regression evals
-Chạy tự động bằng script, kiểm:
+
+CI kiểm:
 - frontmatter/name/description;
-- profile tham chiếu skill tồn tại;
-- resource link local không hỏng;
-- eval schema hợp lệ;
-- duplicate skill;
-- progressive-disclosure warnings.
+- profile inheritance và missing skills;
+- `.uiux-profile.json` examples;
+- local resource links;
+- eval schema;
+- installer dry-runs.
 
 ### Agent capability evals
-`evals/tasks/*.json` mô tả task, expected outcomes, must-not behaviors và rubric dimensions. Chạy bằng model/harness bên ngoài; repository không khóa vào một model cụ thể.
 
-## 5. Quality philosophy
+`evals/tasks/*.json` chấm expected outcomes, must-not behaviors và weighted rubric. Ưu tiên outcome hơn exact tool choreography.
 
-Chấm **outcome trước process**. Agent có thể tìm đường giải khác nhau miễn:
-- giải quyết đúng user/business goal;
-- không phá content/SEO/behavior tốt;
-- UI có hệ thống và phù hợp domain;
-- responsive/accessibility/performance được verify;
-- có evidence thay vì tự tuyên bố hoàn tất.
+## 8. Backward compatibility
 
-## 6. Backward compatibility
-
-Các folder skill ở root vẫn giữ nguyên để project V1 không gãy. V2 chỉ thêm resource, routing và tooling. Khi refactor skill lớn, `name` và intent cũ được giữ.
+- Existing skill names/folders giữ nguyên.
+- V2 profile-level installer vẫn hoạt động.
+- Project-aware config là opt-in.
+- Hybrid profiles và `project-context` chỉ mở rộng capability, không làm gãy V1/V2 project.
