@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate V2/V2.1/V3/V4 profiles, packs, project configs, eval schemas and local resource links."""
+"""Validate V2/V2.1/V3/V4/V5 profiles, packs, project configs, eval schemas and local resource links."""
 
 from __future__ import annotations
 
@@ -30,10 +30,24 @@ def load_profile(name: str, stack: tuple[str, ...] = ()) -> list[str]:
 
 def markdown_files_for_link_check() -> list[Path]:
     files: set[Path] = set()
-    for top in [ROOT / "README.md", ROOT / "V2-ARCHITECTURE.md", ROOT / "V3-ARCHITECTURE.md", ROOT / "V4-ARCHITECTURE.md", ROOT / "SKILL-CATALOG.md"]:
+    for top in [
+        ROOT / "README.md",
+        ROOT / "V2-ARCHITECTURE.md",
+        ROOT / "V3-ARCHITECTURE.md",
+        ROOT / "V4-ARCHITECTURE.md",
+        ROOT / "V5-ARCHITECTURE.md",
+        ROOT / "SKILL-CATALOG.md",
+    ]:
         if top.exists():
             files.add(top)
-    for pattern in ["*/SKILL.md", "*/references/*.md", "*/checklists/*.md", "*/examples/*.md", "evals/*.md", "examples/projects/*.md"]:
+    for pattern in [
+        "*/SKILL.md",
+        "*/references/*.md",
+        "*/checklists/*.md",
+        "*/examples/*.md",
+        "evals/*.md",
+        "examples/projects/*.md",
+    ]:
         files.update(ROOT.glob(pattern))
     return sorted(files)
 
@@ -141,6 +155,10 @@ def main() -> int:
         except (json.JSONDecodeError, OSError, TypeError) as exc:
             errors.append(f"{task.relative_to(ROOT)}: {exc}")
 
+    for required in [ROOT / "scripts" / "eval-harness.py", ROOT / "evals" / "ADAPTER-CONTRACT.md"]:
+        if not required.exists():
+            errors.append(f"missing V5 runtime resource: {required.relative_to(ROOT)}")
+
     for md in markdown_files_for_link_check():
         text = FENCE_RE.sub("", md.read_text(encoding="utf-8"))
         for raw in LINK_RE.findall(text):
@@ -155,14 +173,14 @@ def main() -> int:
             if not resolved.exists():
                 errors.append(f"{md.relative_to(ROOT)}: broken local link -> {raw}")
 
-    print(f"V4: {len(skill_names)} skills, {len(profile_paths)} profiles, {len(pack_paths)} packs, {len(project_configs)} project examples, {len(ids)} eval tasks")
+    print(f"V5: {len(skill_names)} skills, {len(profile_paths)} profiles, {len(pack_paths)} packs, {len(project_configs)} project examples, {len(ids)} eval tasks")
     for warning in warnings:
         print(f"WARNING: {warning}")
     if errors:
         for error in errors:
             print(f"ERROR: {error}", file=sys.stderr)
         return 1
-    print("V4 validation passed")
+    print("V5 validation passed")
     return 0
 
 

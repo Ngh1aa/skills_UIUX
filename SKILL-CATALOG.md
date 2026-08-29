@@ -1,10 +1,10 @@
-# Skill Catalog — V4
+# Skill Catalog — V5
 
 ## Core pipeline
 
 | Skill | Vai trò |
 |---|---|
-| `website-delivery-pipeline` | Orchestrator lifecycle + pack routing |
+| `website-delivery-pipeline` | Orchestrator lifecycle + adaptive pack/specialist routing |
 | `project-context` | Project config, constraints and source-of-truth |
 | `product-discovery` | Problem, audience, JTBD, constraints, KPI, scope |
 | `website-audit-and-redesign` | Audit live/legacy site before redesign |
@@ -33,9 +33,19 @@
 | `testing-strategy` | Unit/integration/E2E/cross-browser |
 | `ui-craft-and-visual-qa` | Visual craft and responsive QA |
 | `code-review-and-release` | Review/release gate |
-| `production-monitoring-and-maintenance` | Post-release health |
+| `production-monitoring-and-maintenance` | Post-release technical health |
 | `content-governance-and-cms` | Content schema/ownership/CMS |
 | `skill-authoring-and-governance` | Maintain this library |
+
+## V5 measurement-reliability specialists
+- `evidence-provenance-and-research-ops`
+- `journey-outcome-and-service-health`
+- `brand-recognition-validation`
+- `accessibility-conformance-evaluation`
+- `visual-regression-and-design-drift`
+- `adaptive-skill-routing-and-context-budget`
+- `agent-evaluation-and-reliability`
+- `continuous-learning-and-improvement`
 
 ## V4 experience-strategy specialists
 - `audience-intent-and-top-tasks`
@@ -81,6 +91,7 @@
 - `human-ai-interaction-design`
 
 ## Capability packs
+- `measurement-reliability` (V5)
 - `experience-strategy` (V4)
 - `research-validation`
 - `advanced-interaction`
@@ -92,4 +103,4 @@
 `corporate-website`, `education-website`, `ecommerce-website`, `real-estate-and-building-website`, `hospitality-website`, `portfolio-website`, `news-and-media-website`, `saas-website`, `landing-page`, `government-and-public-sector-website`, `nonprofit-website`, `startup-and-incubator-website`.
 
 ## Selection rule
-Keep base profiles small. Add `experience-strategy` when audience intent, journey logic, brand memory or online/offline continuity is central. Add other packs only for risk/complexity. Do not install packs merely because they exist.
+Keep base profiles small. Add V4/V5 packs only when audience/experience or measurement/reliability risk justifies them. For local fixes, use `adaptive-skill-routing-and-context-budget` principles and narrow specialists instead of loading the whole library.
