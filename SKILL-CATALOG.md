@@ -1,4 +1,4 @@
-# Skill Catalog — V3
+# Skill Catalog — V4
 
 ## Core pipeline
 
@@ -10,7 +10,7 @@
 | `website-audit-and-redesign` | Audit live/legacy site before redesign |
 | `brand-guidelines` | Brand foundation, color, type, voice |
 | `ux-research-and-journey` | Journey, task analysis and flows |
-| `information-architecture` | Sitemap, nav, URL, hierarchy |
+| `information-architecture` | Inventory, taxonomy, labels, hierarchy, navigation/findability, page roles and URL migration |
 | `ux-laws-and-heuristics` | Heuristic review |
 | `visual-design-direction` | Layout, hierarchy and visual grammar |
 | `conversion-and-content` | Value proposition, CTA, content model |
@@ -36,6 +36,16 @@
 | `production-monitoring-and-maintenance` | Post-release health |
 | `content-governance-and-cms` | Content schema/ownership/CMS |
 | `skill-authoring-and-governance` | Maintain this library |
+
+## V4 experience-strategy specialists
+- `audience-intent-and-top-tasks`
+- `entry-context-and-visit-intent`
+- `journey-driven-content-and-layout`
+- `brand-distinctiveness-and-visual-signature`
+- `service-experience-to-digital-journey`
+- `experience-principles-and-signature-moments`
+- `omnichannel-experience-continuity`
+- `brand-recognition-and-consistency-qa`
 
 ## V3 specialist skills
 
@@ -70,7 +80,8 @@
 - `design-system-governance-and-adoption`
 - `human-ai-interaction-design`
 
-## V3 capability packs
+## Capability packs
+- `experience-strategy` (V4)
 - `research-validation`
 - `advanced-interaction`
 - `inclusive-trust`
@@ -81,4 +92,4 @@
 `corporate-website`, `education-website`, `ecommerce-website`, `real-estate-and-building-website`, `hospitality-website`, `portfolio-website`, `news-and-media-website`, `saas-website`, `landing-page`, `government-and-public-sector-website`, `nonprofit-website`, `startup-and-incubator-website`.
 
 ## Selection rule
-Keep base profiles small. Add packs for risk/complexity, then add individual specialists only for narrower needs. Do not install V3 packs merely because they exist.
+Keep base profiles small. Add `experience-strategy` when audience intent, journey logic, brand memory or online/offline continuity is central. Add other packs only for risk/complexity. Do not install packs merely because they exist.

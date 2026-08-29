@@ -1,25 +1,24 @@
-# skills_UIUX V3 — Evidence-Driven UI/UX Agent Operating System
+# skills_UIUX V4 — Audience, Evidence & Experience-Driven UI/UX Agent OS
 
-Bộ skill cho AI coding agent xây dựng và nâng cấp website theo quy trình chuyên nghiệp từ discovery → research/validation → UX/IA → brand/system → implementation → QA → release → production learning.
+Bộ skill cho AI coding agent xây dựng/nâng cấp website theo quy trình chuyên nghiệp từ discovery → research/validation → audience/experience strategy → UX/IA → brand/system → implementation → QA → release → production learning.
 
-V3 giữ nguyên V2/V2.1 và bổ sung lớp **Research, Validation & Advanced UX**.
+V4 giữ toàn bộ V3 và bổ sung lớp **Audience, Brand Memory & Service Experience**.
 
-## V3 có gì mới
-- 22 specialist skill mới cho research, IA validation, complex interaction, enterprise data UI, cognitive/inclusive UX, trust/ethics, DesignOps và human-AI interaction.
-- 5 capability packs opt-in: `research-validation`, `advanced-interaction`, `inclusive-trust`, `designops-governance`, `human-ai`.
-- `.uiux-profile.json` schema v2 hỗ trợ `packs` nhưng schema v1 vẫn chạy bình thường.
-- Project-aware installer resolve `profile + packs + additional_skills - exclude_skills`.
-- V3 validator kiểm pack references, project config và evals.
-- Eval suite mở rộng sang behavior/evidence, không chỉ file structure.
+## V4 có gì mới
+- 8 specialist skills cho audience/top tasks, entry intent, journey-driven content/layout, digital brand distinctiveness, service-to-digital journey, experience principles/signature moments, omnichannel continuity và brand recognition QA.
+- Capability pack opt-in mới: `experience-strategy`.
+- 5 V4 evals chống generic layout, fake user evidence, logo-dependent branding, broken offline handoff và decorative immersion.
+- QTSC example bật `experience-strategy` để CI kiểm pack routing thật.
+- Không đổi schema: `.uiux-profile.json` schema v2 của V3 đã hỗ trợ generic `packs`.
 
-Chi tiết: [V3-ARCHITECTURE.md](V3-ARCHITECTURE.md) và [SKILL-CATALOG.md](SKILL-CATALOG.md).
+Kiến trúc: [V4-ARCHITECTURE.md](V4-ARCHITECTURE.md), [V3-ARCHITECTURE.md](V3-ARCHITECTURE.md), [SKILL-CATALOG.md](SKILL-CATALOG.md).
 
 ## Recommended project config
 ```json
 {
   "schema_version": 2,
   "profile": "uiux-corporate",
-  "packs": ["research-validation", "inclusive-trust"],
+  "packs": ["research-validation", "experience-strategy", "inclusive-trust"],
   "additional_skills": ["website-audit-and-redesign"],
   "exclude_skills": [],
   "project": {"name": "My Project", "mode": "interactive-prototype", "domain": "corporate"},
@@ -34,23 +33,31 @@ python scripts/install-project.py ../MyProject --dry-run
 python scripts/install-project.py ../MyProject
 ```
 
-Skills are copied to:
-```text
-<project>/.claude/skills/<skill-name>/SKILL.md
-```
-
-A safe-sync manifest preserves unrelated custom project skills during normal re-install.
+Skills are copied to `<project>/.claude/skills/<skill-name>/SKILL.md`. Safe-sync manifest preserves unrelated custom skills.
 
 ## Capability packs
 | Pack | Khi nào bật |
 |---|---|
-| `research-validation` | redesign uncertainty, discovery, usability/IA validation, before/after benchmarking |
-| `advanced-interaction` | search, complex forms, async states, workflows, tables, dashboards, account UX |
-| `inclusive-trust` | broad audience, high-trust/high-consequence flows, cognitive accessibility, manual AT testing |
-| `designops-governance` | mature design system, cross-project consistency, critique/governance |
-| `human-ai` | end-user generative/predictive/agentic AI experiences |
+| `research-validation` | uncertainty, discovery, usability/IA validation, benchmarking |
+| `experience-strategy` | audience intent, substantial content/layout redesign, experiential services, distinctive brand memory, online/offline journey |
+| `advanced-interaction` | search, complex forms, states, workflows, tables, dashboards, account UX |
+| `inclusive-trust` | broad audience, high trust/consequence, cognitive accessibility, AT testing |
+| `designops-governance` | mature design systems and cross-project consistency |
+| `human-ai` | end-user generative/predictive/agentic AI |
 
-Do not enable every pack by default. Use the smallest set justified by project risk.
+Use the smallest set justified by project risk.
+
+## V4 working model
+`project truth → audience/entry intent → top tasks → whole service journey → journey-driven content/IA → distinctive brand experience → implementation → joined-up handoff → recognition/UX verification`
+
+Rules:
+- never invent user evidence;
+- distinguish owner goals from user goals;
+- do not assume all visits start on the homepage;
+- do not map content inventory directly to page blocks;
+- logo + brand color alone is not a complete digital identity;
+- do not confuse immersive service design with decorative 3D/motion;
+- online completion must join coherently to offline/human steps when the real service continues.
 
 ## Validation
 ```bash
@@ -61,21 +68,11 @@ python scripts/skill-stats.py
 
 GitHub Actions runs validation and installer smoke tests on push/PR.
 
-## Agent evals
-See `evals/README.md`, `evals/tasks/`, `evals/RUBRIC.md`.
-
-Philosophy:
-- grade outcome and evidence rather than rigid tool choreography;
-- deterministic checks where possible;
-- rubric/model/human judgment for visual and research quality;
-- never invent research evidence;
-- promote stable capabilities to regression tests.
-
 ## Standards/research baseline
-At execution time verify time-sensitive requirements. V3 is informed by W3C WCAG/COGA guidance, GOV.UK Service Manual research/accessibility/content guidance, NN/g usability measurement methods, IBM Carbon enterprise-component guidance, FTC deceptive-pattern guidance and Google PAIR human-AI guidance.
+At execution time verify time-sensitive requirements. V4 is informed by V3 sources plus GOV.UK user-needs and whole-service guidance, W3C/WAI findability/cognitive guidance, Nielsen Norman Group journey/IA research and Kantar distinctive-brand-asset research.
 
 ## Backward compatibility
-- Existing profiles remain valid.
+- V2/V2.1/V3 profiles remain valid.
+- Existing root skill names are unchanged.
 - `install-profile.py` remains valid.
-- Schema-version-1 `.uiux-profile.json` remains valid.
-- Existing root skill names are not renamed.
+- Schema-version-1 and schema-version-2 project configs remain supported.
