@@ -20,5 +20,11 @@ jobs:
         run: python scripts/install-profile.py professional-core --target /tmp/skills-uiux-smoke --dry-run
       - name: Dry-run V5 project-aware installer with packs
         run: python scripts/install-project.py examples/projects/qtsc --dry-run
+      - name: Smoke project bootstrap and sync template
+        run: |
+          python scripts/bootstrap-project.py /tmp/skills-uiux-bootstrap --dry-run
+          python scripts/bootstrap-project.py /tmp/skills-uiux-bootstrap
+          test -f /tmp/skills-uiux-bootstrap/.github/workflows/sync-uiux-skills.yml
+          python scripts/install-project.py /tmp/skills-uiux-bootstrap --dry-run
       - name: Smoke V5 provider-neutral eval harness
         run: python scripts/eval-harness.py smoke
