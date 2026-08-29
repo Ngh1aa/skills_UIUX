@@ -1,235 +1,217 @@
 ---
 name: information-architecture
 description: |
-  Hướng dẫn AI agent xây dựng information architecture: sitemap, content grouping, 
-  navigation model, findability, URL strategy, page inventory và content hierarchy.
-globs:
-  - "docs/information-architecture.md"
-  - "sitemap.xml"
-  - "**/*.html"
+  Design and review website information architecture: content/function inventory, taxonomy, labeling,
+  hierarchy, page roles, navigation systems, findability, URL/migration structure and validation.
+  Use before navigation/UI implementation, during redesigns, or when users struggle to find content.
 ---
 
-# Information Architecture
+# Information Architecture — V3
 
-## Mục đích
+## Purpose
 
-Information Architecture (IA) quyết định cách thông tin được tổ chức, phân nhóm và kết nối với nhau. IA tốt giúp user tìm thấy thông tin nhanh chóng và hoàn thành task hiệu quả. IA tệ khiến user lạc, bỏ cuộc hoặc không tin tưởng.
+Information architecture (IA) defines **what information/functionality exists, how it is organized, how it is named, and how pieces relate**. Navigation is one interface expression of IA; it is not the whole IA.
+
+Core objective:
+
+`user/task evidence → content + functionality → taxonomy/labels → hierarchy → navigation/findability → validation`
+
+## Evidence hierarchy
+
+Prefer, in order:
+1. current user instruction;
+2. project `.uiux-profile.json` and source-of-truth docs;
+3. observed research, analytics, search logs, support data;
+4. domain playbooks and known content constraints;
+5. generic IA patterns.
+
+Do not present assumptions as research findings.
 
 ## Prerequisites
 
-- `product-discovery` hoàn tất (có product brief)
-- `ux-research-and-journey` hoàn tất (có persona, JTBD, task flows)
+Usually pair with:
+- `product-discovery` for goals, audience and scope;
+- `ux-research-and-journey` for tasks and journeys;
+- `website-audit-and-redesign` when restructuring an existing site;
+- `card-sorting-and-tree-testing` when findability risk is material;
+- `site-search-and-findability` for large/search-heavy systems.
 
-## Quy trình bắt buộc
+## Required workflow
 
-### 1. Content Inventory
+### 1. Inventory content and functionality
 
-Liệt kê TẤT CẢ nội dung cần có trên website:
+Create a page/content/function inventory before drawing a sitemap.
 
-```markdown
-## Content Inventory
+Minimum fields:
 
-| ID | Content Item | Type | Priority | Source | Status |
-|----|-------------|------|----------|--------|--------|
-| C01 | Hero headline | Text | Must | Need to create | ❌ |
-| C02 | About section | Text + Image | Must | Existing | ✅ |
-| C03 | Services list | Structured data | Must | Need to create | ❌ |
-| C04 | Case studies | Rich content | Should | Partial | 🟡 |
-| C05 | Contact form | Interactive | Must | Need to build | ❌ |
-| C06 | Blog posts | Content | Nice | Future | ⏳ |
+| Item | Type | User need/task | Business need | Source | Current URL | Status | Owner |
+|---|---|---|---|---|---|---|---|
 
-### Content Types
-- **Text**: Headlines, paragraphs, labels
-- **Image**: Photos, illustrations, icons
-- **Structured data**: Lists, cards, tables
-- **Rich content**: Mixed media, case studies
-- **Interactive**: Forms, calculators, tools
-- **Media**: Video, audio, animation
-```
+Include content, tools, forms, search, filters, directories, account areas, downloads, legal/support content and important system states.
 
-### 2. Content Grouping (Card Sorting Mental Model)
+For redesigns classify each existing item:
 
-Nhóm content theo mental model của user, KHÔNG theo org chart:
+`keep | improve | merge | split | move | retire | redirect`
 
-```markdown
-## Content Groups
+### 2. Define audiences, top tasks and entry contexts
 
-### Group: [Tên nhóm theo user mental model]
-- Content items: C01, C02, C03
-- User expectation: [User mong đợi tìm gì ở đây?]
-- Primary task served: [Task nào được hỗ trợ?]
+For each important audience, identify:
+- top tasks;
+- likely entry pages (homepage, search engine, campaign, deep link, shared link);
+- information needed before the next decision;
+- conversion/task completion destination;
+- likely recovery routes when lost.
 
-### Group: [Tên nhóm khác]
-- Content items: C04, C05
-- User expectation: [...]
-- Primary task served: [...]
-```
+Do not assume every journey starts at the homepage.
 
-### 3. Sitemap
+### 3. Build taxonomy and labeling system
 
-```markdown
-## Sitemap Structure
+Group by user mental model and task intent, not internal org chart.
 
-### Level 0 — Homepage
-├── Homepage (/)
+For every category/label record:
 
-### Level 1 — Main Sections
-├── About (/about)
-├── Services (/services)
-├── Portfolio (/portfolio)
-├── Blog (/blog)
-├── Contact (/contact)
+| Label | Meaning | Includes | Excludes | Audience/task | Evidence/confidence |
+|---|---|---|---|---|---|
 
-### Level 2 — Sub-pages
-├── Services
-│   ├── Service A (/services/service-a)
-│   ├── Service B (/services/service-b)
-│   └── Service C (/services/service-c)
-├── Portfolio
-│   ├── Project 1 (/portfolio/project-1)
-│   └── Project 2 (/portfolio/project-2)
+Rules:
+- prefer specific, familiar, descriptive labels with strong information scent;
+- avoid vague labels such as `More`, `Explore`, `Solutions` when the destination is unclear;
+- avoid format-first top-level categories (`Videos`, `PDFs`) unless format is itself the user goal;
+- define synonyms/aliases for search and cross-linking where terminology varies;
+- use polyhierarchy/cross-listing when one item legitimately belongs in multiple user mental models.
 
-### Level 3+ (if needed)
-└── [Keep depth ≤ 3 levels for most websites]
-```
+### 4. Design hierarchy by breadth/depth tradeoff
 
-#### Sitemap Rules
+There is **no universal 3-click rule** and no fixed maximum depth.
 
-- **Depth ≤ 3 clicks** từ homepage đến bất kỳ page nào
-- **Flat > Deep**: Ưu tiên navigation rộng hơn là sâu
-- **Consistent naming**: URL slugs match navigation labels
-- **Logical grouping**: Pages cùng chủ đề nằm cùng section
+Choose breadth/depth using:
+- number and distinctness of categories;
+- label clarity;
+- user familiarity;
+- content volume;
+- task frequency/importance;
+- device constraints;
+- availability of search/shortcuts/contextual navigation.
 
-### 4. Navigation Model
+Prefer fewer unnecessary intermediate layers, but do not flatten so aggressively that menus become ambiguous or overwhelming.
 
-```markdown
-## Primary Navigation
-| Order | Label | URL | Dropdown? | Notes |
-|-------|-------|-----|-----------|-------|
-| 1 | Home | / | No | Logo click |
-| 2 | [Label] | /[path] | [Yes/No] | [CTA?] |
-| 3 | [Label] | /[path] | [Yes/No] | |
-| N | [CTA Label] | /[path] | No | Styled as button |
+Document the hierarchy as a sitemap/tree with page IDs and page roles.
 
-### Navigation Rules
-- Maximum 7±2 items in primary nav (Miller's Law)
-- CTA button là item cuối cùng, visually distinct
-- Active state rõ ràng cho current page
-- Mobile: hamburger menu hoặc bottom nav
-- Dropdown depth: maximum 1 level
+### 5. Assign page roles
 
-## Secondary Navigation (Footer)
-| Column | Items |
-|--------|-------|
-| [Column name] | [Link list] |
-| [Column name] | [Link list] |
-| Legal | Privacy Policy, Terms, Cookies |
+Each important page must have a clear IA role, for example:
+- **Home / orientation** — explain scope and route major intents;
+- **Hub / category** — expose subtopics and comparison paths;
+- **Transition / routing** — help users choose the correct next branch;
+- **Destination / detail** — answer the need and support an action;
+- **Task / transaction** — complete a process;
+- **Search/results** — recover and find across categories;
+- **Support/error** — recover from failure or uncertainty.
 
-## Utility Navigation (nếu cần)
-- Search, Language, Login, Cart
-- Vị trí: top-right hoặc secondary header
-```
+Avoid pages that exist only because the old sitemap had them.
 
-### 5. URL Strategy
+### 6. Define navigation systems
 
-```markdown
-## URL Convention
-- Format: lowercase, hyphens, no trailing slash
-- Pattern: /[section]/[page-name]
-- Ngôn ngữ: [en/vi/multilingual strategy]
-- Maximum length: ~75 characters
+Design multiple complementary navigation mechanisms as needed:
+- global/primary;
+- local/section;
+- contextual/related links;
+- utility (language, account, search, cart, etc.);
+- breadcrumbs/orientation for deeper structures;
+- footer/reference navigation;
+- search and filters for large information spaces.
 
-## URL Map
-| Page | URL | Canonical | Redirect from |
-|------|-----|-----------|--------------|
-| Homepage | / | / | /home, /index |
-| About | /about | /about | /about-us |
-| [Page] | /[url] | /[url] | [Old URLs] |
+Do **not** use `7±2` or any fixed item count as a rule for primary navigation. Menu size depends on information scent, grouping, hierarchy and scanning cost.
 
-## URL Rules
-- ❌ Không dùng query params cho navigation (?page=about)
-- ❌ Không dùng IDs trong URL (/page/123)
-- ✅ Descriptive slugs reflect content
-- ✅ Consistent hierarchy mirrors sitemap
-- ✅ Redirects cho URLs cũ nếu migrating
-```
+Navigation labels must match destination expectations and remain consistent across desktop/mobile unless there is a deliberate reason.
 
-### 6. Page Inventory & Template Mapping
+### 7. Define URL and migration model
 
-```markdown
-## Page Inventory
+URLs should be stable, descriptive and maintainable, but IA does not require URLs to mechanically mirror every hierarchy level.
 
-| Page | Template | Sections | Primary CTA | SEO Priority |
-|------|----------|----------|-------------|-------------|
-| Homepage | Hero + Features | Hero, Value Prop, Features, Social Proof, CTA | [Action] | High |
-| About | Content | Story, Team, Values, Timeline | [Action] | Medium |
-| Services | Grid/List | Overview, Service Cards, Process, CTA | [Action] | High |
-| [Service Detail] | Case Study | Hero, Problem, Solution, Results, Related | [Action] | High |
-| Contact | Form | Info, Form, Map, FAQ | Submit | Medium |
-| Blog Index | Archive | Featured, Grid, Pagination, Categories | Read | Medium |
-| Blog Post | Article | Content, Author, Related, Comments | Share | Low-Med |
-| 404 | Error | Message, Search, Popular Pages | Go Home | N/A |
+For redesign/migration create:
 
-## Unique Templates Needed
-1. **Hero Page** — Homepage, major landing pages
-2. **Content Page** — About, legal pages
-3. **Grid Page** — Services, portfolio, blog index
-4. **Detail Page** — Case study, service detail, blog post
-5. **Form Page** — Contact, application
-6. **Error Page** — 404, 500
-```
+| Old URL | New URL | Action | Redirect | Canonical | Reason |
+|---|---|---|---|---|---|
 
-### 7. Cross-linking & Findability
+Protect high-value existing URLs, inbound links and indexed content. Coordinate with `seo-strategy` before changing live routes.
 
-```markdown
-## Internal Linking Strategy
-| From Page | To Page | Link Type | Anchor Text |
-|-----------|---------|-----------|-------------|
-| Homepage | Services | CTA button | "Explore Services" |
-| Service | Case Study | Contextual | "See how we did it" |
-| Blog Post | Service | Contextual | "[Service name]" |
-| All pages | Contact | CTA | "Get in Touch" |
+### 8. Design findability and recovery
 
-## Findability Checklist
-- [ ] Breadcrumbs trên pages level 2+
-- [ ] Related/suggested content trên detail pages
-- [ ] Search functionality (nếu >20 pages)
-- [ ] Clear section indicators trong navigation
-- [ ] Footer navigation bao phủ tất cả main sections
-- [ ] 404 page có search hoặc popular links
-```
+For priority content ensure at least one strong route, and for high-value content often multiple routes:
+- navigation;
+- contextual link;
+- search;
+- related content;
+- direct entry/search engine;
+- task-specific shortcut.
 
-## Output bắt buộc
+Evaluate information scent at each decision point: **Can the user predict what is behind this label/link?**
 
-### `docs/information-architecture.md`
-Tổng hợp:
-- Content inventory
-- Sitemap hierarchy
-- Navigation model (primary, secondary, utility)
-- URL strategy
-- Page inventory với template mapping
-- Cross-linking strategy
+### 9. Validate when risk justifies it
 
-### `sitemap.xml`
-Generate sitemap XML chuẩn từ URL map.
+Use evidence rather than preference wars.
 
-## Acceptance Criteria
+Possible methods:
+- card sorting for grouping/label hypotheses;
+- tree testing for hierarchy/findability;
+- moderated usability testing for end-to-end behavior;
+- search/query logs for vocabulary gaps;
+- analytics for dead ends, pogo behavior and high-exit routing pages;
+- support/sales questions for missing concepts.
 
-- [ ] Content inventory liệt kê tất cả content items với priority
-- [ ] Sitemap có depth ≤ 3 levels
-- [ ] Primary navigation ≤ 7 items
-- [ ] URL strategy consistent và descriptive
-- [ ] Mỗi page trong inventory có template assignment
-- [ ] Cross-linking strategy defined
-- [ ] Findability checklist completed
-- [ ] Mobile navigation plan documented
+A card sort is input to IA, not the final sitemap.
 
-## Anti-patterns cần tránh
+## Required output
 
-❌ Tổ chức nav theo org chart thay vì user mental model
-❌ Navigation quá sâu (>3 levels)
-❌ Quá nhiều items trong primary nav
-❌ URLs không descriptive (/page1, /page2)
-❌ Không có 404 page
-❌ Missing breadcrumbs trên deep pages
-❌ Duplicate content không có canonical URL
+Prefer `docs/information-architecture.md` containing:
+1. scope and evidence/assumptions;
+2. content/function inventory summary;
+3. audiences + top tasks;
+4. taxonomy and labeling decisions;
+5. sitemap/hierarchy;
+6. page roles/template families;
+7. navigation model;
+8. findability/cross-linking model;
+9. URL/migration map when applicable;
+10. validation plan/results;
+11. unresolved risks and decisions.
+
+Generate `sitemap.xml` only when implementation/SEO scope actually requires it; an XML sitemap is not a substitute for IA documentation.
+
+## Quality gate
+
+Before calling IA complete, verify:
+- priority user tasks map to reachable destinations;
+- category boundaries and labels are understandable;
+- hierarchy breadth/depth has a rationale, not arbitrary click limits;
+- global/local/contextual/utility navigation responsibilities are clear;
+- deep or complex structures provide orientation/recovery;
+- high-value content is not reachable through a single fragile path only;
+- redesign migrations preserve/redirect important legacy routes;
+- IA assumptions are labeled and high-risk assumptions have a validation plan;
+- mobile and accessibility implications are considered;
+- sitemap, navigation and page-role model agree with one another.
+
+## Anti-patterns
+
+- Organizing primarily by internal departments when users think by task/topic.
+- Treating sitemap = IA.
+- Treating navigation = IA.
+- Enforcing a false `3-click rule`.
+- Enforcing `7±2` navigation items from Miller's Law.
+- Adding umbrella categories with weak information scent only to reduce menu count.
+- Creating deep chains of transition pages with little new information.
+- Hiding important content behind vague labels like `More` or `Learn more`.
+- Using format (`Videos`, `Resources`) as top-level IA when users seek topics/tasks.
+- Rebuilding URLs without migration/redirect planning.
+- Copying competitor sitemap without validating project users and content.
+
+## Progressive resources
+
+- [IA decision framework](references/ia-decision-framework.md)
+- [IA quality gate](checklists/ia-quality-gate.md)
+
+## Completion rule
+
+Do not claim an IA is "validated" unless actual validation evidence exists. If no user evidence exists, report confidence and assumptions explicitly.
