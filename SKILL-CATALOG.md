@@ -13,6 +13,7 @@
 | `information-architecture` | Inventory, taxonomy, labels, hierarchy, navigation/findability, page roles and URL migration |
 | `ux-laws-and-heuristics` | Heuristic review |
 | `visual-design-direction` | Layout, hierarchy and visual grammar |
+| `ui-improvement` | Existing UI remediation orchestrator: diagnose → preserve → route specialists → implement → verify |
 | `conversion-and-content` | Value proposition, CTA, content model |
 | `design-system-and-components` | Tokens, components, variants, states |
 | `interaction-patterns-and-form-ux` | Common forms/search/filter/dialog patterns |
@@ -103,4 +104,4 @@
 `corporate-website`, `education-website`, `ecommerce-website`, `real-estate-and-building-website`, `hospitality-website`, `portfolio-website`, `news-and-media-website`, `saas-website`, `landing-page`, `government-and-public-sector-website`, `nonprofit-website`, `startup-and-incubator-website`.
 
 ## Selection rule
-Keep base profiles small. Add V4/V5 packs only when audience/experience or measurement/reliability risk justifies them. For local fixes, use `adaptive-skill-routing-and-context-budget` principles and narrow specialists instead of loading the whole library.
+Keep base profiles small. Add V4/V5 packs only when audience/experience or measurement/reliability risk justifies them. For UI remediation on an existing implemented surface, route through `ui-improvement`; it should still use `adaptive-skill-routing-and-context-budget` principles and only activate the specialists justified by the actual issue.

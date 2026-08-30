@@ -35,6 +35,27 @@ python scripts/install-project.py ../MyProject
 
 Skills are copied to `<project>/.claude/skills/<skill-name>/SKILL.md`. Safe-sync manifest preserves unrelated custom skills.
 
+## Keep consumer projects current
+
+Use the bootstrap command once in each project. It creates a project profile if
+needed, installs the selected skills and adds a weekly/manual sync workflow that
+opens or updates a pull request instead of writing directly to the default
+branch.
+
+```bash
+python scripts/bootstrap-project.py ../MyProject --profile uiux-corporate
+```
+
+The generated workflow can also receive a `repository_dispatch` event of type
+`skills-uiux-release` with `{"source_ref":"v5.1.0"}`. This enables an
+organization-level release bot or GitHub App to notify every consumer project.
+Configure that bot outside this repository with least-privilege `contents` and
+`pull_requests` access; no personal access token is stored in a project.
+
+For a release-critical project, dispatch a tag or immutable commit SHA instead
+of `main`. The synchronization PR records the resolved source commit, so every
+update is reviewable and reversible.
+
 ## Capability packs
 | Pack | Khi nào bật |
 |---|---|
