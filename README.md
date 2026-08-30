@@ -1,8 +1,8 @@
 # skills_UIUX V5 — Evidence, Measurement & Reliability UI/UX Agent OS
 
-Bộ skill cho AI coding agent xây dựng/nâng cấp website theo quy trình chuyên nghiệp từ discovery → research → audience/experience strategy → UX/IA → brand/system → implementation → conformance/regression QA → release → service measurement → continuous learning.
+Bộ skill cho AI coding agent xây dựng/nâng cấp website theo quy trình chuyên nghiệp từ discovery → research → audience/experience strategy → UX/IA → **reference intelligence** → brand/system → implementation → conformance/regression QA → release → service measurement → continuous learning.
 
-V5 giữ toàn bộ V4 và bổ sung lớp **Evidence, Measurement & Reliability**.
+V5 giữ toàn bộ V4 và bổ sung lớp **Evidence, Measurement & Reliability**. Bản cập nhật hiện tại bổ sung `design-reference-research-and-benchmark` để agent có thể research website/design đẹp trên web theo ngành và mục tiêu thay vì tự tạo visual direction trong khoảng trống.
 
 ## V5 có gì mới
 - 8 specialist skills: evidence provenance/ResearchOps, service outcome health, brand-recognition validation, accessibility conformance evaluation, visual/design drift, adaptive routing/context budget, agent reliability eval và continuous learning.
@@ -10,6 +10,23 @@ V5 giữ toàn bộ V4 và bổ sung lớp **Evidence, Measurement & Reliability
 - 8 V5 eval tasks bảo vệ evidence integrity, outcome measurement, WCAG claim discipline, design drift, minimal routing, multi-trial reliability, learning loop và brand-recognition validation.
 - Provider-neutral `scripts/eval-harness.py` để validate/summarize JSONL multi-trial results, gồm estimated `pass@k` / `pass^k` với caveat rõ.
 - CI chạy cả structural checks, V5 project installer smoke và eval-harness smoke.
+
+## Reference intelligence enhancement
+
+Skill `design-reference-research-and-benchmark` được route trước `visual-design-direction` cho substantial website/page design hoặc redesign khi visual direction chưa đủ mạnh.
+
+Nó phân vai nguồn thay vì trộn tất cả thành “inspiration”:
+
+- **real industry/product sites** → IA, journey, trust, conversion, responsive behavior;
+- **Awwwards, MUUUUU, SiteInspire, Godly, CSS Design Awards...** → visual craft, composition, typography, storytelling, motion;
+- **Behance / Dribbble** → brand system, component và concept ideas với production caveat;
+- **Pinterest / editorial mood sources** → photography, typography mood, texture và art direction.
+
+Workflow mặc định:
+
+`project truth → domain/audience/business goal → mixed candidate pool → score/shortlist → extract principles → visual direction → design system/code`
+
+Hard rule: award/gallery popularity không phải bằng chứng UX, accessibility hoặc conversion performance; agent phải extract principle và adaptation, không clone surface.
 
 Kiến trúc: [V5-ARCHITECTURE.md](V5-ARCHITECTURE.md), [V4-ARCHITECTURE.md](V4-ARCHITECTURE.md), [V3-ARCHITECTURE.md](V3-ARCHITECTURE.md), [SKILL-CATALOG.md](SKILL-CATALOG.md).
 
@@ -70,7 +87,7 @@ update is reviewable and reversible.
 Use the smallest set justified by task scope and risk.
 
 ## V5 working model
-`project truth → evidence → audience/intent → whole journey → success definition → minimal skill routing → UX/brand/system → implementation → conformance/regression → multi-trial eval → real outcomes → continuous learning`
+`project truth → evidence → audience/intent → whole journey → success definition → minimal skill routing → UX/IA → reference intelligence → brand/visual/system → implementation → conformance/regression → multi-trial eval → real outcomes → continuous learning`
 
 Hard rules:
 - no evidence → no `validated` research claim;
@@ -78,6 +95,7 @@ Hard rules:
 - no outcome data → no claim that UX improved;
 - no repeated trials → no reliability claim;
 - no intentional review → no automatic visual-baseline acceptance;
+- award/curated reference → inspiration evidence, not automatic UX proof;
 - production failures should feed research, tests or regression evals.
 
 ## V5 eval harness
