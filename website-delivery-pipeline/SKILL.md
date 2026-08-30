@@ -6,7 +6,7 @@ description: Orchestrates the full lifecycle of building or redesigning a profes
 # Website Delivery Pipeline — V5 Orchestrator
 
 ## Core principle
-`business/user goal → project truth → evidence → audience/entry intent → whole journey → success definition → validated UX/IA → distinctive experience/system → implementation → conformance/regression → measured outcomes → continuous learning`
+`business/user goal → project truth → evidence → audience/entry intent → whole journey → success definition → validated UX/IA → reference intelligence → distinctive experience/system → implementation → conformance/regression → measured outcomes → continuous learning`
 
 Route the **smallest useful skill graph**. Do not load the whole library.
 
@@ -17,6 +17,8 @@ If `.uiux-profile.json` exists, read it plus every `source_of_truth` file before
 Use `adaptive-skill-routing-and-context-budget` principles. A local component fix and a whole-service redesign should not activate the same context.
 
 For an **existing implemented UI** where the user asks to fix, improve, polish, modernize or make the interface more professional without necessarily redesigning the whole product, route through `ui-improvement`. It owns the remediation loop and should activate only the visual/system/frontend specialists justified by the actual issue.
+
+If a page/site redesign has weak, generic or undefined visual direction, or the user explicitly asks to learn from strong websites/references, route through `design-reference-research-and-benchmark` before locking `visual-design-direction`.
 
 ## Step 2 — Choose base profile + conditional packs
 - Substantial content/layout redesign, experiential service, brand differentiation or online/offline journey → `experience-strategy`.
@@ -39,6 +41,7 @@ For an **existing implemented UI** where the user asks to fix, improve, polish, 
 | 2 Whole journey | optional V4 service/omnichannel mapping | real journey/channels/key moments known |
 | 3 UX/IA | journey + IA + optional card/tree testing | flows/findability validated to risk |
 | 4 Content/experience | optional V4 journey-driven layout + experience principles | sections advance user decisions |
+| 4A Reference benchmark | conditional `design-reference-research-and-benchmark` | mixed source pool, finalists by role, no blind copying |
 | 5 Brand/visual | brand + visual + optional digital signature | implementable, recognizable grammar |
 | 6 System | design system + interaction + optional designops | reusable components/states |
 | 7 Architecture/code | frontend architecture + implementation | maintainable working UI |
@@ -49,6 +52,14 @@ For an **existing implemented UI** where the user asks to fix, improve, polish, 
 | 12 Agent eval/release | tests + multi-trial eval when reliability matters + release | verified outcome, known limitations |
 | 13 Production | monitoring + service-health metrics + research | real outcome observed |
 | 14 Learning | V5 continuous learning | signal becomes research/fix/test/eval |
+
+## Reference-intelligence routing rules
+- Use real production/category sites first for IA, journey, trust and conversion questions.
+- Use curated galleries/award sites for visual grammar, art direction, typography, storytelling and motion—not as proof of UX success.
+- Behance/Dribbble/Pinterest are secondary sources with different roles; distinguish production work from concepts/shots/mood references.
+- For substantial design work, prefer a mixed pool and select 3–6 finalists with distinct jobs instead of cloning one reference.
+- Score references by industry, audience, business, brand, UX, layout and feasibility fit; aesthetics alone is insufficient.
+- Hand extracted principles to `visual-design-direction`; use `reference-analysis-and-design-to-code` only when a specific reference must be translated more closely into system/code.
 
 ## V5 routing rules
 - Trace material research/analytics claims to source, date, context and limitations.

@@ -14,7 +14,7 @@ This skill owns the remediation workflow:
 
 `inspect current UI → preserve intent → diagnose verified problems → route narrow specialists → implement → verify rendered result`
 
-It does not replace `ui-craft-and-visual-qa`, `visual-design-direction`, `design-system-and-components` or `frontend-implementation`; it coordinates them when the user asks for the UI itself to be improved.
+It does not replace `ui-craft-and-visual-qa`, `visual-design-direction`, `design-reference-research-and-benchmark`, `design-system-and-components` or `frontend-implementation`; it coordinates them when the user asks for the UI itself to be improved.
 
 ## Trigger examples
 
@@ -61,7 +61,8 @@ Also classify intent:
 
 - **preserve-style improvement** — default when the user asks to fix/polish without requesting a new visual identity;
 - **directed redesign** — user explicitly requests a new visual direction;
-- **reference-led** — a screenshot/Figma/reference should guide the result.
+- **reference-led** — a screenshot/Figma/reference should guide the result;
+- **reference-research-led** — user asks to research strong websites/designs on the web before improving the UI.
 
 Do not silently convert a polish request into a brand redesign.
 
@@ -139,14 +140,17 @@ Start with the smallest useful graph.
 ### Add only when justified
 
 - weak/generic visual grammar or explicit redesign → `visual-design-direction`;
+- broad page/site improvement where generic visual quality is the problem, or the user explicitly asks to research Awwwards/MUUUUU/Behance/Dribbble/Pinterest/strong websites → `design-reference-research-and-benchmark` **before** `visual-design-direction`;
 - token/component duplication or system drift → `design-system-and-components`;
-- screenshot/Figma/reference → `reference-analysis-and-design-to-code`;
+- a specific screenshot/Figma/reference is already supplied → `reference-analysis-and-design-to-code` rather than performing broad reference hunting unnecessarily;
 - image/icon/media quality is part of the problem → `asset-media-and-art-direction`;
 - complex form/search/dialog/state behavior → `interaction-patterns-and-form-ux` and narrow specialists;
 - meaningful motion requirement → `motion-and-microinteractions`;
 - semantic/keyboard/focus risk → `accessibility`;
 - architecture duplication blocks a clean fix → `frontend-architecture-and-refactoring`;
 - repeated cross-page drift or snapshot risk → `visual-regression-and-design-drift`.
+
+When `design-reference-research-and-benchmark` is active, preserve the existing brand/content/behavior contract and use references to extract transferable principles—not as permission to overwrite the site with a new trend.
 
 Do not enable a specialist merely because its topic appears somewhere on the page.
 
@@ -187,6 +191,8 @@ Flag and remove unjustified repetition such as:
 - decorative blobs/effects replacing real hierarchy.
 
 Do not remove these patterns when the project’s approved brand system intentionally depends on them.
+
+If external references are used to escape template-like UI, synthesize them into one coherent grammar. Do not replace one generic template with a copied award-site template.
 
 ### Typography
 
@@ -278,6 +284,7 @@ For a substantial remediation, report compactly:
 - Scope changed.
 - Primary visual/root-cause fixes.
 - What was intentionally preserved.
+- Reference principles used, if reference research was active; do not list sources as decoration without explaining the transfer.
 
 ### Changed Surfaces
 `route/template → component/file → change`
@@ -304,12 +311,14 @@ Minimum completion questions:
 - Are representative responsive states still coherent?
 - Are changed interactive states visible and usable?
 - Did the implementation avoid unnecessary new variants/tokens/dependencies?
+- If external references were used, were they synthesized into project-specific principles rather than copied?
 - Were build/runtime/visual checks reported truthfully?
 
 ## Anti-patterns
 
 - Redesigning because the agent personally prefers another style.
 - Applying SaaS cards, glassmorphism or gradients to every domain.
+- Copying Awwwards/Dribbble/Behance/Pinterest surfaces without checking domain, audience, business goal and feasibility.
 - Fixing screenshots while breaking real flow/state behavior.
 - Rewriting the entire codebase for a visual polish request.
 - Treating every raw CSS value as design-system drift without context.
