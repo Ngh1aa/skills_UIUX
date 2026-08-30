@@ -12,6 +12,7 @@
 | `ux-research-and-journey` | Journey, task analysis and flows |
 | `information-architecture` | Inventory, taxonomy, labels, hierarchy, navigation/findability, page roles and URL migration |
 | `ux-laws-and-heuristics` | Heuristic review |
+| `design-reference-research-and-benchmark` | Search, score and synthesize real/curated design references by domain, audience, business goal and implementation fit |
 | `visual-design-direction` | Layout, hierarchy and visual grammar |
 | `ui-improvement` | Existing UI remediation orchestrator: diagnose → preserve → route specialists → implement → verify |
 | `conversion-and-content` | Value proposition, CTA, content model |
@@ -37,6 +38,10 @@
 | `production-monitoring-and-maintenance` | Post-release technical health |
 | `content-governance-and-cms` | Content schema/ownership/CMS |
 | `skill-authoring-and-governance` | Maintain this library |
+
+## Reference intelligence
+
+`design-reference-research-and-benchmark` sits between UX/content decisions and `visual-design-direction` for substantial new design/redesign work. It uses a mixed source model: real industry sites for product/UX truth, curated/award sources for visual craft, case-study/shot platforms for system/component ideas and mood platforms for art direction. It must not treat awards or gallery popularity as evidence of usability/conversion success.
 
 ## V5 measurement-reliability specialists
 - `evidence-provenance-and-research-ops`
@@ -104,4 +109,4 @@
 `corporate-website`, `education-website`, `ecommerce-website`, `real-estate-and-building-website`, `hospitality-website`, `portfolio-website`, `news-and-media-website`, `saas-website`, `landing-page`, `government-and-public-sector-website`, `nonprofit-website`, `startup-and-incubator-website`.
 
 ## Selection rule
-Keep base profiles small. Add V4/V5 packs only when audience/experience or measurement/reliability risk justifies them. For UI remediation on an existing implemented surface, route through `ui-improvement`; it should still use `adaptive-skill-routing-and-context-budget` principles and only activate the specialists justified by the actual issue.
+Keep base profiles small. Add V4/V5 packs only when audience/experience or measurement/reliability risk justifies them. For UI remediation on an existing implemented surface, route through `ui-improvement`; it should still use `adaptive-skill-routing-and-context-budget` principles and only activate the specialists justified by the actual issue. For substantial visual redesign/new-site work, activate `design-reference-research-and-benchmark` when reference intelligence would materially improve direction; do not activate it for local styling fixes with an already-defined system.
