@@ -20,6 +20,7 @@
 | `interaction-patterns-and-form-ux` | Common forms/search/filter/dialog patterns |
 | `motion-and-microinteractions` | Purposeful motion |
 | `asset-media-and-art-direction` | Image/video/icon direction |
+| `system-reality-and-production-readiness` | Distinguish real/mock/static/simulated/partial behavior, data contracts and production gaps |
 | `responsive-and-device-strategy` | Responsive/device behavior |
 | `accessibility` | WCAG, semantic, keyboard/focus baseline |
 | `localization-and-i18n` | Multilingual UX architecture |
@@ -27,14 +28,14 @@
 | `frontend-implementation` | Semantic implementation |
 | `component-driven-development` | Isolated component states/stories/tests |
 | `reference-analysis-and-design-to-code` | Reference/Figma/screenshot to system/code |
-| `ai-agent-coding-guardrails` | Safe AI coding/change discipline |
+| `ai-agent-coding-guardrails` | Safe AI coding/change discipline, proportional planning and verification |
 | `seo-strategy` | Technical/on-page SEO |
-| `web-quality-and-performance` | CWV and performance budgets |
-| `security-and-privacy` | Security/privacy baseline |
+| `web-quality-and-performance` | CWV, lab/field evidence and project performance budgets |
+| `security-and-privacy` | Risk-based security/privacy baseline and verification |
 | `analytics-and-experimentation` | Tracking, funnels, experiments |
-| `testing-strategy` | Unit/integration/E2E/cross-browser |
+| `testing-strategy` | Risk-driven functional/state/browser/visual/accessibility/performance verification |
 | `ui-craft-and-visual-qa` | Visual craft and responsive QA |
-| `code-review-and-release` | Review/release gate |
+| `code-review-and-release` | Two-stage review, release/rollback and post-deploy gate |
 | `production-monitoring-and-maintenance` | Post-release technical health |
 | `content-governance-and-cms` | Content schema/ownership/CMS |
 | `skill-authoring-and-governance` | Maintain this library |
@@ -42,6 +43,10 @@
 ## Reference intelligence
 
 `design-reference-research-and-benchmark` sits between UX/content decisions and `visual-design-direction` for substantial new design/redesign work. It uses a mixed source model: real industry sites for product/UX truth, curated/award sources for visual craft, case-study/shot platforms for system/component ideas and mood platforms for art direction. It must not treat awards or gallery popularity as evidence of usability/conversion success.
+
+## Production reality & delivery
+
+`system-reality-and-production-readiness` exists because rendered UI can imply behavior that is not actually integrated. Use it for forms, search, auth, checkout, CMS/API data, analytics and prototype-to-production work. The `production-delivery` pack groups this reality check with coding guardrails, security/privacy, performance budgets, verification, release/rollback and production monitoring.
 
 ## V5 measurement-reliability specialists
 - `evidence-provenance-and-research-ops`
@@ -98,6 +103,7 @@
 
 ## Capability packs
 - `measurement-reliability` (V5)
+- `production-delivery` (V5 production hardening)
 - `experience-strategy` (V4)
 - `research-validation`
 - `advanced-interaction`
@@ -109,4 +115,4 @@
 `corporate-website`, `education-website`, `ecommerce-website`, `real-estate-and-building-website`, `hospitality-website`, `portfolio-website`, `news-and-media-website`, `saas-website`, `landing-page`, `government-and-public-sector-website`, `nonprofit-website`, `startup-and-incubator-website`.
 
 ## Selection rule
-Keep base profiles small. Add V4/V5 packs only when audience/experience or measurement/reliability risk justifies them. For UI remediation on an existing implemented surface, route through `ui-improvement`; it should still use `adaptive-skill-routing-and-context-budget` principles and only activate the specialists justified by the actual issue. For substantial visual redesign/new-site work, activate `design-reference-research-and-benchmark` when reference intelligence would materially improve direction; do not activate it for local styling fixes with an already-defined system.
+Keep base profiles small. Add packs only when scope/risk justifies them. For UI remediation, route through `ui-improvement` and activate only relevant specialists. For substantial visual redesign/new-site work, activate `design-reference-research-and-benchmark` when reference intelligence materially improves direction. For production-candidate/release work, activate `production-delivery` when integrations, security, performance, browser verification, rollback or production truth are material. Do not activate deep production gates for a local styling fix or visual-only prototype unless the exact issue requires them.

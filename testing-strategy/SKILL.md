@@ -1,334 +1,241 @@
 ---
 name: testing-strategy
 description: |
-  Hướng dẫn AI agent viết và chạy tests: manual testing checklist, 
-  cross-browser testing, visual QA, accessibility testing, performance testing,
-  form testing và regression testing cho static website.
-globs:
-  - "docs/test-plan.md"
-  - "**/*.html"
+  Xây test/verification strategy theo critical journeys, change risk và project support matrix:
+  functional, state/error/recovery, responsive/browser, accessibility, visual, performance và regression.
+  Dùng khi implementation cần evidence trước completion/release; không biến fixed checklist thành proof.
 ---
 
 # Testing Strategy
 
-## Mục đích
+## Principle
 
-Không tuyên bố website hoàn tất nếu chưa có evidence từ testing. Skill này cung cấp testing framework cho website HTML/CSS/JS (không cần test framework phức tạp).
+`critical outcome → risk → test surface → expected result → evidence → regression coverage`
 
-## Quy trình bắt buộc
+Không test mọi thứ giống nhau. Ưu tiên journey/behavior có consequence cao.
 
-### 1. Test Plan
+## 1. Test scope
 
-```markdown
-## Test Plan: [Project Name]
+Xác định:
 
-### Scope
-- Pages to test: [List all pages]
-- Browsers: [Chrome, Firefox, Safari, Edge]
-- Devices: [Mobile 375px, Tablet 768px, Desktop 1280px, Wide 1440px+]
-- Priority: P0 = Must pass, P1 = Should pass, P2 = Nice to have
+```text
+Project mode
+Changed routes/components/features
+Critical user journeys
+System reality (REAL/MOCK/STATIC/SIMULATED/PARTIAL/UNKNOWN)
+Supported browsers/devices if known
+Risk level
+Existing test tooling
+Release target
 ```
 
-### 2. Functional Testing Checklist
+Nếu browser/device support chưa được project định nghĩa, dùng representative modern matrix như hypothesis chứ không gọi là official support.
 
-```markdown
-## Per-Page Functional Tests
+## 2. Priority
 
-### Navigation
-| Test | Expected | Status | Notes |
-|------|----------|--------|-------|
-| Logo links to homepage | Homepage loads | ⬜ | |
-| All nav links work | Correct pages load | ⬜ | |
-| Active state shows current page | Highlighted | ⬜ | |
-| Mobile menu opens/closes | Smooth animation | ⬜ | |
-| Mobile menu links work | Navigate correctly | ⬜ | |
-| Footer links work | Correct pages | ⬜ | |
-| External links open in new tab | rel="noopener" | ⬜ | |
-| Skip link works | Focus to main content | ⬜ | |
+- `P0` — critical journey/data/security/payment blocker; must pass for production release.
+- `P1` — major function/UX/accessibility/responsive issue; normally release-blocking unless accepted mitigation.
+- `P2` — craft/secondary path/regression concern.
+- `P3` — optional/low-consequence preference.
 
-### Forms
-| Test | Expected | Status | Notes |
-|------|----------|--------|-------|
-| Required fields validated | Error shown on empty | ⬜ | |
-| Email validation | Invalid format caught | ⬜ | |
-| Phone validation | Format checked | ⬜ | |
-| Error messages clear | Specific, actionable | ⬜ | |
-| Success message shown | After valid submit | ⬜ | |
-| Form resets after success | Fields cleared | ⬜ | |
-| Labels linked to inputs | Click label focuses input | ⬜ | |
-| Autocomplete attributes set | Browser autofill works | ⬜ | |
-| Tab order logical | Left-to-right, top-to-bottom | ⬜ | |
+## 3. Verification matrix
 
-### Interactive Elements
-| Test | Expected | Status | Notes |
-|------|----------|--------|-------|
-| Buttons clickable | Action triggers | ⬜ | |
-| Hover effects smooth | Transition, no flicker | ⬜ | |
-| Scroll animations fire | Elements animate in | ⬜ | |
-| Reduced motion respected | No animation when set | ⬜ | |
-| Back button works | Previous page loads | ⬜ | |
-| Smooth scroll to anchors | Scrolls to section | ⬜ | |
+Material change phải map:
 
-### Content
-| Test | Expected | Status | Notes |
-|------|----------|--------|-------|
-| No Lorem ipsum | Real content everywhere | ⬜ | |
-| No broken images | All images load | ⬜ | |
-| No typos/grammar issues | Proofread | ⬜ | |
-| Dates/numbers accurate | Verified | ⬜ | |
-| Links to external sites work | Not 404 | ⬜ | |
+| Change / capability | Risk | Expected outcome | Test method | Pass condition | Evidence/result |
+|---|---|---|---|---|---|
+
+Không ghi `PASS` nếu không thực sự chạy/inspect test phù hợp.
+
+## 4. Functional / state testing
+
+Test happy path + relevant alternative/recovery states:
+
+```text
+default
+loading/pending
+success
+validation error
+server/network error
+empty / filtered-empty
+partial/stale
+permission/auth failure
+timeout/retry
+duplicate-submit/idempotency concern
+cancel/undo/back navigation where relevant
 ```
 
-### 3. Cross-Browser Testing
+Form success chỉ pass khi system reality cho phép biết operation thật sự thành công. Prototype simulation phải được label simulated.
 
-```markdown
-## Browser Compatibility Matrix
+## 5. Responsive testing
 
-| Feature | Chrome | Firefox | Safari | Edge | Notes |
-|---------|--------|---------|--------|------|-------|
-| Layout | ⬜ | ⬜ | ⬜ | ⬜ | Grid, Flexbox |
-| Typography | ⬜ | ⬜ | ⬜ | ⬜ | Fonts, clamp() |
-| Animations | ⬜ | ⬜ | ⬜ | ⬜ | Transitions |
-| Forms | ⬜ | ⬜ | ⬜ | ⬜ | Validation UI |
-| Images | ⬜ | ⬜ | ⬜ | ⬜ | WebP support |
-| Scroll | ⬜ | ⬜ | ⬜ | ⬜ | Smooth scroll |
-| CSS Variables | ⬜ | ⬜ | ⬜ | ⬜ | Custom properties |
-| Backdrop filter | ⬜ | ⬜ | ⬜ | ⬜ | Glassmorphism |
+Test representative widths **và pressure widths**, không chỉ exact breakpoints.
 
-### Known Browser Issues to Check
-- Safari: backdrop-filter may need -webkit prefix
-- Firefox: form validation UI differs
-- Safari: smooth scrolling behavior
-- Safari iOS: position: fixed in scroll contexts
-- Safari: date input formatting
+Default sampling khi project không định nghĩa:
+
+- small mobile around 360–390px;
+- tablet/intermediate around 768px;
+- desktop around 1280px+;
+- widths ngay trước/sau layout break/change nếu issue xuất hiện ở đó.
+
+Check:
+
+- no unintended horizontal overflow;
+- reading/order/hierarchy;
+- heading/button/nav wrapping;
+- image/video crop;
+- touch/interactive reachability;
+- sticky/fixed UI;
+- dialogs/menus;
+- tables/filters/forms;
+- density/whitespace.
+
+Không yêu cầu mọi page phải có CTA above fold hoặc cards stack theo một pattern cố định.
+
+## 6. Browser matrix
+
+Theo project/audience support. Khi chưa có matrix và production scope material, ưu tiên representative engines:
+
+- Chromium;
+- WebKit/Safari;
+- Firefox.
+
+Không cần test browser không support chỉ để đủ checklist.
+
+Tập trung feature dễ khác browser:
+
+- sticky/fixed/viewport units;
+- forms/date/select controls;
+- flex/grid intrinsic sizing;
+- font metrics;
+- filters/backdrop;
+- scroll behavior;
+- media autoplay/inline playback;
+- animation;
+- focus/keyboard behavior.
+
+## 7. Accessibility testing
+
+Phân tầng evidence:
+
+### Automated baseline
+- axe/Lighthouse/HTML checks nếu tooling phù hợp.
+
+### Manual keyboard
+- focus order/visibility;
+- all actions reachable;
+- no trap;
+- modal/menu focus management;
+- error/recovery states.
+
+### Zoom/reflow/visual
+- zoom/text resize/reflow when material;
+- contrast/no color-only meaning;
+- reduced motion.
+
+### Assistive technology
+- screen reader/AT testing cho critical/high-risk journeys khi scope/risk justify.
+
+Automation-only không chứng minh WCAG conformance. Formal claim route `accessibility-conformance-evaluation`.
+
+## 8. Visual QA
+
+Rendered UI changed → inspect rendered result.
+
+Check:
+
+- hierarchy;
+- grid/alignment;
+- typography/wrapping;
+- spacing rhythm;
+- color/surface/brand roles;
+- image crop/focal point;
+- component states;
+- page diversity vs template repetition;
+- responsive pressure points;
+- visual regression on shared owners.
+
+Screenshot tồn tại nhưng không được inspect ≠ evidence.
+
+## 9. Performance testing
+
+Dùng `web-quality-and-performance` budgets/project targets.
+
+- lab test dưới conditions ghi rõ;
+- multiple runs/stable CI khi variability material;
+- field data khi available;
+- resource/third-party budget when relevant.
+
+Không hardcode “Lighthouse >= 90 all categories” như universal release truth.
+
+## 10. Security/privacy verification
+
+Khi changed path có form/auth/API/data/upload/payment/third party, route `security-and-privacy` và test controls phù hợp scope trong safe environment.
+
+Test strategy không tự biến thành penetration test hoặc compliance audit.
+
+## 11. Regression strategy
+
+Với shared/high-impact change, xác định affected matrix:
+
+```text
+shared owner/token/component
+→ routes/templates using it
+→ states/viewports to sample
+→ automated/manual regression evidence
 ```
 
-### 4. Responsive Testing
+Ưu tiên deterministic tests cho behavior; visual snapshots/baselines cần intentional review khi thay đổi.
 
-```markdown
-## Responsive Test Points
+## 12. Evidence record
 
-### Per Viewport
-| Viewport | Layout | Typography | Images | Nav | Forms | CTA | Status |
-|----------|--------|------------|--------|-----|-------|-----|--------|
-| 320px | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | |
-| 375px | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | |
-| 414px | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | |
-| 768px | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | |
-| 1024px | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | |
-| 1280px | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | |
-| 1440px | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | |
+Cho test đã chạy, ghi:
 
-### Responsive Checks
-- [ ] No horizontal scrollbar at any width
-- [ ] Text readable without pinch zoom
-- [ ] Images scale proportionally
-- [ ] Cards stack on mobile, grid on desktop
-- [ ] Navigation switches to mobile menu
-- [ ] CTAs visible above fold on all sizes
-- [ ] Tables scroll horizontally or reorganize
-- [ ] Modals fit viewport
+```text
+method
+environment/browser/viewport when material
+result
+evidence/artifact reference if available
+limitations
 ```
 
-### 5. Accessibility Testing
+Không fabricate test result.
 
-```markdown
-## Accessibility Test Checklist
+## Output
 
-### Automated
-- [ ] Run axe DevTools → 0 critical/serious issues
-- [ ] Lighthouse Accessibility ≥ 95
-- [ ] HTML W3C Validator → 0 errors
-- [ ] Color contrast checker → all pass WCAG AA
+Cho substantial work, tạo `docs/test-plan.md` hoặc `docs/verification-matrix.md`:
 
-### Keyboard
-- [ ] Tab through entire page
-- [ ] Focus order logical
-- [ ] Focus indicator always visible
-- [ ] All interactive elements reachable
-- [ ] Modals trap and return focus
-- [ ] Skip link functional
-- [ ] No keyboard traps
-- [ ] Escape closes modals/dropdowns
-
-### Screen Reader (NVDA/VoiceOver)
-- [ ] Page title announced
-- [ ] Landmarks navigable
-- [ ] Headings hierarchy logical
-- [ ] Image alt text descriptive
-- [ ] Form labels read correctly
-- [ ] Errors announced
-- [ ] Dynamic content announced
-
-### Visual
-- [ ] 200% zoom → no broken layout
-- [ ] High contrast mode → content visible
-- [ ] Color not sole indicator
-- [ ] Animation respectful (reduced motion)
+```md
+# Verification Plan
+## Scope / risks
+## Critical journeys
+## Browser / responsive matrix
+## Verification matrix
+## Accessibility evidence
+## Performance evidence
+## Regression coverage
+## Failures / unresolved P0-P1
+## Unverified areas
 ```
 
-### 6. Performance Testing
+## Quality gate
 
-```markdown
-## Performance Test Checklist
+- [ ] Critical journeys/risk drive test priority.
+- [ ] Happy path + material recovery states covered.
+- [ ] Responsive tested at pressure widths.
+- [ ] Browser matrix matches project or is explicitly proposed.
+- [ ] Accessibility evidence level reported accurately.
+- [ ] Visual changes visually inspected.
+- [ ] Performance uses budgets/conditions, not vanity score alone.
+- [ ] Mock/simulated behavior not reported as real system pass.
+- [ ] P0/P1 failures explicit.
 
-### Lighthouse (Desktop + Mobile)
-| Category | Target | Actual Desktop | Actual Mobile | Status |
-|----------|--------|---------------|---------------|--------|
-| Performance | ≥ 90 | ⬜ | ⬜ | |
-| Accessibility | ≥ 95 | ⬜ | ⬜ | |
-| Best Practices | ≥ 90 | ⬜ | ⬜ | |
-| SEO | ≥ 95 | ⬜ | ⬜ | |
+## Anti-patterns
 
-### Core Web Vitals
-| Metric | Target | Actual | Status |
-|--------|--------|--------|--------|
-| LCP | ≤ 2.5s | ⬜ | |
-| INP | ≤ 200ms | ⬜ | |
-| CLS | ≤ 0.1 | ⬜ | |
-| TTFB | ≤ 600ms | ⬜ | |
-
-### Resource Budget
-| Resource | Budget | Actual | Status |
-|----------|--------|--------|--------|
-| HTML | < 50KB | ⬜ | |
-| CSS | < 100KB | ⬜ | |
-| JS | < 150KB | ⬜ | |
-| Images | < 500KB | ⬜ | |
-| Fonts | < 200KB | ⬜ | |
-| Total | < 1.5MB | ⬜ | |
-```
-
-### 7. SEO Testing
-
-```markdown
-## SEO Audit Checklist
-
-### Per Page
-| Check | Status | Notes |
-|-------|--------|-------|
-| Title tag unique, ≤ 60 chars | ⬜ | |
-| Meta description unique, ≤ 160 chars | ⬜ | |
-| One H1 per page | ⬜ | |
-| Heading hierarchy correct | ⬜ | |
-| Canonical URL set | ⬜ | |
-| Open Graph tags present | ⬜ | |
-| Schema.org markup valid | ⬜ | |
-| Images have alt text | ⬜ | |
-| Internal links present (≥2) | ⬜ | |
-
-### Site-wide
-| Check | Status | Notes |
-|-------|--------|-------|
-| robots.txt correct | ⬜ | |
-| sitemap.xml includes all pages | ⬜ | |
-| No broken links (404s) | ⬜ | |
-| HTTPS everywhere | ⬜ | |
-| Mobile-friendly test passes | ⬜ | |
-| No duplicate content | ⬜ | |
-| Structured data validates | ⬜ | |
-```
-
-### 8. Visual QA
-
-```markdown
-## Visual QA Checklist
-
-### Design Consistency
-| Check | Status | Notes |
-|-------|--------|-------|
-| Colors match brand guidelines | ⬜ | |
-| Typography matches type scale | ⬜ | |
-| Spacing uses design tokens | ⬜ | |
-| Border radius consistent | ⬜ | |
-| Shadow levels consistent | ⬜ | |
-| Icon style consistent | ⬜ | |
-| Image treatment consistent | ⬜ | |
-
-### Visual Details
-| Check | Status | Notes |
-|-------|--------|-------|
-| No orphaned headings (heading alone at column bottom) | ⬜ | |
-| No widows/orphans in text | ⬜ | |
-| Image aspect ratios consistent | ⬜ | |
-| Alignment grid respected | ⬜ | |
-| Hover states on all interactive elements | ⬜ | |
-| Loading states present | ⬜ | |
-| Empty states designed | ⬜ | |
-| Error states designed | ⬜ | |
-| Favicon present | ⬜ | |
-| OG image correct when shared | ⬜ | |
-```
-
-### 9. Pre-Launch Checklist
-
-```markdown
-## Pre-Launch Checklist
-
-### Content
-- [ ] All placeholder content replaced
-- [ ] Contact information accurate
-- [ ] Legal pages present (Privacy, Terms)
-- [ ] Copyright year current
-- [ ] Social media links correct
-
-### Technical
-- [ ] HTTPS configured
-- [ ] Redirects set up (www → non-www or vice versa)
-- [ ] 404 page customized
-- [ ] Analytics installed
-- [ ] Console clean (no errors/warnings)
-- [ ] Source maps removed from production
-- [ ] Environment variables not exposed
-
-### SEO
-- [ ] robots.txt allows crawling
-- [ ] Sitemap submitted to Google Search Console
-- [ ] Canonical URLs correct
-- [ ] OG images generate correctly on share
-
-### Performance
-- [ ] Lighthouse scores meet targets
-- [ ] Images optimized and lazy loaded
-- [ ] CSS/JS minified
-- [ ] Gzip/Brotli enabled
-- [ ] Cache headers set
-
-### Accessibility
-- [ ] axe audit clean
-- [ ] Keyboard navigation works
-- [ ] Screen reader tested
-- [ ] Color contrast passes
-
-### Backup & Recovery
-- [ ] Source code in version control
-- [ ] Deployment process documented
-- [ ] Rollback procedure defined
-```
-
-## Output bắt buộc
-
-### `docs/test-plan.md`
-Tổng hợp tất cả test checklists ở trên với results filled in.
-
-## Acceptance Criteria
-
-- [ ] All P0 functional tests pass
-- [ ] Cross-browser testing on Chrome + Firefox + Safari
-- [ ] Responsive testing on 320px, 768px, 1280px minimum
-- [ ] Accessibility: axe clean + keyboard navigable
-- [ ] Lighthouse scores ≥ 90 all categories
-- [ ] No broken links
-- [ ] No console errors
-- [ ] Visual QA completed
-- [ ] Pre-launch checklist completed
-
-## Anti-patterns cần tránh
-
-❌ "Looks good on my machine" = tested
-❌ Only testing happy path, ignoring edge cases
-❌ Skipping mobile testing
-❌ Testing only at exact breakpoints
-❌ No evidence of testing (screenshots, reports)
-❌ Testing accessibility only with automated tools
-❌ Not testing with actual content (only Lorem ipsum)
+- “Looks good on my machine” = tested.
+- Build success = functional/visual proof.
+- Exact breakpoint-only testing.
+- Automated accessibility scan = conformance.
+- One Lighthouse run = field performance.
+- Success toast = backend test pass.
+- Testing only demo/happy-path content.

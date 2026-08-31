@@ -1,300 +1,221 @@
 ---
 name: security-and-privacy
 description: |
-  Hướng dẫn AI agent implement security best practices cho website: 
-  security headers, CSP, input validation, XSS prevention, CSRF protection,
-  secrets management, privacy-by-design và GDPR/data protection basics.
-globs:
-  - "**/*.html"
-  - "**/*.js"
-  - ".env*"
-  - "docs/security-checklist.md"
+  Security/privacy baseline cho website và web app theo risk: data minimization, trust boundaries,
+  validation/encoding, auth/session/access control, secrets, uploads, third parties, browser/server
+  protections và privacy-by-design. Dùng khi có form, API, auth, personal data, payment, uploads,
+  analytics hoặc production release; không dùng checklist cơ bản để claim compliance/security.
 ---
 
 # Security & Privacy
 
-## Mục đích
+## Principle
 
-Security không phải optional — nó là baseline requirement. Skill này covers những gì agent cần implement cho website, đặc biệt khi có forms, user data hoặc API integrations.
+Security là risk discipline, không phải copy một bộ header hoặc regex vào mọi stack.
 
-## Security Checklist
+`assets/data/actors → trust boundaries → threats/misuse → controls → verification → residual risk`
 
-### 1. HTTPS
+Khi cần requirements/verification chi tiết và web access khả dụng, ưu tiên OWASP ASVS + relevant OWASP Cheat Sheet phiên bản hiện hành thay vì hardcode lời khuyên có thể lỗi thời.
 
-```markdown
-- [ ] HTTPS enforced everywhere (HTTP → HTTPS redirect)
-- [ ] Valid SSL certificate
-- [ ] Mixed content eliminated (no HTTP resources on HTTPS pages)
-- [ ] HSTS header set
+## Scope first
+
+Xác định trước:
+
+- project mode: prototype / production-candidate / production;
+- data collected/stored/transmitted;
+- authentication/authorization;
+- money/payment;
+- uploads/user-generated content;
+- external APIs/webhooks;
+- analytics/marketing/third-party scripts;
+- deployment/server/CDN capability;
+- legal/market requirements đã được project xác nhận.
+
+Không invent legal obligation. Nếu jurisdiction/requirement chưa biết, ghi `UNKNOWN / REQUIRES LEGAL REVIEW`.
+
+## Data inventory & minimization
+
+Cho material data:
+
+| Data | Purpose | Required? | Source | Destination | Retention | Access | Risk |
+|---|---|---|---|---|---|---|---|
+
+Rules:
+
+- chỉ collect dữ liệu phục vụ mục đích rõ;
+- không đưa PII/sensitive form content vào analytics/logs vô cớ;
+- không lưu sensitive data ở client storage nếu threat model không cho phép;
+- production logging phải tránh secrets/tokens/full sensitive payloads;
+- retention/deletion phải theo project/policy, không tự bịa timeline.
+
+## Trust boundaries
+
+Đừng coi client validation là security boundary.
+
+Phân biệt:
+
+```text
+browser/client
+server/API
+identity provider
+CMS/database
+third-party service
+analytics/marketing
+storage/CDN
 ```
 
-### 2. Security Headers
+Mỗi boundary cần biết input nào đi qua, ai kiểm soát và control nằm ở đâu.
 
-```markdown
-## Recommended Security Headers
+## Input, output and injection safety
 
-| Header | Value | Purpose |
-|--------|-------|---------|
-| Strict-Transport-Security | max-age=31536000; includeSubDomains | Force HTTPS |
-| X-Content-Type-Options | nosniff | Prevent MIME sniffing |
-| X-Frame-Options | DENY hoặc SAMEORIGIN | Prevent clickjacking |
-| X-XSS-Protection | 0 | Disable legacy XSS filter (use CSP) |
-| Referrer-Policy | strict-origin-when-cross-origin | Control referrer info |
-| Permissions-Policy | camera=(), microphone=(), geolocation=() | Restrict APIs |
-| Content-Security-Policy | [See below] | Prevent XSS, injection |
-```
+- Validate input theo schema/business rule ở server/trusted boundary khi server tồn tại.
+- Client validation phục vụ UX, không thay server validation.
+- Prefer safe DOM/framework APIs; avoid raw HTML injection.
+- Nếu phải render untrusted HTML, dùng sanitizer đã được duy trì và policy phù hợp context.
+- Encode/escape theo output context; không giả định một sanitizer giải quyết mọi context.
+- Validate URLs/redirect destinations theo allowlist/expected scheme khi user-controlled.
+- Không dùng `eval`/dynamic code execution với untrusted input.
 
-#### Content Security Policy (CSP)
+Không dùng regex demo như bằng chứng rằng email/phone/URL/security validation đã “đúng chuẩn”.
 
-```
-Content-Security-Policy: 
-  default-src 'self';
-  script-src 'self' https://cdn.example.com;
-  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-  img-src 'self' data: https:;
-  font-src 'self' https://fonts.gstatic.com;
-  connect-src 'self' https://api.example.com;
-  frame-src 'none';
-  base-uri 'self';
-  form-action 'self' https://formsubmit.example.com;
-  frame-ancestors 'none';
-```
+## Request/session/auth/access control
 
-```html
-<!-- CSP via meta tag (limited but works for static sites) -->
-<meta http-equiv="Content-Security-Policy" 
-  content="default-src 'self'; img-src 'self' data: https:; 
-  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; 
-  font-src 'self' https://fonts.gstatic.com;">
-```
+Khi applicable:
 
-### 3. Input Validation & XSS Prevention
+- authentication state phải đến từ trusted identity/session source;
+- authorization phải kiểm server-side/trusted boundary, không dựa vào hidden UI;
+- review CSRF protection theo authentication/cookie/request model;
+- session/token lifecycle: storage, expiry, rotation/revocation, logout;
+- destructive/high-value actions cần re-auth/confirmation khi risk justify;
+- rate/abuse protection nằm ở server/edge/service phù hợp, không phải chỉ disable button ở client;
+- error messages không leak sensitive internals.
 
-```javascript
-// NEVER trust user input
+Không thêm một control chỉ vì checklist nếu architecture không dùng threat tương ứng.
 
-// 1. Sanitize HTML content
-function sanitizeHTML(str) {
-  const temp = document.createElement('div');
-  temp.textContent = str;
-  return temp.innerHTML;
-}
+## Forms and submissions
 
-// 2. Validate email
-function isValidEmail(email) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
+Với form có backend:
 
-// 3. Validate phone
-function isValidPhone(phone) {
-  return /^[\d\s\-\+\(\)]{10,15}$/.test(phone);
-}
+- truthful pending/success/error/retry states;
+- prevent accidental duplicate submit nhưng không coi đó là rate limiting;
+- server-side validation/error handling;
+- abuse/spam mitigation phù hợp risk;
+- data-use/privacy context gần nơi collect khi project/legal requirement cần;
+- preserve recoverable input khi submission fail.
 
-// 4. Sanitize before inserting into DOM
-// ❌ WRONG
-element.innerHTML = userInput;
+Route `system-reality-and-production-readiness` nếu endpoint/service chưa được verify.
 
-// ✅ CORRECT
-element.textContent = userInput;
+## Uploads / user-generated content
 
-// ✅ CORRECT (when HTML needed)
-element.innerHTML = DOMPurify.sanitize(userInput);
+Nếu có upload:
 
-// 5. URL validation
-function isValidURL(url) {
-  try {
-    new URL(url);
-    return true;
-  } catch {
-    return false;
-  }
-}
-```
+- explicit allowed types/use cases;
+- size/count limits;
+- validate content/type ở trusted boundary;
+- safe naming/storage/location;
+- authorization for read/write/delete;
+- malware/content scanning khi risk/system capability yêu cầu;
+- do not execute/serve untrusted files in unsafe context.
 
-### 4. Form Security
+Chi tiết implementation phụ thuộc stack; tham chiếu current OWASP guidance khi thực thi.
 
-```html
-<!-- Anti-spam honeypot -->
-<div aria-hidden="true" style="position: absolute; left: -5000px;">
-  <input type="text" name="honeypot" tabindex="-1" autocomplete="off">
-</div>
+## Secrets and configuration
 
-<!-- Rate limiting indicator -->
-<!-- Server-side: limit form submissions per IP -->
-```
+- Không commit secrets/tokens/private keys.
+- Không expose server secrets vào client bundle/public env.
+- Use deployment secret management/environment config phù hợp platform.
+- Nếu secret có dấu hiệu đã leak, việc xóa file không đủ: mark for rotation/revocation và history review.
+- Không tự động sửa/xóa `.env` của user nếu không được yêu cầu; report exposure risk rõ.
 
-```javascript
-// Client-side protections (supplement server-side, never replace)
+## Browser/server protections
 
-// 1. Disable submit button after click
-form.addEventListener('submit', (e) => {
-  const btn = form.querySelector('[type="submit"]');
-  btn.disabled = true;
-  btn.textContent = 'Đang gửi...';
-});
+Security headers/config phải theo deployment architecture và current browser guidance.
 
-// 2. CSRF token (if server supports)
-// Include token in form or header
+Review khi applicable:
 
-// 3. Validate before submit
-function validateForm(form) {
-  let isValid = true;
-  
-  form.querySelectorAll('[required]').forEach(field => {
-    if (!field.value.trim()) {
-      showError(field, 'Field is required');
-      isValid = false;
-    }
-  });
-  
-  const email = form.querySelector('[type="email"]');
-  if (email && !isValidEmail(email.value)) {
-    showError(email, 'Invalid email');
-    isValid = false;
-  }
-  
-  // Check honeypot
-  const honeypot = form.querySelector('[name="honeypot"]');
-  if (honeypot && honeypot.value) {
-    return false; // Bot detected
-  }
-  
-  return isValid;
-}
-```
+- HTTPS/HSTS deployment policy;
+- CSP;
+- frame embedding / `frame-ancestors`;
+- content-type sniffing protection;
+- referrer policy;
+- permissions policy;
+- secure cookie attributes;
+- CORS policy;
+- cache behavior cho sensitive pages;
+- SRI chỉ khi phù hợp với external static resource workflow.
 
-### 5. External Links & Resources
+Không copy một CSP/header block mẫu rồi gọi secure. Một CSP dùng inline exceptions rộng có thể chỉ là migration step, không phải end-state proof.
 
-```html
-<!-- External links: always use rel="noopener noreferrer" -->
-<a href="https://external-site.com" 
-   target="_blank" 
-   rel="noopener noreferrer">
-  External Site
-  <span class="sr-only">(opens in new tab)</span>
-</a>
+## Third-party risk
 
-<!-- Subresource Integrity for CDN resources -->
-<script 
-  src="https://cdn.example.com/lib.min.js" 
-  integrity="sha384-xxxxx" 
-  crossorigin="anonymous">
-</script>
+Inventory:
 
-<link 
-  rel="stylesheet" 
-  href="https://cdn.example.com/style.css"
-  integrity="sha384-xxxxx"
-  crossorigin="anonymous">
-```
+| Service | Purpose | Data shared | Execution privilege | Failure impact | Alternative/mitigation |
+|---|---|---|---|---|---|
 
-### 6. Secrets Management
+Review:
 
-```markdown
-## Rules
-1. NEVER commit secrets to git
-2. NEVER expose API keys in client-side JavaScript
-3. Use .env files for local development
-4. Add .env to .gitignore
-5. Use environment variables for deployment
-
-## .gitignore (security-related)
-```
-.env
-.env.local
-.env.production
-*.pem
-*.key
-```
-
-## Check for Exposed Secrets
-- [ ] No API keys in JavaScript source
-- [ ] No passwords in HTML comments
-- [ ] No database URLs in client code
-- [ ] .env files not in git history
-- [ ] Source maps not deployed to production
-```
-
-### 7. Privacy by Design
-
-```markdown
-## Data Minimization
-- Only collect data that is necessary
-- Don't ask for phone if email is sufficient
-- Don't require full address for digital services
-- Explain WHY each field is needed
-
-## Cookie & Tracking
-- [ ] Cookie consent banner (if required by law)
-- [ ] No tracking before consent
-- [ ] Clear privacy policy
-- [ ] User can opt out
-- [ ] Third-party cookies disclosed
-
-## Form Data Privacy
-| Field | Necessary? | Stored? | Encrypted? | Retention |
-|-------|-----------|---------|------------|-----------|
-| Name | Yes | [Where] | [Yes/No] | [Duration] |
-| Email | Yes | [Where] | [Yes/No] | [Duration] |
-| Phone | [Optional] | [Where] | [Yes/No] | [Duration] |
-| Message | Yes | [Where] | [Yes/No] | [Duration] |
+- có thật sự cần third party không;
+- data nào rời hệ thống;
+- script chạy privilege gì trong page;
+- consent/policy requirement đã được project xác định chưa;
+- loading failure ảnh hưởng critical journey thế nào;
+- dependency compromise/update model.
 
 ## Privacy UX
-- Near forms: "Thông tin được bảo mật theo [Privacy Policy]"
-- Newsletter: "Không spam. Hủy đăng ký bất cứ lúc nào."
-- Data use: "Chúng tôi chỉ dùng email để phản hồi yêu cầu của bạn."
+
+Privacy copy phải truthful và match actual behavior.
+
+Không viết “chúng tôi chỉ dùng email để phản hồi” nếu hệ thống còn gửi CRM/marketing/analytics mà chưa xác nhận.
+
+Consent:
+
+- không preselect/obscure choice khi consent thật sự cần;
+- reject non-essential tracking before required consent khi applicable;
+- withdrawal/preferences phải usable nếu policy yêu cầu;
+- legal/compliance claim cần qualified review, không suy từ UI.
+
+## Verification
+
+Chọn theo risk/scope:
+
+- code/config inspection;
+- dependency/secret scanning nếu tooling có;
+- auth/access-control tests;
+- invalid/malicious-input boundary tests ở safe test environment;
+- CSP/header verification trên deployed environment;
+- privacy/data-flow review;
+- OWASP ASVS-based review cho production/high-risk applications.
+
+Automation/tool scan hỗ trợ evidence nhưng không chứng minh application “secure”.
+
+## Output
+
+Cho substantial production work, tạo `docs/security-privacy.md` hoặc equivalent:
+
+```md
+# Security & Privacy
+## Scope / system boundaries
+## Data inventory
+## Material risks
+## Controls implemented
+## Verification evidence
+## Third-party inventory
+## Unverified / residual risks
+## Requires legal/security review
 ```
 
-### 8. Third-Party Security
+## Quality gate
 
-```markdown
-## Third-Party Audit
+- [ ] Scope/data/trust boundaries được hiểu ở mức phù hợp.
+- [ ] Client-only controls không bị report như server security.
+- [ ] No known secrets exposed in changed code.
+- [ ] Auth/access controls nằm đúng trusted boundary khi applicable.
+- [ ] Untrusted input/output handling có rationale theo context.
+- [ ] Privacy statements không vượt quá actual behavior/evidence.
+- [ ] Third-party/data-sharing material được xem xét.
+- [ ] Verification + residual risks được báo trung thực.
 
-| Service | Purpose | Data shared | Risk | Alternative |
-|---------|---------|------------|------|-------------|
-| Google Fonts | Typography | IP address | Low | Self-host |
-| Google Analytics | Tracking | Usage data | Medium | Plausible, Umami |
-| Form service | Form handling | User data | Medium | Self-hosted |
-| CDN | Asset delivery | IP address | Low | — |
+## Claim discipline
 
-## Rules
-1. Minimize third-party dependencies
-2. Self-host when possible (fonts, icons)
-3. Use SRI for CDN resources
-4. Review third-party privacy policies
-5. Consider privacy-friendly alternatives
-```
-
-## Output bắt buộc
-
-### `docs/security-checklist.md`
-- Security headers configuration
-- Input validation rules
-- Secrets management policy
-- Privacy considerations
-- Third-party audit
-
-## Acceptance Criteria
-
-- [ ] HTTPS enforced
-- [ ] Security headers configured
-- [ ] CSP defined (at least via meta tag)
-- [ ] All user inputs validated
-- [ ] No innerHTML with unsanitized input
-- [ ] External links have rel="noopener noreferrer"
-- [ ] No secrets in client-side code
-- [ ] .env in .gitignore
-- [ ] Privacy policy page present (if collecting data)
-- [ ] Cookie consent implemented (if required)
-- [ ] Third-party dependencies audited
-
-## Anti-patterns cần tránh
-
-❌ innerHTML with user input (XSS vulnerability)
-❌ API keys in client-side JavaScript
-❌ No HTTPS
-❌ Missing security headers
-❌ Trusting client-side validation alone (server-side required)
-❌ Storing sensitive data in localStorage
-❌ No cookie consent when collecting data in EU
-❌ Using eval() with any input
+Không nói `secure`, `OWASP compliant`, `GDPR compliant`, `privacy compliant` hoặc tương tự nếu chưa có assessment phù hợp exact scope/standard/jurisdiction.
