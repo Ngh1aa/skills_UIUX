@@ -13,6 +13,7 @@
 | `information-architecture` | Inventory, taxonomy, labels, hierarchy, navigation/findability, page roles and URL migration |
 | `ux-laws-and-heuristics` | Heuristic review |
 | `design-reference-research-and-benchmark` | Search, score and synthesize real/curated design references by domain, audience, business goal and implementation fit |
+| `real-world-artifact-and-domain-metaphor-design` | Translate real domain objects, documents, spaces and rituals into mental-model-aligned digital structure, components and visual signatures without literal skeuomorphic imitation |
 | `visual-design-direction` | Layout, hierarchy and visual grammar |
 | `ui-improvement` | Existing UI remediation orchestrator: diagnose → preserve → route specialists → implement → verify |
 | `conversion-and-content` | Value proposition, CTA, content model |
@@ -43,6 +44,10 @@
 ## Reference intelligence
 
 `design-reference-research-and-benchmark` sits between UX/content decisions and `visual-design-direction` for substantial new design/redesign work. It uses a mixed source model: real industry sites for product/UX truth, curated/award sources for visual craft, case-study/shot platforms for system/component ideas and mood platforms for art direction. It must not treat awards or gallery popularity as evidence of usability/conversion success.
+
+## Real-world artifact intelligence
+
+`real-world-artifact-and-domain-metaphor-design` complements digital reference research by studying physical products, printed/operational documents, spatial systems, tools and offline rituals in the domain. It maps these to five transfer layers — form, structural, information, behavioral and ritual — and uses an L0–L4 fidelity ladder. Default to the lowest useful fidelity; do not turn every domain cue into literal skeuomorphism. Route it before `brand-distinctiveness-and-visual-signature` / `visual-design-direction` when domain-native artifacts can improve recognition, structure or originality.
 
 ## Production reality & delivery
 
@@ -115,4 +120,4 @@
 `corporate-website`, `education-website`, `ecommerce-website`, `real-estate-and-building-website`, `hospitality-website`, `portfolio-website`, `news-and-media-website`, `saas-website`, `landing-page`, `government-and-public-sector-website`, `nonprofit-website`, `startup-and-incubator-website`.
 
 ## Selection rule
-Keep base profiles small. Add packs only when scope/risk justifies them. For UI remediation, route through `ui-improvement` and activate only relevant specialists. For substantial visual redesign/new-site work, activate `design-reference-research-and-benchmark` when reference intelligence materially improves direction. For production-candidate/release work, activate `production-delivery` when integrations, security, performance, browser verification, rollback or production truth are material. Do not activate deep production gates for a local styling fix or visual-only prototype unless the exact issue requires them.
+Keep base profiles small. Add packs only when scope/risk justifies them. For UI remediation, route through `ui-improvement` and activate only relevant specialists. For substantial visual redesign/new-site work, activate `design-reference-research-and-benchmark` when reference intelligence materially improves direction. Activate `real-world-artifact-and-domain-metaphor-design` when the domain has recognizable artifacts/rituals that can improve mental-model fit, information structure or distinctive visual grammar. For production-candidate/release work, activate `production-delivery` when integrations, security, performance, browser verification, rollback or production truth are material. Do not activate deep production gates for a local styling fix or visual-only prototype unless the exact issue requires them.
