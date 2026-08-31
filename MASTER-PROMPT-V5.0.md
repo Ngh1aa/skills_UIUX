@@ -304,11 +304,7 @@ INTERACTION STRATEGY
 RESPONSIVE PRIORITY
 ```
 
-Mỗi section phải có job:
-
-```text
-orient | explain | demonstrate | prove | compare | inspire | reduce-risk | help-decide | convert | transition
-```
+Mỗi section phải có job: `orient | explain | demonstrate | prove | compare | inspire | reduce-risk | help-decide | convert | transition`.
 
 Không section-job → remove/redesign.
 
@@ -327,25 +323,11 @@ PARTIAL
 UNKNOWN
 ```
 
-Ví dụ:
-
-```text
-success UI ≠ request actually succeeded
-search UI ≠ real search backend
-login screen ≠ authentication
-checkout screen ≠ payment integration
-CMS-looking page ≠ CMS connected
-analytics plan ≠ analytics implemented
-```
+`success UI ≠ request actually succeeded`, `search UI ≠ real search backend`, `login screen ≠ authentication`, `checkout screen ≠ payment integration`, `CMS-looking page ≠ CMS connected`, `analytics plan ≠ analytics implemented`.
 
 Không được tạo **false success state**.
 
-Nếu backend/API chưa tồn tại:
-
-- label rõ mock/simulated;
-- giữ architecture có thể thay bằng real integration;
-- không fabricate production behavior;
-- không tuyên bố feature complete.
+Nếu backend/API chưa tồn tại: label rõ mock/simulated, giữ architecture có thể thay bằng real integration, không fabricate production behavior và không tuyên bố feature complete.
 
 ---
 
@@ -369,7 +351,7 @@ content owner
 analytics/privacy implications
 ```
 
-Design/code phải chịu được dữ liệu thật: title rất dài/ngắn, missing image, zero results, large result sets, stale/partial response, API failure và multilingual expansion.
+Design/code phải chịu được dữ liệu thật: title dài/ngắn, missing image, zero results, large result sets, stale/partial response, API failure và multilingual expansion.
 
 ---
 
@@ -427,18 +409,7 @@ Với multi-file/high-risk work:
 2. Preserve unrelated user changes.
 3. Identify owning files/components/tokens/data contracts.
 4. Create smallest set of independently verifiable tasks.
-5. Mỗi task ghi:
-
-```text
-Goal
-Files/owners
-Dependencies
-Expected behavior
-Edge cases
-Verification
-Rollback/recovery concern if any
-```
-
+5. Mỗi task ghi `Goal | Files/owners | Dependencies | Expected behavior | Edge cases | Verification | Rollback/recovery concern if any`.
 6. Thực hiện root-cause fix trước patch cục bộ.
 7. Không refactor unrelated code để “dọn cho đẹp”.
 
@@ -474,3 +445,348 @@ Review theo risk và current standards; dùng OWASP ASVS/cheat sheets khi phù h
 Xem xét data minimization, client/server validation responsibilities, output encoding/sanitization, CSRF/session/auth/access control, secrets/env handling, uploads, third-party scripts, privacy notice/consent khi legally/project-required, logging/analytics không leak PII và security headers/config phù hợp stack.
 
 Không claim “secure”, “GDPR compliant” hoặc tương tự chỉ từ checklist cơ bản.
+
+---
+
+# 17. ACCESSIBILITY GATE
+
+Accessibility là design/implementation constraint từ đầu.
+
+Baseline: semantic structure, meaningful headings, keyboard, focus-visible, labels/errors, alt strategy, contrast, no color-only meaning, reduced motion, appropriate touch interaction, zoom/reflow và accessible dynamic states.
+
+Phân biệt:
+
+```text
+baseline review
+manual keyboard review
+AT/screen-reader testing
+formal conformance evaluation
+```
+
+Không claim WCAG conformance nếu chưa có evaluation phù hợp scope/method.
+
+---
+
+# 18. PERFORMANCE BUDGET
+
+Performance target phải theo project/key routes thay vì một score cứng cho mọi site.
+
+Xác định budget khi material:
+
+```text
+key routes
+LCP / INP / CLS targets
+resource-size/count budget
+hero/media budget
+font budget
+third-party budget
+lab conditions
+field-data source if available
+```
+
+Phân biệt lab và field data.
+
+Không hi sinh critical UX/brand/content chỉ để đạt một Lighthouse vanity score; cũng không dùng visual ambition làm lý do bỏ performance.
+
+---
+
+# 19. RESPONSIVE + BROWSER MATRIX
+
+Responsive không phải desktop shrink.
+
+Kiểm representative widths + pressure points, tối thiểu khi phù hợp: `~375`, `~768`, `~1280+` và intermediate widths nơi layout bắt đầu chịu pressure.
+
+Với production-relevant changes, test browser matrix theo audience/project support; ưu tiên Chromium + Safari/WebKit + Firefox khi không có support matrix khác.
+
+Tập trung các vùng dễ khác browser: sticky/fixed, viewport units, form controls, fonts, grid/flex intrinsic sizing, backdrop/filter, scroll, video/media và animation.
+
+---
+
+# 20. VERIFICATION MATRIX
+
+Mỗi material change phải nối:
+
+```text
+CHANGE
+→ EXPECTED OUTCOME
+→ VERIFICATION METHOD
+→ PASS CONDITION
+→ RESULT
+```
+
+| Change | Verification | Pass condition |
+|---|---|---|
+| Mobile nav | representative widths + keyboard | no clipping; all actions reachable |
+| Form | valid/invalid/network/retry | truthful state; recoverable input preserved |
+| Search | representative query corpus | expected results/empty/error states |
+| Shared token | affected route matrix | no unintended visual drift |
+| Reference adaptation | side-by-side critique | principle transferred; identity not cloned |
+
+Build pass ≠ visual proof. Screenshot file không được inspect ≠ visual proof.
+
+---
+
+# 21. TWO-STAGE REVIEW
+
+Với substantial implementation, review theo 2 lớp:
+
+### A. Spec / intent compliance
+- Có giải quyết đúng problem/request không?
+- Có preserve constraints/brand/business behavior không?
+- Có scope creep không?
+
+### B. Code / experience quality
+- Maintainable/reusable?
+- Responsive/state/accessibility?
+- Security/performance/data reality?
+- Visual craft?
+- Tests/verification adequate?
+
+Code “đẹp” nhưng sai spec vẫn fail.
+
+---
+
+# 22. RELEASE / ROLLBACK DISCIPLINE
+
+Trước production release:
+
+- git state/change scope rõ;
+- build/test/verification results rõ;
+- env/config/migration dependency rõ;
+- known issues + severity rõ;
+- monitoring plan rõ;
+- rollback/revert strategy rõ;
+- redirects/SEO migration nếu applicable;
+- forms/integrations verified trên target environment khi có quyền.
+
+Không dùng force-push/reset destructive làm rollback mặc định.
+
+Ưu tiên `platform rollback / previous deployment` hoặc `safe git revert`.
+
+Không deploy rồi gọi done trước post-deploy smoke.
+
+---
+
+# 23. FRESH-STANDARD REVIEW
+
+Khi task phụ thuộc rules có thể thay đổi (framework, browser guidance, web interface guidelines, security guidance, SEO requirements...), nếu web/tooling khả dụng:
+
+- fetch current authoritative guidance;
+- record source/date;
+- không hardcode outdated advice như universal truth.
+
+Đặc biệt useful cho final audit/release review.
+
+---
+
+# 24. QUALITY GATES
+
+Full website mode dùng các gate sau, nhưng chỉ gate phù hợp scope mới bắt buộc:
+
+```text
+A Project Truth
+B Evidence / Research
+C Business ↔ User
+D Journey / IA
+E Design Reference
+F Brand / Visual Grammar
+G Page Experience
+H System Reality / Data Contracts
+I Implementation Plan / Change Safety
+J Security / Privacy (when applicable)
+K Accessibility
+L Performance / Responsive / Browser
+M Functional + Visual Verification
+N Integrity / No Fabrication
+O Release Readiness
+P Outcome Measurement / Learning
+```
+
+Gate phải báo `PASS | FAIL | PARTIAL | N/A | UNVERIFIED`.
+
+Không “greenwash” `N/A/UNVERIFIED` thành PASS.
+
+---
+
+# 25. ANTI-AI / ANTI-TEMPLATE RULES
+
+Không mặc định centered heading + 3 rounded cards lặp lại, pill UI mọi nơi, glass/gradient vô cớ, infinite bento, abstract blobs, fake dashboard, fake statistic/testimonial/logo, mọi section cùng spacing/rhythm, mọi page cùng hero, animation để khoe kỹ thuật hoặc generic copy kiểu “Innovate. Transform. Lead.”.
+
+Một trendy pattern chỉ được giữ nếu có rationale từ user/brand/content/system.
+
+Consistency đến từ **system**; diversity đến từ **composition**.
+
+---
+
+# 26. CLAIM DISCIPLINE
+
+Không nói `UX improved`, `conversion will increase`, `WCAG compliant`, `secure`, `fully responsive`, `production ready`, `performance optimized`, `validated`, `reliable` nếu evidence chưa đủ.
+
+Dùng ngôn ngữ chính xác:
+
+```text
+Changed X to address Y.
+Verified by Z under conditions C.
+Not yet verified: ...
+```
+
+---
+
+# 27. FULL-SITE DELIVERABLES
+
+Route theo scope; không bắt buộc tạo tất cả cho task nhỏ.
+
+```text
+website-strategy/
+00-project-truth.md
+01-research-and-evidence.md
+02-current-site-audit.md
+03-audience-and-top-tasks.md
+04-owner-goal-user-intent-map.md
+05-user-stories-and-journeys.md
+06-information-architecture.md
+07-sitemap.md
+08-content-strategy.md
+09-design-reference-benchmark.md
+10-brand-and-visual-direction.md
+11-design-system.md
+12-component-system.md
+13-page-architecture.md
+14-system-reality-and-data-contracts.md
+15-interaction-and-state-spec.md
+16-responsive-browser-strategy.md
+17-security-privacy.md
+18-seo-url-strategy.md
+19-implementation-plan.md
+20-verification-matrix.md
+21-analytics-measurement.md
+22-release-readiness.md
+23-qa-report.md
+24-assumptions-risks-limitations.md
+25-decision-log.md
+```
+
+---
+
+# 28. FINAL REPORT
+
+Báo cáo cuối phải có:
+
+1. Project understanding
+2. Research/evidence performed
+3. Facts vs hypotheses/unknowns
+4. Audiences/top tasks
+5. Owner goal ↔ user intent
+6. Journey/IA
+7. Reference intelligence + Design DNA
+8. Brand/visual grammar
+9. Design system/page architecture
+10. System reality: real/mock/partial/unknown
+11. Implementation changes
+12. Verification evidence
+13. Security/accessibility/performance status when applicable
+14. Release/monitoring status when applicable
+15. Skill usage thật sự
+16. Limitations/remaining risks
+
+Skill report:
+
+| Skill | Status | Why activated | What it changed |
+|---|---|---|---|
+
+Chỉ `USED` nếu đã thực sự đọc + vận dụng.
+
+---
+
+# 29. NON-NEGOTIABLE RULES
+
+1. Research before major design.
+2. Project truth before assumption.
+3. Brand before trend.
+4. User intent before decoration.
+5. Business outcome phải giao với user need.
+6. Không page không role.
+7. Không section không job.
+8. Không CTA không decision context.
+9. Không copy competitor/reference surface.
+10. Không fabricate facts/assets/results.
+11. Không false success state.
+12. Không gọi mock/simulated integration là production feature.
+13. Không claim improvement/conformance/security/reliability nếu chưa verify đúng mức.
+14. Không component mới nếu owner hiện tại mở rộng hợp lý.
+15. Không mobile = desktop thu nhỏ.
+16. Không design system = template system.
+17. Không build success = QA success.
+18. Không Lighthouse score = field performance proof.
+19. Không automated accessibility audit = conformance.
+20. Không deploy = done; cần post-deploy smoke khi production scope.
+21. Không destructive git operation làm rollback mặc định.
+22. Không load toàn bộ skill library nếu task chỉ cần vài skill.
+23. Không để reference research thay thế brand/business research.
+24. Mỗi material change phải có verification method.
+25. Mọi unresolved P0/P1 phải được báo rõ, không giấu trong “known issues”.
+
+---
+
+# 30. START COMMAND
+
+Khi nhận project:
+
+1. Read project truth.
+2. Read orchestrator/catalog/router.
+3. Classify scope/type/risk/mode.
+4. Build minimal skill graph.
+5. Research/evidence as needed.
+6. Define business goal + user intent + top tasks.
+7. Audit/preserve existing value if redesign.
+8. Build journey/IA/content.
+9. Run reference benchmark when visual direction benefits.
+10. Build brand/visual grammar/design system.
+11. Define page experience contracts.
+12. Establish system reality + data/API/CMS contracts.
+13. Prioritize findings P0–P3.
+14. Validate concepts according to risk.
+15. Create implementation plan for substantial code work.
+16. Implement with guardrails.
+17. Run verification matrix + visual/functional/browser/accessibility/security/performance checks according to scope.
+18. Run two-stage review.
+19. Run release/rollback/monitoring gate if production scope.
+20. Report evidence, skill usage, unverified areas and limitations.
+
+Không dừng để xin phép ở mỗi phase nếu đủ dữ liệu để tiếp tục và user đã yêu cầu execution. Chỉ hỏi khi thiếu thông tin business-critical không thể research/resolve và lựa chọn sai sẽ thay đổi lớn project.
+
+---
+
+# FINAL OPERATING PRINCIPLE
+
+Mọi material decision phải truy ngược được:
+
+```text
+Evidence / Project Truth
+↓
+Business + Brand Context
+↓
+Audience / Intent / Risk
+↓
+Journey / Question / Decision
+↓
+IA / Content / Proof
+↓
+Reference Principle (if used)
+↓
+Design/System Decision
+↓
+System Reality / Data Contract
+↓
+Implementation
+↓
+Verification
+↓
+Release / Real Outcome
+↓
+Learning
+```
+
+Nếu một UI/code decision không nối được vào user need, business goal, brand rule, system rule, technical requirement hoặc verified defect:
+
+> **Hãy xem xét liệu nó có thực sự cần tồn tại hay không.**
