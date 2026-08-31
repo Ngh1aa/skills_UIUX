@@ -276,3 +276,201 @@ Brand guideline là source-of-truth nếu có. Nếu không có, chỉ được 
 Visual direction phải định nghĩa 4–7 concrete visual attributes, layout grammar, typography hierarchy, semantic color roles, media/art direction, shape/border/radius/elevation language, motion purpose/intensity và 1–3 recognizable brand signatures.
 
 Nếu che logo mà website trông như bất kỳ competitor/template nào → direction chưa đủ distinctive.
+
+---
+
+# 9. PAGE EXPERIENCE CONTRACT
+
+Trước khi thiết kế page quan trọng:
+
+```text
+PAGE / ROLE
+PRIMARY AUDIENCE
+ENTRY CONTEXT
+WHAT USER ALREADY KNOWS
+USER GOAL
+OWNER GOAL
+OWNER ↔ USER INTERSECTION
+PRIMARY QUESTION
+SECONDARY QUESTIONS
+DECISION ENABLED
+PROOF REQUIRED
+PRIMARY CTA
+NEXT DESTINATION
+SEO INTENT
+CONTENT PRIORITY
+VISUAL STRATEGY
+INTERACTION STRATEGY
+RESPONSIVE PRIORITY
+```
+
+Mỗi section phải có job:
+
+```text
+orient | explain | demonstrate | prove | compare | inspire | reduce-risk | help-decide | convert | transition
+```
+
+Không section-job → remove/redesign.
+
+---
+
+# 10. SYSTEM REALITY CONTRACT
+
+Trước implementation hoặc trước khi gọi một feature “hoạt động”, phân loại feature/integration:
+
+```text
+REAL
+MOCK
+STATIC
+SIMULATED
+PARTIAL
+UNKNOWN
+```
+
+Ví dụ:
+
+```text
+success UI ≠ request actually succeeded
+search UI ≠ real search backend
+login screen ≠ authentication
+checkout screen ≠ payment integration
+CMS-looking page ≠ CMS connected
+analytics plan ≠ analytics implemented
+```
+
+Không được tạo **false success state**.
+
+Nếu backend/API chưa tồn tại:
+
+- label rõ mock/simulated;
+- giữ architecture có thể thay bằng real integration;
+- không fabricate production behavior;
+- không tuyên bố feature complete.
+
+---
+
+# 11. DATA / API / CMS CONTRACT
+
+Với dynamic component/flow, xác định khi applicable:
+
+```text
+source
+schema
+required fields
+optional fields
+null/missing behavior
+loading behavior
+empty behavior
+error behavior
+partial/stale behavior
+permissions/auth
+freshness/cache
+content owner
+analytics/privacy implications
+```
+
+Design/code phải chịu được dữ liệu thật: title rất dài/ngắn, missing image, zero results, large result sets, stale/partial response, API failure và multilingual expansion.
+
+---
+
+# 12. DECISION & PRIORITY MODEL
+
+Mọi material finding dùng:
+
+```text
+ID
+Finding
+Evidence
+Root cause
+Impact
+Confidence
+Effort
+Priority
+Decision
+Verification method
+```
+
+Priority mặc định:
+
+```text
+P0 BLOCKER — task impossible, severe security/data loss, broken critical conversion
+P1 MAJOR — major UX/IA/trust/responsive/accessibility/functional defect
+P2 CRAFT — visual consistency, spacing, typography, content polish
+P3 PREFERENCE — subjective/optional enhancement
+```
+
+Sửa theo impact/risk, không theo thứ tự agent phát hiện.
+
+---
+
+# 13. CONCEPT / USABILITY VALIDATION
+
+Không phải project nào cũng cần user testing, nhưng risk cao phải có validation tương xứng.
+
+```text
+Low risk → heuristic/professional review
+Medium risk → prototype/task walkthrough + representative edge cases
+High risk → usability/tree/form testing or equivalent evidence when feasible
+```
+
+Đặc biệt xem xét cho admissions, checkout, government, search/filter, complex forms, account/auth.
+
+Không claim “validated” nếu chỉ self-review.
+
+---
+
+# 14. IMPLEMENTATION PLAN BEFORE CODE
+
+Với multi-file/high-risk work:
+
+1. Inspect git/project state.
+2. Preserve unrelated user changes.
+3. Identify owning files/components/tokens/data contracts.
+4. Create smallest set of independently verifiable tasks.
+5. Mỗi task ghi:
+
+```text
+Goal
+Files/owners
+Dependencies
+Expected behavior
+Edge cases
+Verification
+Rollback/recovery concern if any
+```
+
+6. Thực hiện root-cause fix trước patch cục bộ.
+7. Không refactor unrelated code để “dọn cho đẹp”.
+
+Nếu tooling hỗ trợ branch/worktree, ưu tiên isolated change cho work lớn/risk cao.
+
+---
+
+# 15. AI CODING SAFETY
+
+Trong code:
+
+- inspect before edit;
+- reuse before create;
+- extend before duplicate;
+- preserve API/behavior ngoài scope;
+- không thêm dependency vô lý;
+- không hardcode mock data vào production path;
+- không overwrite unrelated work;
+- không dùng magic values lặp lại khi system đã có owner;
+- không “fix screenshot” bằng hacks làm hỏng real flow;
+- không thay đổi business logic chỉ để làm UI đẹp.
+
+Mọi claim `fixed/done/working` cần verification phù hợp.
+
+---
+
+# 16. SECURITY & PRIVACY GATE
+
+Kích hoạt `security-and-privacy` khi có form, auth, API, personal data, payment, uploads, user-generated content, analytics hoặc third-party scripts.
+
+Review theo risk và current standards; dùng OWASP ASVS/cheat sheets khi phù hợp.
+
+Xem xét data minimization, client/server validation responsibilities, output encoding/sanitization, CSRF/session/auth/access control, secrets/env handling, uploads, third-party scripts, privacy notice/consent khi legally/project-required, logging/analytics không leak PII và security headers/config phù hợp stack.
+
+Không claim “secure”, “GDPR compliant” hoặc tương tự chỉ từ checklist cơ bản.
