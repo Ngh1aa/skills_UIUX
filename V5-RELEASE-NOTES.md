@@ -1,24 +1,36 @@
 # V5 Release Notes
 
 ## Theme
-Evidence, Measurement & Reliability.
+Evidence, Reference Intelligence, Measurement & Production Reliability.
 
-## Highlights
-- 8 new V5 specialist skills.
-- New `measurement-reliability` pack.
-- 8 V5 eval tasks.
-- Provider-neutral multi-trial eval harness.
-- WCAG conformance-evaluation discipline.
-- Service-outcome measurement and continuous learning.
+## Core V5
+- Evidence provenance and claim discipline.
+- Service outcome measurement and continuous learning.
+- Accessibility conformance-evaluation discipline.
 - Visual/design drift protection.
 - Adaptive skill routing/context budgeting.
+- Provider-neutral multi-trial eval harness.
 
 ## Reference intelligence enhancement
-
 - Added `design-reference-research-and-benchmark` for evidence-aware visual reference research before major design/redesign work.
-- Added source-role rules for real industry sites, Awwwards/MUUUUU and other curated galleries, Behance/Dribbble, Pinterest/editorial mood sources.
-- Added 100-point fit scorecard, domain source matrix, anti-copy rules, benchmark quality gate and example artifact.
-- Routed reference research into `website-delivery-pipeline`, `visual-design-direction`, professional/prototype profiles and the legacy website research architect.
-- Added `reference-research-001` capability eval to prevent gallery-popularity, concept-as-UX-evidence and blind-copy regressions.
+- Added source-role rules for real industry sites, curated galleries/awards, Behance/Dribbble and mood sources.
+- Added fit scorecard, domain source matrix, anti-copy rules, benchmark quality gate and example artifact.
+- Routed reference research into `website-delivery-pipeline`, `visual-design-direction`, professional/prototype profiles and legacy website research architecture.
+- Added `reference-research-001` capability eval.
 
-See [V5-ARCHITECTURE.md](V5-ARCHITECTURE.md) for the full architecture.
+## Production-grade hardening
+- Added `MASTER-PROMPT-V5.0.md` as a lean progressive-disclosure master orchestrator.
+- Added `system-reality-and-production-readiness` to distinguish `REAL / MOCK / STATIC / SIMULATED / PARTIAL / UNKNOWN` features and integrations.
+- Added `production-delivery` pack for prototype-to-production/release work.
+- Hardened `website-delivery-pipeline` with project mode, system-reality, implementation-plan, verification, release and post-deploy phases.
+- Hardened `ai-agent-coding-guardrails` with proportional planning, preserve-user-work rules, verification matrix and two-stage review.
+- Refactored `security-and-privacy` around trust boundaries, data flow, current OWASP verification guidance and claim discipline.
+- Refactored `web-quality-and-performance` around route-specific performance budgets and lab-vs-field evidence.
+- Refactored `testing-strategy` around critical journeys, pressure widths, project browser matrix and truthful integration states.
+- Refactored `code-review-and-release` around spec-vs-quality review, safe rollback/revert and post-deploy smoke; destructive history rewrite is not a default rollback.
+- Added `system-reality-001` and `production-release-001` capability evals.
+
+## Design intent
+V5 deliberately avoids turning the master prompt into a larger monolith. Detailed rules live in specialist skills and are loaded only when a decision is active. This follows the repository's adaptive-routing model and reduces context dilution/conflicting instructions.
+
+See [MASTER-PROMPT-V5.0.md](MASTER-PROMPT-V5.0.md), [V5-ARCHITECTURE.md](V5-ARCHITECTURE.md) and [SKILL-CATALOG.md](SKILL-CATALOG.md).
