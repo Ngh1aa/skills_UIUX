@@ -18,6 +18,16 @@ Evidence, Reference Intelligence, Measurement & Production Reliability.
 - Routed reference research into `website-delivery-pipeline`, `visual-design-direction`, professional/prototype profiles and legacy website research architecture.
 - Added `reference-research-001` capability eval.
 
+## Real-world artifact / domain metaphor intelligence
+- Added `real-world-artifact-and-domain-metaphor-design` for learning from physical products, printed/operational documents, spatial systems, tools and offline rituals instead of relying only on website references.
+- Added five transfer layers: form, structural, information, behavioral and ritual/process metaphor.
+- Added fidelity ladder `L0 REFERENCE_ONLY → L1 CUE → L2 STRUCTURAL → L3 DIRECT_FORM → L4 IMMERSIVE` with the rule to use the lowest useful fidelity.
+- Added domain starter matrix covering banking, news/media, education, real estate, furniture, fashion, hospitality, travel, logistics, automotive, healthcare, government, museum and developer/SaaS contexts.
+- Added reality/trust guardrails so real cards, official documents, tickets, certificates and branded artifacts must use verified current assets/specs or be labeled representative/concept/unknown.
+- Added mobile/accessibility rules so semantic experience does not depend on physical resemblance.
+- Added research foundations referencing current Apple familiarity/metaphor guidance, Nielsen Norman Group real-world matching/skeuomorphism guidance and OOUX object/mental-model practice.
+- Added `artifact-metaphor-001` capability eval and a banking example.
+
 ## Production-grade hardening
 - Added `MASTER-PROMPT-V5.0.md` as a lean progressive-disclosure master orchestrator.
 - Added `system-reality-and-production-readiness` to distinguish `REAL / MOCK / STATIC / SIMULATED / PARTIAL / UNKNOWN` features and integrations.

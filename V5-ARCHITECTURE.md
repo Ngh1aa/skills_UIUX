@@ -1,17 +1,18 @@
 # skills_UIUX V5 Architecture — Evidence, Reference Intelligence, Measurement & Production Reliability
 
-V5 adds four coordinated layers on top of the existing UX/UI/domain foundation:
+V5 adds five coordinated layers on top of the existing UX/UI/domain foundation:
 
 1. **Evidence & measurement** — claims, outcomes, conformance and reliability must be evidence-backed.
 2. **Reference intelligence** — major visual direction can learn from real/curated references without copying or treating awards as UX proof.
-3. **Production reality** — rendered UI must not be confused with real integrations/data/behavior.
-4. **Delivery reliability** — proportional planning, verification, safe release/rollback and production feedback.
+3. **Real-world artifact intelligence** — domain objects, documents, environments and rituals can inform mental-model-aligned digital structure and distinctive design grammar without literal skeuomorphic imitation.
+4. **Production reality** — rendered UI must not be confused with real integrations/data/behavior.
+5. **Delivery reliability** — proportional planning, verification, safe release/rollback and production feedback.
 
 It does not replace V4 audience/experience strategy, V3 research/advanced UX, or domain playbooks.
 
 ## Core idea
 
-`project truth → evidence → audience/intent → journey/IA → reference intelligence → brand/system → system reality/data contract → plan → implementation → verification → release → real outcomes → continuous learning`
+`project truth → evidence → audience/intent → journey/IA → digital reference intelligence + domain artifact intelligence → brand/system → system reality/data contract → plan → implementation → verification → release → real outcomes → continuous learning`
 
 ## Why V5 exists
 
@@ -20,6 +21,8 @@ A strong framework can still fail if:
 - research/user claims cannot be traced to a source;
 - a prettier redesign is called an UX improvement without outcome data;
 - an award/gallery reference is treated as proof of usability/conversion;
+- a generic card/template system ignores strong domain objects and mental models that could create more intuitive/distinctive structure;
+- a physical metaphor is copied too literally and becomes decorative skeuomorphism or misrepresents a real product;
 - accessibility is claimed from automated scans or spot checks;
 - visual/design-system drift accumulates;
 - every task loads too much context;
@@ -78,6 +81,37 @@ Rules:
 - case-study/shot/mood sources have explicit secondary roles;
 - label production vs concept/unknown when material;
 - extract Design DNA/rules, not branded surface/assets.
+
+## Real-world artifact-intelligence contract
+
+Use `real-world-artifact-and-domain-metaphor-design` when domain-native objects, documents, spatial systems or rituals can materially improve recognition, information structure, journey logic or brand distinctiveness.
+
+Pipeline:
+
+`design problem → domain artifact inventory → artifact anatomy/behavior → transfer layer → fidelity L0–L4 → keep/do-not-copy → brand/mobile/a11y/performance adaptation → system handoff`
+
+Five transfer layers:
+
+1. **form** — geometry/proportion;
+2. **structural** — layout/information composition;
+3. **information** — object attributes/relationships/actions;
+4. **behavioral** — familiar interaction where it predicts digital behavior;
+5. **ritual/process** — offline service logic adapted to digital.
+
+Fidelity ladder:
+
+`L0 REFERENCE_ONLY | L1 CUE | L2 STRUCTURAL | L3 DIRECT_FORM | L4 IMMERSIVE`
+
+Core rules:
+
+- default to the lowest metaphor fidelity that communicates the idea;
+- familiarity is useful only when expected meaning/behavior remains predictable;
+- do not carry unnecessary physical-world friction into digital;
+- real branded products/official documents must use verified current assets/specs or be labeled representative/concept/unknown;
+- accessibility/semantics cannot depend on recognizing the visual metaphor;
+- a page/system should synthesize a coherent domain grammar rather than become a collage of clever artifacts.
+
+This layer complements `design-reference-research-and-benchmark`, then hands off to `brand-distinctiveness-and-visual-signature`, `visual-design-direction` and `design-system-and-components`.
 
 ## System-reality contract
 
@@ -193,6 +227,9 @@ Combine performance data with user research; measure the relevant end-to-end jou
 
 At execution time verify time-sensitive guidance. V5 is informed by:
 
+- Apple Human Interface Guidelines familiarity/design principles and WWDC26 metaphor guidance;
+- Nielsen Norman Group guidance on matching systems to the real world and functional-vs-decorative skeuomorphism;
+- Object-Oriented UX (OOUX) mental-model/object-first structure;
 - W3C/WAI WCAG-EM evaluation methodology;
 - GOV.UK user-needs/service-success/performance-measurement practice;
 - OWASP ASVS and relevant Cheat Sheet guidance for web application verification;
