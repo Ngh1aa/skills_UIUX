@@ -35,8 +35,9 @@ Không bắt đầu bằng shadow/radius. Review từ macro đến micro:
 4. Grid/alignment.
 5. Typography/readability.
 6. Components/states.
-7. Imagery/icon consistency.
-8. Micro-details/motion.
+7. Imagery/icon consistency + native asset quality.
+8. Text-on-image legibility.
+9. Micro-details/motion.
 
 ## Mandatory cross-page review
 
@@ -93,6 +94,7 @@ Nếu không trả lời được, chưa xuống micro-polish; quay lại hierar
 - Button/nav text không quá nhỏ.
 - Font weight không dùng thay cho hierarchy duy nhất.
 - Vietnamese diacritics và font fallback phải render tốt nếu site tiếng Việt.
+- Large display text phải được inspect tại narrow/mobile widths; `clamp()` tồn tại không chứng minh chữ không overlap/clip.
 
 ## Alignment audit
 
@@ -113,6 +115,65 @@ Không chỉ check palette tồn tại. Kiểm actual rendered states:
 
 Một logo hoặc CTA biến mất vì white-on-white / low contrast là P0/P1 visual defect tùy mức ảnh hưởng và phải chặn handoff.
 
+## Text-on-image legibility gate — hard gate
+
+Text đặt trên photography/video/variable imagery phải được kiểm ở **actual crop hiện tại**, không dựa trên average image brightness hay một screenshot đẹp duy nhất.
+
+Kiểm:
+
+- vùng sáng nhất và tối nhất phía sau text;
+- crop desktop/tablet/mobile;
+- ảnh thay đổi theo CMS/content khi applicable;
+- default/hover/focus nếu text là interactive;
+- font weight/size thực tế;
+- text color có bị cascade/specificity ghi đè không.
+
+Nếu background luminance thay đổi và readability không ổn định, ưu tiên một trong:
+
+1. **local contrast backplate/scrim** ngay sau text;
+2. directional gradient chỉ ở vùng text;
+3. reposition text vào safe area ổn định;
+4. tách text khỏi ảnh.
+
+Không làm tối toàn bộ ảnh quá mức chỉ để cứu chữ nếu local treatment giải quyết được.
+
+Các anti-pattern phải FAIL:
+
+- text màu tối nằm trực tiếp trên ảnh tối/chuyển động;
+- white text trên vùng ảnh sáng mà không có stable contrast treatment;
+- global overlay làm ảnh mất detail nhưng text vẫn khó đọc;
+- CSS owner nói `color:#fff` nhưng selector tổng quát có specificity cao hơn khiến rendered text thành màu khác;
+- text panel chạm/cắt nhau ở mobile;
+- chỉ test một crop desktop.
+
+Nếu nội dung quan trọng không đọc được ngay → P0/P1 tùy task impact.
+
+## Raster native-resolution / media-quality gate — hard gate
+
+Trước khi dùng raster asset làm hero, diagram, floor plan, map, card lớn hoặc full-width object:
+
+- inspect intrinsic pixel dimensions khi tooling cho phép;
+- inspect file quality/compression và source provenance;
+- so intrinsic size với rendered CSS box + target DPR;
+- kiểm `object-fit`, crop và scaling;
+- ưu tiên SVG/PDF/vector hoặc higher-resolution first-party asset cho diagrams khi có;
+- nếu chỉ có thumbnail/low-resolution raster, **không phóng thành hero**.
+
+Decision rule:
+
+```text
+low-resolution raster + large rendered box
+→ replace with higher-resolution/vector source
+OR
+→ reduce rendered size and label it as preview
+OR
+→ choose another verified high-resolution decision object
+```
+
+Không dùng CSS filter/contrast/sharpen như cách “sửa” một asset thiếu resolution.
+
+Blur/pixelation obvious ở target viewport là P1 visual-quality defect; nếu diagram cần đọc để user quyết định mà unreadable thì có thể P0.
+
 ## State audit
 
 Mọi interactive component kiểm: default, hover, focus-visible, active, disabled, loading, error và selected/expanded nếu có.
@@ -129,6 +190,9 @@ Tại mobile/tablet/desktop kiểm riêng:
 - Sticky/fixed elements che content.
 - Density và white space.
 - Hero/page composition có được **recomposed** hay chỉ stack/shrink desktop.
+- Overlay labels/pseudo-elements có va chạm, clip hoặc chồng chữ không.
+- Text-on-image safe zone còn tồn tại sau crop không.
+- Raster/diagram có bị phóng lớn hơn mức source chịu được không.
 
 ## Evidence set
 
@@ -138,7 +202,9 @@ Trước done, với substantial multi-page website nên có tối thiểu:
 - mobile representative captures (thường 375/390 hoặc project target);
 - tablet/intermediate width khi layout có risk;
 - cross-page top-of-page montage/contact sheet;
-- changed interactive state capture nếu state visual quan trọng.
+- changed interactive state capture nếu state visual quan trọng;
+- text-on-image examples có actual crop;
+- large media/diagram examples đủ để đánh giá sharpness.
 
 Không bắt buộc một viewport cố định cho mọi project; chọn theo audience/device evidence. Nhưng không được chỉ inspect một desktop screenshot rồi gọi site responsive/finished.
 
@@ -149,11 +215,12 @@ Ghi issue severity P0/P1/P2 và phân biệt:
 
 ## Fix loop
 
-`capture → inspect macro → log P0/P1/P2 → fix owning component/token/composition → recapture → compare`
+`capture → inspect macro → log P0/P1/P2 → fix owning component/token/composition/media source → recapture → compare`
 
 - P0/P1 phải được xử lý hoặc ghi rõ blocker trước handoff.
 - Không sửa micro-detail P2 trong khi composition/hierarchy P1 còn sai.
 - Nếu user phải chỉ ra một lỗi obvious mà rendered evidence lẽ ra đã phát hiện, thêm lỗi đó thành regression check/checklist cho skill/project thay vì chỉ vá project.
+- Nếu defect do media source không đủ chất lượng, sửa source/media strategy trước khi thêm visual effect để che lỗi.
 
 ## Acceptance criteria
 
@@ -166,4 +233,7 @@ Ghi issue severity P0/P1/P2 và phân biệt:
 - [ ] Mobile không bị “compressed desktop”.
 - [ ] Focus/error/loading states nhìn thấy được.
 - [ ] Logo/nav/CTA vẫn rõ ở các background/state thực tế.
+- [ ] Text-on-image có stable local contrast ở representative crops/viewports.
+- [ ] Large raster/media không bị obvious upscaling blur ở target viewport.
+- [ ] Overlay/pseudo labels không overlap/clip ở mobile/intermediate widths.
 - [ ] UI phản ánh brand/domain thay vì generic template.
