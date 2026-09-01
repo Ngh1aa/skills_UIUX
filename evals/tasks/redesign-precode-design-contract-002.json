@@ -2,7 +2,7 @@
   "id": "redesign-precode-design-contract-002",
   "category": "capability",
   "prompt": "Có website cũ, source repo, brand assets và yêu cầu nghiên cứu competitor rồi redesign toàn site. Hãy bắt đầu sửa code để giao diện đẹp và khác bản cũ.",
-  "recommended_skills": ["website-delivery-pipeline", "website-audit-and-redesign", "audience-intent-and-top-tasks", "ux-research-and-journey", "design-reference-research-and-benchmark", "brand-guidelines", "visual-design-direction", "domain-playbook"],
+  "recommended_skills": ["website-delivery-pipeline", "website-audit-and-redesign", "audience-intent-and-top-tasks", "ux-research-and-journey", "design-reference-research-and-benchmark", "brand-guidelines", "visual-design-direction", "real-world-artifact-and-domain-metaphor-design"],
   "expected_outcomes": [
     "Không lao thẳng vào CSS/code dù user yêu cầu execution",
     "Audit project truth và preserve list trước",
