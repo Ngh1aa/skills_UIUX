@@ -1,9 +1,9 @@
 ---
 name: brand-guidelines
 description: |
-  Hướng dẫn AI agent xây dựng, áp dụng và duy trì brand guidelines nhất quán 
-  xuyên suốt toàn bộ website: logo, color, typography, tone of voice, imagery, 
-  spacing và do/don't rules.
+  Xây dựng, áp dụng và kiểm soát brand guideline cho website dựa trên evidence thật: logo, color,
+  typography, imagery, tone, shape language, motion và digital tokens. Dùng khi có official guideline,
+  partial assets hoặc cần tạo PROPOSED BRAND GUIDELINE — LOGO-DERIVED với confidence rõ ràng.
 globs:
   - "docs/brand-guidelines.md"
   - "**/*.css"
@@ -11,257 +11,255 @@ globs:
   - "**/theme.*"
 ---
 
-# Brand Guidelines
+# Brand Guidelines — Evidence-first
 
-## Mục đích
+## Goal
 
-Brand guidelines đảm bảo mọi element trên website đều truyền tải một brand identity nhất quán. Skill này hướng dẫn cách xây dựng brand guidelines từ đầu hoặc chuyển đổi brand guidelines có sẵn thành design tokens và rules áp dụng được.
+Biến brand truth thành **digital rules có thể implement**, không biến logo/màu primary thành một visual theme cảm tính.
 
-## Quy trình
+Core rule:
 
-### 1. Brand Audit
+`official evidence → verified asset evidence → limited inference → proposed digital rule`
 
-Trước khi tạo guidelines mới, kiểm tra xem đã có brand assets nào:
+Không được đi ngược chuỗi này.
 
-```markdown
-## Existing Brand Assets Checklist
-- [ ] Logo files (SVG, PNG)
-- [ ] Color palette
-- [ ] Typography/fonts
-- [ ] Tone of voice document
-- [ ] Photography/imagery style
-- [ ] Icon set
-- [ ] Previous website/collateral
-- [ ] Brand story/manifesto
+## 1. Brand source status — bắt buộc
+
+Trước mọi brand decision, phân loại:
+
+```text
+A — OFFICIAL BRAND GUIDELINE AVAILABLE
+B — PARTIAL OFFICIAL BRAND ASSETS AVAILABLE
+C — LOGO AVAILABLE, NO BRAND GUIDELINE
+D — NO RELIABLE BRAND ASSET
 ```
 
-Nếu chưa có gì → tạo từ đầu theo các bước bên dưới.
-Nếu đã có → chuyển đổi thành tokens và rules.
+Evidence priority:
 
-### 2. Brand Personality & Positioning
-
-```markdown
-## Brand Personality
-- **Archetype**: [Chọn 1-2 archetype: Creator, Sage, Explorer, Hero, Everyman, Lover, Jester, Caregiver, Ruler, Magician, Innocent, Outlaw]
-- **Personality traits**: [3-5 tính từ mô tả brand. VD: "Professional, Innovative, Approachable"]
-- **Brand is**: [Danh sách tính chất brand THỂ HIỆN]
-- **Brand is NOT**: [Danh sách tính chất brand TRÁNH]
-
-## Brand Voice
-- **Tone**: [Formal ↔ Casual, Serious ↔ Playful, Technical ↔ Simple]
-- **Language style**: [Ví dụ: "Ngắn gọn, dùng active voice, tránh jargon"]
-- **First person**: [We/Chúng tôi hay tên brand?]
-- **Addressing user**: [You/Bạn hay formal hơn?]
+```text
+Tier 1 — Official brand guideline / brand book / design system
+Tier 2 — Official logo package / trademark / vector assets
+Tier 3 — Official website / app / annual report / company profile
+Tier 4 — Official campaign / signage / verified social
+Tier 5 — Logo visual analysis
+Tier 6 — Professional inference
 ```
 
-### 3. Color System
+### Hard rule
 
-#### Primary Colors
+- A → guideline là source-of-truth; chỉ mở rộng phần digital còn thiếu với `PROPOSED_FOR_DIGITAL`.
+- B → giữ nguyên phần verified; chỉ infer phần thiếu.
+- C → **bắt buộc** tạo `PROPOSED BRAND GUIDELINE — LOGO-DERIVED`; không được ghi đơn giản `brand unknown` rồi tự chọn style.
+- D → chỉ tạo `PROPOSED BRAND DIRECTION — LOW CONFIDENCE`; không được gọi là brand guideline chính thức.
 
-```markdown
-| Role | Name | HEX | HSL | Usage |
-|------|------|-----|-----|-------|
-| Primary | [Name] | #XXXXXX | hsl(H, S%, L%) | CTA, links, primary actions |
-| Primary Dark | [Name] | #XXXXXX | hsl(H, S%, L%) | Hover states, emphasis |
-| Primary Light | [Name] | #XXXXXX | hsl(H, S%, L%) | Backgrounds, subtle highlights |
+## 2. Evidence labels
+
+Mỗi material brand decision dùng một trong:
+
+```text
+OFFICIAL
+VERIFIED_FROM_OFFICIAL_ASSET
+INFERRED_FROM_LOGO
+INFERRED_FROM_OFFICIAL_ASSETS
+PROPOSED_FOR_DIGITAL
+PROPOSED_FOR_ACCESSIBILITY
+UNKNOWN
 ```
 
-#### Semantic Colors
+Không gọi màu/font/voice là official nếu không có evidence tương ứng.
 
-```markdown
-| Role | HEX | Usage |
-|------|-----|-------|
-| Success | #XXXXXX | Confirmation, positive feedback |
-| Warning | #XXXXXX | Caution, attention needed |
-| Error | #XXXXXX | Errors, destructive actions |
-| Info | #XXXXXX | Information, tips |
+## 3. Brand audit
+
+Kiểm tra tối thiểu:
+
+- logo files/variants;
+- official colors nếu có;
+- official typeface nếu có;
+- current website/app typography;
+- imagery/photography;
+- iconography;
+- annual report/company profile;
+- campaign/signage;
+- brand story/positioning/tone evidence;
+- existing digital tokens/components.
+
+Tạo ledger:
+
+| Brand dimension | Finding | Source | Status | Confidence | Digital implication |
+|---|---|---|---|---|---|
+
+## 4. Logo-derived fallback protocol
+
+Khi status = C:
+
+### 4.1 Verify official logo
+
+Ưu tiên `SVG > PDF/vector > EPS/AI > high-resolution PNG` từ first-party source.
+
+### 4.2 Analyze only what logo can support
+
+Có thể suy ra có kiểm soát:
+
+- geometry;
+- visual weight;
+- symmetry/asymmetry;
+- curves/corners;
+- stroke characteristics;
+- proportion/negative space;
+- direction/movement;
+- verified/extracted colors;
+- potential shape/motif language.
+
+Logo **không đủ** để khẳng định:
+
+- mission/vision;
+- target audience;
+- positioning;
+- customer promise;
+- brand values;
+- tone of voice;
+- photography strategy.
+
+Các phần đó phải đến từ business/first-party evidence hoặc giữ `UNKNOWN`.
+
+### 4.3 Extract colors with provenance
+
+| Color | HEX/RGB | Source | Status | Confidence | Intended role |
+|---|---|---|---|---|---|
+
+`logo color ≠ UI semantic color`.
+
+Nếu logo color không đạt contrast cho action/text, giữ nguyên logo color và tạo companion color `PROPOSED_FOR_ACCESSIBILITY`; không âm thầm đổi màu logo.
+
+### 4.4 Typography fallback
+
+Không đoán exact font từ logo.
+
+Ghi:
+
+```text
+Official Typeface: UNKNOWN
+Logo Typography Signal: ...
+Observed Website Typeface: ...
+Proposed Digital Typeface: ...
+Status: PROPOSED_FOR_DIGITAL
 ```
 
-#### Neutral Scale
+Font đề xuất phải xét locale/Vietnamese, readability, weights, licensing và performance.
 
-```markdown
-| Step | HEX | Usage |
-|------|-----|-------|
-| 50 | #XXXXXX | Page background |
-| 100 | #XXXXXX | Card background |
-| 200 | #XXXXXX | Borders, dividers |
-| 300 | #XXXXXX | Disabled state |
-| 400 | #XXXXXX | Placeholder text |
-| 500 | #XXXXXX | Secondary text |
-| 600 | #XXXXXX | Body text |
-| 700 | #XXXXXX | Heading text |
-| 800 | #XXXXXX | Primary text |
-| 900 | #XXXXXX | Darkest text |
-```
+## 5. Brand strategy boundary
 
-#### Rules bắt buộc
+Personality, positioning và tone chỉ được define khi có evidence đủ.
 
-- Tất cả text/background combinations phải đạt **WCAG AA contrast ratio** (4.5:1 cho normal text, 3:1 cho large text)
-- Không dùng color làm phương tiện truyền tải thông tin duy nhất
-- Dark mode colors phải được define riêng, không chỉ invert
-- Semantic colors không thay đổi giữa themes (success luôn là positive)
+Không bắt buộc dùng archetype. Nếu archetype không có business evidence hoặc không giúp implementation, bỏ.
 
-### 4. Typography
+Tạo:
 
-```markdown
-## Font Stack
-- **Heading font**: [Font name] — [Lý do chọn]
-  - Fallback: [System font stack]
-  - Weights: [400, 600, 700...]
-- **Body font**: [Font name] — [Lý do chọn]
-  - Fallback: [System font stack]  
-  - Weights: [400, 500, 600...]
-- **Mono font**: [Font name] — [Cho code blocks nếu cần]
+| Dimension | Evidence | Status | Design/copy implication |
+|---|---|---|---|
 
-## Type Scale
-| Level | Size (rem) | Line Height | Weight | Letter Spacing | Usage |
-|-------|-----------|-------------|--------|---------------|-------|
-| Display | 3.5rem | 1.1 | 700 | -0.02em | Hero headlines |
-| H1 | 2.5rem | 1.2 | 700 | -0.015em | Page titles |
-| H2 | 2rem | 1.25 | 600 | -0.01em | Section headings |
-| H3 | 1.5rem | 1.3 | 600 | 0 | Sub-section headings |
-| H4 | 1.25rem | 1.4 | 600 | 0 | Card titles |
-| Body Large | 1.125rem | 1.6 | 400 | 0 | Lead paragraphs |
-| Body | 1rem | 1.6 | 400 | 0 | Default text |
-| Body Small | 0.875rem | 1.5 | 400 | 0.01em | Captions, metadata |
-| Caption | 0.75rem | 1.4 | 500 | 0.02em | Labels, footnotes |
+## 6. Semantic color role map
 
-## Typography Rules
-- Maximum 2 font families per project
-- Heading font dùng cho headings và display text CHỈ
-- Body font dùng cho body, UI controls, navigation
-- Line length tối ưu: 60-80 ký tự (sử dụng max-width)
-- Không dùng font-size nhỏ hơn 14px (0.875rem) cho body text
-- Responsive: heading sizes giảm trên mobile (dùng clamp() hoặc breakpoints)
-```
+Không chỉ tạo palette. Bắt buộc define role:
 
-### 5. Logo Usage
+- brand primary / secondary;
+- page background;
+- surface / alternate surface / dark surface;
+- text primary / secondary / muted / inverse;
+- border/divider;
+- primary action / hover / active / focus;
+- link;
+- brand accent/wayfinding;
+- success/warning/error/info khi applicable.
 
-```markdown
-## Logo Variants
-| Variant | File | Min width | Usage |
-|---------|------|-----------|-------|
-| Primary | logo.svg | 120px | Default, light backgrounds |
-| Reversed | logo-white.svg | 120px | Dark backgrounds |
-| Icon only | logo-icon.svg | 32px | Favicon, small spaces |
+Mỗi role phải có allowed usage + prohibited usage.
 
-## Logo Rules
-- Minimum clear space: [X]px around logo
-- Never stretch, rotate, recolor, or add effects to logo
-- Minimum size: [X]px width for digital
-- Logo placement: [Quy tắc đặt logo trên trang]
-```
+Brand primary không mặc định dùng cho mọi CTA, mọi heading và mọi section background.
 
-### 6. Imagery & Visual Style
+## 7. Typography system
 
-```markdown
-## Photography Style
-- **Mood**: [Mô tả cảm xúc ảnh cần truyền tải]
-- **Color treatment**: [Natural, desaturated, warm filter, etc.]
-- **Subject**: [People, products, abstract, landscapes, etc.]
-- **Composition**: [Quy tắc bố cục]
+Define:
 
-## Illustration Style (nếu có)
-- **Style**: [Flat, isometric, hand-drawn, 3D, etc.]
-- **Color usage**: [Dùng brand colors hay palette riêng]
-- **Line weight**: [Thin, medium, thick]
+- heading/body family + evidence/status;
+- display/H1/H2/H3/body/meta/action hierarchy;
+- line-height/line-length;
+- locale behavior;
+- mobile transformation;
+- fallback behavior.
 
-## Icon Style
-- **Style**: [Outlined, filled, duotone, etc.]
-- **Size**: [16px, 20px, 24px grid]
-- **Stroke width**: [1.5px, 2px, etc.]
-- **Corner radius**: [Rounded, sharp]
-```
+Không dùng type scale mặc định như universal truth. Scale phải phù hợp content density, domain và actual layouts.
 
-### 7. Spacing & Layout Principles
+## 8. Logo usage + state matrix
 
-```markdown
-## Spacing Scale (base: 4px)
-| Token | Value | Usage |
-|-------|-------|-------|
-| space-1 | 4px | Tight gaps, inline elements |
-| space-2 | 8px | Form gaps, compact lists |
-| space-3 | 12px | Card padding (small) |
-| space-4 | 16px | Default padding, gaps |
-| space-6 | 24px | Section padding (small) |
-| space-8 | 32px | Card padding (large) |
-| space-10 | 40px | Section gaps |
-| space-12 | 48px | Section padding |
-| space-16 | 64px | Large section gaps |
-| space-20 | 80px | Page section spacing |
-| space-24 | 96px | Hero/major section spacing |
+Ngoài clear-space/min-size, bắt buộc kiểm các rendered contexts:
 
-## Layout Principles
-- Sử dụng 4px grid system
-- Maximum content width: [1200px / 1280px / 1440px]
-- Consistent spacing: dùng scale tokens, KHÔNG hardcode arbitrary values
-- White space is a design element — không lấp đầy mọi khoảng trống
-```
+| Context | Logo variant | Background | Contrast/result |
+|---|---|---|---|
+| top nav | ... | ... | ... |
+| scrolled nav | ... | ... | ... |
+| mobile menu | ... | ... | ... |
+| dark section/footer | ... | ... | ... |
+| light section | ... | ... | ... |
 
-### 8. Do/Don't Rules
+White logo on white nav, dark logo on dark surface hoặc filter/invert không kiểm chứng là P0/P1 brand defect tùy mức ảnh hưởng.
 
-```markdown
-## ✅ DO
-- Dùng brand colors theo đúng role đã define
-- Giữ typography hierarchy nhất quán
-- Sử dụng spacing tokens thay vì magic numbers
-- Đảm bảo contrast ratio WCAG AA
-- Giữ tone of voice nhất quán xuyên suốt
-- Dùng imagery style thống nhất
+## 9. Shape / layout / imagery / icon / motion language
 
-## ❌ DON'T
-- Không dùng colors ngoài palette đã define
-- Không mix nhiều hơn 2 font families
-- Không phá vỡ type scale
-- Không dùng logo variant sai context
-- Không viết copy với tone khác brand voice
-- Không dùng ảnh stock generic không match brand mood
-- Không thêm drop shadow, gradient, hoặc effect không có trong guidelines
-```
+Cross-check official assets trước khi proposal.
 
-## Output bắt buộc
+- Shape language có thể kế thừa geometry logo nhưng không biến mọi component thành logo shape.
+- Imagery không được suy ra chỉ từ logo; phải audit actual brand photography/collateral.
+- Icon style phải coherent với brand/domain và UI density.
+- Motion chỉ lấy cue từ brand rhythm/direction khi có rationale; không làm logo distortion hoặc decorative overload.
 
-### `docs/brand-guidelines.md`
-Document tổng hợp toàn bộ brand guidelines với ví dụ visual.
+## 10. Brand distinctiveness test
 
-### CSS Custom Properties
-Chuyển đổi tất cả brand tokens thành CSS custom properties:
+Trước khóa visual direction, hỏi:
 
-```css
-:root {
-  /* Colors */
-  --color-primary: hsl(H, S%, L%);
-  --color-primary-dark: hsl(H, S%, L%);
-  /* ... */
-  
-  /* Typography */
-  --font-heading: 'Font Name', sans-serif;
-  --font-body: 'Font Name', sans-serif;
-  /* ... */
-  
-  /* Spacing */
-  --space-1: 0.25rem;
-  --space-2: 0.5rem;
-  /* ... */
-}
-```
+> Nếu che logo + brand name, website còn có thể được nhận ra nhờ color roles, typography, imagery, composition, shape/motif hoặc motion không?
 
-## Acceptance Criteria
+Nếu câu trả lời là “có thể thay logo bằng bất kỳ competitor nào”, brand-to-digital translation chưa đủ.
 
-- [ ] Brand personality và voice được define
-- [ ] Color system có primary, semantic, và neutral scales
-- [ ] Tất cả color combinations đạt WCAG AA contrast
-- [ ] Typography scale hoàn chỉnh với responsive rules
-- [ ] Logo usage rules rõ ràng
-- [ ] Imagery/icon style được define
-- [ ] Spacing scale dựa trên hệ thống (4px hoặc 8px grid)
-- [ ] Do/Don't rules cụ thể
-- [ ] CSS custom properties được generate
+Không giải quyết bằng cách rải primary color nhiều hơn; phải quay lại evidence + domain + visual signature.
 
-## Anti-patterns cần tránh
+## 11. Output
 
-❌ Brand guidelines chỉ có colors mà không có voice/personality
-❌ Chọn font vì "đẹp" mà không xét readability và performance
-❌ Color palette không kiểm tra contrast ratio
-❌ Spacing random — mỗi component dùng giá trị khác nhau
-❌ Brand guidelines tồn tại trong document nhưng code không reflect
+Tạo `docs/brand-guidelines.md` hoặc equivalent gồm:
+
+1. Brand source status.
+2. Evidence ledger.
+3. Official vs inferred vs proposed decisions.
+4. Logo usage/state matrix.
+5. Semantic color roles.
+6. Typography.
+7. Imagery/icon/shape/motion direction.
+8. Brand signatures.
+9. Do / Don't.
+10. CSS/design tokens chỉ cho các quyết định đủ confidence.
+
+Nếu status C, title phải ghi rõ:
+
+`PROPOSED BRAND GUIDELINE — LOGO-DERIVED`
+
+## 12. Acceptance criteria
+
+- [ ] Brand source status A/B/C/D đã xác định.
+- [ ] Không fabricate positioning/voice từ logo.
+- [ ] Official/inferred/proposed được phân biệt.
+- [ ] Logo color và UI semantic color không bị đánh đồng.
+- [ ] Color roles có usage/prohibition.
+- [ ] Typography có evidence/status + locale/mobile rules.
+- [ ] Logo được kiểm trong light/dark/scrolled/mobile states.
+- [ ] Imagery/icon direction trace được về evidence/domain.
+- [ ] Có brand recognition test.
+- [ ] Code tokens không claim official nếu chỉ là proposal.
+
+## Anti-patterns
+
+- “Không có guideline → tự tạo một brand mới” mà không label confidence.
+- Gọi màu trích từ logo là official.
+- Đoán exact font từ wordmark.
+- Suy ra mission/voice/persona chỉ từ logo.
+- Dùng primary color ở mọi nơi để tạo cảm giác branded.
+- Brand doc một kiểu nhưng rendered UI một kiểu.
+- Chỉ kiểm token, không kiểm logo/CTA trên actual background states.
