@@ -12,7 +12,7 @@ description: |
 
 Rendered UI phải giữ đúng chủ thể, tỷ lệ và quan hệ giữa media ↔ copy ↔ CTA ở mọi viewport.
 
-`asset truth → intended focal point → container ratio → crop strategy → rendered screenshot → integrity review → PASS/FAIL`
+`asset truth → intended focal point → container ratio → crop strategy → perceived subject scale → rendered screenshot → integrity review → PASS/FAIL`
 
 ## 1. Trigger
 
@@ -21,7 +21,8 @@ Bật bắt buộc khi:
 - fashion / beauty / lifestyle / portfolio / ecommerce dùng photography;
 - hero, campaign, editorial spread, product grid, PDP gallery;
 - substantial visual redesign thay đổi aspect-ratio, object-fit hoặc media density;
-- user phản hồi ảnh bị cắt đầu/mất chủ thể/lệch layout.
+- user phản hồi ảnh bị cắt đầu/mất chủ thể/lệch layout;
+- các card cùng grid có model/product nhìn to nhỏ khác nhau dù container bằng nhau.
 
 ## 2. Asset truth before crop
 
@@ -31,14 +32,15 @@ Trước khi set `object-fit: cover`, inspect:
 - subject type: full-body, half-body, product-only, detail, landscape;
 - focal point: face/head, garment, product, hand/accessory, architectural subject;
 - safe crop region;
-- whether source has enough resolution for target container.
+- whether source has enough resolution for target container;
+- **source framing / perceived scale**: subject chiếm bao nhiêu phần trăm frame so với các asset cùng component family.
 
 Record when material:
 
-| Asset | Source ratio | Subject/focal point | Intended container | Crop mode | object-position/focal token | Mobile rule |
-|---|---:|---|---|---|---|---|
+| Asset | Source ratio | Subject/focal point | Intended container | Crop mode | object-position/focal token | Media scale | Mobile rule |
+|---|---:|---|---|---|---|---:|---|
 
-Không dùng `cover center` như default mù quáng.
+Không dùng `cover center` hoặc `contain` như default mù quáng.
 
 ## 3. Focal-point rule — HARD FAIL
 
@@ -68,6 +70,64 @@ HARD FAIL nếu rendered result tạo:
 - giant empty whitespace vì intrinsic ratio + fixed dimension conflict;
 - image overflowing neighboring content;
 - inconsistent image height làm text/card alignment vỡ vô lý.
+
+## 4.1 Component-family crop consistency — HARD GATE
+
+**Cùng ratio không đồng nghĩa cùng crop.** Với product grid, collection rail, related products, avatar/list card hoặc bất kỳ component family lặp lại nào, review cả **perceived subject scale**.
+
+Ví dụ FAIL:
+
+- 4 product cards đều 3:4 nhưng một model chỉ thấy từ ngực trở lên trong khi ba card còn lại thấy gần full-body;
+- một ảnh có đầu lớn gấp ~1.5–2× các ảnh cạnh bên chỉ vì source đã crop chặt;
+- `object-fit: contain` giúp không mất đầu nhưng tạo ra một asset nhìn phóng đại/lệch nhịp so với cả grid;
+- cùng một sản phẩm ở Home/PLP/Related có perceived scale khác nhau không có rationale.
+
+Required strategy:
+
+1. chốt **canonical frame ratio** cho component family;
+2. chốt **target subject scale** bằng screenshot của 3–6 card representative;
+3. asset nào intrinsically tighter/looser phải dùng **asset-level focal/scale metadata** hoặc alternate source;
+4. ưu tiên metadata/token, không hard-code ngẫu nhiên theo `nth-child`;
+5. nếu source quá chặt và không thể normalize mà vẫn giữ garment/face → thay source ảnh;
+6. hover animation không được làm phá normalized scale vừa chốt.
+
+Allowed implementation pattern:
+
+```css
+.catalogue-media {
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+}
+
+.catalogue-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: var(--media-position, 50% 8%);
+  transform: scale(var(--media-scale, 1));
+  transform-origin: var(--media-origin, 50% 8%);
+}
+```
+
+Asset/config example:
+
+```text
+product-a → media-scale: 1.00, media-position: 50% 8%
+product-b (source crop chặt hơn) → media-scale: 0.82, media-position: 50% 6%
+```
+
+Các số phải đến từ rendered comparison, không đoán rồi bỏ đó.
+
+### Page-role exception
+
+Không ép một crop policy cho mọi page role:
+
+- **PLP/Home product card / related rail:** ưu tiên visual consistency của merchandising set + nhận diện garment;
+- **PDP main:** ưu tiên subject/product completeness, thường `contain` và không ép cùng perceived scale với PLP;
+- **campaign/editorial:** art direction có thể khác nhưng phải có focal rationale;
+- **thumbnail/transaction row:** có thể compact hơn nhưng vẫn không được mất subject vô lý.
+
+Do đó rule đúng là **consistent within the same component family**, không phải “mọi ảnh toàn website phải dùng cùng object-fit/scale”.
 
 ## 5. Media ↔ text ownership
 
@@ -111,6 +171,8 @@ Review checklist:
 
 - [ ] face/head intact when expected;
 - [ ] garment/product identifiable and not accidentally cropped;
+- [ ] **same component family có perceived subject scale nhất quán**;
+- [ ] không có một card zoom chặt/lỏng bất thường so với hàng bên cạnh;
 - [ ] no sliver/stretch;
 - [ ] no accidental blank space;
 - [ ] text belongs to the correct image/card;
@@ -123,15 +185,20 @@ Review checklist:
 Prefer explicit component/data ownership, e.g.:
 
 ```css
-.media { object-fit: cover; object-position: var(--focal-x, 50%) var(--focal-y, 50%); }
+.media {
+  object-fit: contain;
+  object-position: var(--focal-x, 50%) var(--focal-y, 50%);
+  transform: scale(var(--media-scale, 1));
+}
 ```
 
 or data/config per asset:
 
 ```text
-portrait-full-body → 50% 20%
-portrait-face-led → 50% 12%
-product-flatlay → 50% 50%
+portrait-full-body → 50% 20%, scale 1.00
+portrait-source-tight → 50% 8%, scale 0.82
+portrait-face-led → 50% 12%, scale 1.00
+product-flatlay → 50% 50%, scale 1.00
 ```
 
 Values must come from rendered inspection, not guesswork alone.
@@ -145,6 +212,7 @@ At pressure points, decide explicitly:
 - `cover` vs `contain`;
 - different object-position;
 - different aspect-ratio;
+- different `media-scale` when a smaller viewport changes perceived crop materially;
 - alternate asset when necessary;
 - whether composition should reflow around image rather than crop harder.
 
@@ -154,6 +222,7 @@ If user says:
 
 - ảnh bị cắt đầu / mất mặt;
 - crop lệch;
+- một card crop/zoom khác hẳn các card còn lại;
 - layout lệch;
 - card text/image không ăn nhau;
 - hình bị kéo thành lát dọc;
@@ -174,6 +243,7 @@ Required response:
 Do not merge/deploy media-heavy redesign when any representative route has:
 
 - obvious head/face/subject crop failure;
+- **one merchandising card visibly zoomed/cropped out of family**;
 - image sliver/stretch;
 - product-card ownership ambiguity;
 - hero overflow/clip;
@@ -184,4 +254,4 @@ Automated PASS cannot override obvious screenshot failure.
 
 ## Core principle
 
-> **The browser screenshot is the truth. A valid CSS grid and a 200 response do not make a visually broken crop/layout acceptable.**
+> **The browser screenshot is the truth. Matching aspect-ratios are not enough: repeated media must also match perceived crop and subject scale.**
