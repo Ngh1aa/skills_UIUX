@@ -27,14 +27,31 @@ Use this skill for requests such as:
 - “UI trông giống AI/template”;
 - “chỉnh lại layout, spacing, typography, card, button, mobile”;
 - “làm giao diện đẹp hơn nhưng không đổi content/brand”;
-- “redesign UI” when the request is primarily visual/interface remediation on an existing implementation.
+- “redesign UI” only when the request is primarily local/page-level visual remediation on an existing implementation and does not require a new whole-site strategy/direction.
 
 Do **not** use this as the main orchestrator when the task is primarily:
 
 - whole-site discovery/IA/service redesign → use `website-delivery-pipeline` / `website-audit-and-redesign`;
+- user explicitly asks to research the old site + brand + comparable websites and then redesign/rebuild the whole website → use `website-delivery-pipeline` with `design-reference-research-and-benchmark` + `visual-design-direction` + relevant domain playbook;
 - implementing a fully approved spec with no UI diagnosis needed → use `frontend-implementation`;
 - audit-only with no requested changes → use `ui-craft-and-visual-qa` or the relevant audit skill;
 - exact screenshot/Figma reproduction → use `reference-analysis-and-design-to-code` with implementation skills.
+
+### Hard routing guard
+
+If **two or more** of these are true, this skill must not lead the task:
+
+- scope is multiple primary page types or whole site;
+- user asks for a noticeably new visual direction;
+- user provides a legacy site and asks to redesign/rebuild it;
+- user asks to research competitor/reference websites before coding;
+- business goal, audience, user journey or IA must be reconsidered;
+- existing UI is described as generic/template-like at system level;
+- success requires customers/stakeholders to visibly recognize a redesign.
+
+In that case, hand control to `website-delivery-pipeline` before editing code. `ui-improvement` may return later for targeted remediation after the new design contract exists.
+
+Do not choose the preserve-style path merely because code already exists.
 
 ## Step 0 — Read project truth first
 
@@ -64,7 +81,7 @@ Also classify intent:
 - **reference-led** — a screenshot/Figma/reference should guide the result;
 - **reference-research-led** — user asks to research strong websites/designs on the web before improving the UI.
 
-Do not silently convert a polish request into a brand redesign.
+Do not silently convert a polish request into a brand redesign. Conversely, do not silently downgrade a whole-site redesign into “polish existing CSS”.
 
 ## Step 2 — Inspect rendered evidence + source
 
@@ -156,7 +173,7 @@ Do not enable a specialist merely because its topic appears somewhere on the pag
 
 ## Step 6 — Choose remediation depth
 
-Use the shallowest change that fixes the root cause.
+Use the shallowest change that fixes the root cause **only for true improvement/polish scope**.
 
 Prefer this order:
 
@@ -167,6 +184,8 @@ Prefer this order:
 5. create a page-local exception only when it is intentionally unique and documented by context.
 
 Avoid page-by-page patches for a shared system defect.
+
+If the diagnosis shows the root cause is actually a missing/wrong site-wide design direction, stop shallow remediation and route back to the redesign pipeline rather than accumulating override layers.
 
 ## Step 7 — UI craft rules
 
@@ -188,7 +207,8 @@ Flag and remove unjustified repetition such as:
 - identical section rhythm regardless of content;
 - multiple competing accent colors;
 - oversized hero with too many labels and CTA;
-- decorative blobs/effects replacing real hierarchy.
+- decorative blobs/effects replacing real hierarchy;
+- primary pages sharing one hero shell despite different user tasks.
 
 Do not remove these patterns when the project’s approved brand system intentionally depends on them.
 
@@ -270,11 +290,14 @@ Use project-appropriate verification such as:
 - keyboard/focus inspection for changed interactive UI;
 - overflow/wrapping checks;
 - before/after screenshot comparison;
+- cross-page top-of-page comparison for system/site scope;
 - visual regression checks for shared high-impact changes.
 
 A build pass is not visual proof. A screenshot file that was never inspected is not visual proof.
 
 If verification fails, do not call the finding fixed.
+
+If rendered inspection is unavailable for substantial visual work, report `VISUAL QA: BLOCKED/UNVERIFIED` and do not hand off as visually finished.
 
 ## Output
 
@@ -316,6 +339,7 @@ Minimum completion questions:
 
 ## Anti-patterns
 
+- Using this skill as an excuse to avoid the full redesign pipeline for a whole-site redesign.
 - Redesigning because the agent personally prefers another style.
 - Applying SaaS cards, glassmorphism or gradients to every domain.
 - Copying Awwwards/Dribbble/Behance/Pinterest surfaces without checking domain, audience, business goal and feasibility.
