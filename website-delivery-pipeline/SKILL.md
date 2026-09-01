@@ -24,6 +24,32 @@ If a page/site redesign has weak, generic or undefined visual direction, or the 
 
 If the work contains forms, search, auth, checkout, CMS/API data, analytics or other behavior that can look real while being mock/simulated, activate `system-reality-and-production-readiness` before calling it working or production-ready.
 
+### Redesign hard-routing override
+
+For a **whole-site redesign/rebuild**, especially when the user supplies a legacy site, brand source and asks to research comparable websites, do **not** let `ui-improvement` become the primary path. The minimum redesign graph is:
+
+`project-context → website-audit-and-redesign → audience/user-journey/domain playbook → design-reference-research-and-benchmark → visual-design-direction → design-system/components → frontend implementation → responsive/accessibility → rendered visual QA`
+
+Add domain-specific and reality/security/performance skills only when justified.
+
+Before any substantial code edit, the redesign must have a **Design Contract** (file or equivalent working artifact) containing at minimum:
+
+- owner/business goal and what the owner must communicate;
+- primary audiences, entry intents and what each audience must find quickly;
+- journey/decision sequence connecting user intent to business conversion;
+- preserve/change list from the existing site;
+- brand evidence and color-role map, not only a palette;
+- reference roles and extracted principles;
+- layout grammar + typography + imagery/media direction;
+- page-role composition matrix for primary templates;
+- top-of-page/hero strategy per page role;
+- mobile transformation rules;
+- explicit `do / do not` rules and visual signatures.
+
+**No-code gate:** if these items are still generic (for example “modern, premium, clean”, one universal hero, or one layout copied across unrelated page roles), stop and resolve the design direction before implementation.
+
+For sites with 5+ materially different primary page roles, require at least **3 distinct top-of-page composition families** unless a documented brand/product rationale justifies stronger repetition. Consistency may reuse tokens, navigation and signatures; it must not reduce every page to the same shell with different copy/images.
+
 ## Step 2 — Choose base profile + conditional packs
 - Substantial content/layout redesign, experiential service, brand differentiation or online/offline journey → `experience-strategy`.
 - High product/behavior uncertainty, redesign validation or IA risk → `research-validation`.
@@ -47,15 +73,17 @@ If the work contains forms, search, auth, checkout, CMS/API data, analytics or o
 | 3 UX/IA | journey + IA + optional card/tree testing | flows/findability validated to risk |
 | 4 Content/experience | journey-driven layout + experience principles | sections advance user decisions |
 | 4A Reference benchmark | conditional `design-reference-research-and-benchmark` | mixed source pool, finalists by role, no blind copying |
-| 5 Brand/visual | brand + visual + optional digital signature | implementable, recognizable grammar |
-| 6 System | design system + interaction + optional designops | reusable components/states |
+| 5 Brand/visual | brand + visual + optional digital signature | implementable, recognizable grammar + page-role matrix |
+| 5A Design contract | required for substantial redesign | owner/user goals, journey, brand, references, compositions and do/don't are concrete before code |
+| 6 System | design system + interaction + optional designops | reusable components/states without template monotony |
 | 6A System reality | conditional reality/data/API/CMS audit | real/mock/static/simulated/partial/unknown explicit |
 | 7 Plan | architecture + change plan + guardrails | owners, dependencies, acceptance and verification known |
-| 8 Code | frontend implementation | maintainable working implementation |
+| 8 Code | frontend implementation | maintainable working implementation that follows the design contract |
 | 9 Inclusive | responsive + accessibility + optional cognitive/AT | usable critical journeys |
 | 10 Advanced behavior | optional search/forms/state/data/auth/AI | no undefined high-risk states |
 | 11 Quality | visual QA + brand + performance + SEO + security/trust | evidence-backed findings |
 | 12 Verification | tests + browser/device + verification matrix | every material change has pass condition/result |
+| 12A Rendered design review | required for substantial visual work | actual rendered pixels inspected across representative routes/viewports |
 | 13 Conformance/regression | optional accessibility/visual drift/reliability gates | scope/sample/baselines explicit |
 | 14 Release | code review + release + rollback | known risks, rollback and post-deploy smoke defined |
 | 15 Production | monitoring + service-health metrics + research | real outcome observed |
@@ -83,6 +111,8 @@ If the work contains forms, search, auth, checkout, CMS/API data, analytics or o
 - Review substantial work in two stages: spec/intent compliance first, code/experience quality second.
 - Every material change should map to `expected outcome → verification method → pass condition → result`.
 - Build pass is not visual proof; automated accessibility audit is not conformance; lab performance is not field outcome.
+- For substantial redesign, inspect a **cross-page screenshot set/montage** before handoff so repeated hero/section templates, brand drift and hierarchy monotony are visible side-by-side.
+- If the environment cannot render or inspect the changed UI, mark visual verification `BLOCKED` or `UNVERIFIED`; do not use source/build success as a substitute and do not present the redesign as visually finished.
 
 ## V5 evidence/reliability rules
 - Trace material research/analytics claims to source, date, context and limitations.
@@ -114,4 +144,4 @@ If the work contains forms, search, auth, checkout, CMS/API data, analytics or o
 7. Promote stable capability failures/successes into regression coverage.
 
 ## Completion rule
-Never say `done`, `working`, `integrated`, `production-ready`, `fully responsive`, `accessible`, `WCAG conformant`, `validated`, `secure`, `UX improved` or `reliable` without evidence appropriate to that exact claim. Report verified versus unverified explicitly.
+Never say `done`, `working`, `integrated`, `production-ready`, `fully responsive`, `accessible`, `WCAG conformant`, `validated`, `secure`, `UX improved`, `redesigned`, `visually finished` or `reliable` without evidence appropriate to that exact claim. Report verified versus unverified explicitly.
