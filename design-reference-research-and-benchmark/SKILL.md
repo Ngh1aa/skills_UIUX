@@ -1,290 +1,198 @@
 ---
 name: design-reference-research-and-benchmark
 description: |
-  Tìm, sàng lọc và benchmark website/design reference từ web theo ngành, audience, business goal,
-  brand và implementation reality trước khi khóa visual direction. Dùng cho redesign, website mới,
-  landing page hoặc khi UI đang generic và cần inspiration có căn cứ thay vì moodboard cảm tính.
+  Tìm, sàng lọc và benchmark website/design reference theo ngành, audience, business goal, brand,
+  page role và implementation reality trước khi khóa visual direction. Dùng cho redesign/new site hoặc
+  khi UI đang generic và cần reference intelligence có căn cứ thay vì moodboard cảm tính.
 ---
 
 # Design Reference Research & Benchmark
 
 ## Goal
 
-Biến việc “tham khảo website đẹp” thành một bước research có tiêu chí:
+Biến “tham khảo website đẹp” thành evidence cho **design decisions cụ thể**:
 
-`project context → search strategy → source mix → candidate pool → scoring → pattern extraction → adaptation brief`
+`project truth → decision problem → source mix → candidate pool → page/state inspection → scoring → principle extraction → page-role adaptation → visual-direction handoff`
 
 Không chọn reference chỉ vì đẹp. Không copy một website. Không dùng gallery shot như bằng chứng UX.
 
-## Inputs
+## 1. Required inputs
 
 Đọc trước khi research:
 
-- business goal và conversion goal;
-- audience / top tasks / entry context;
+- owner/business goal + conversion;
+- audience/top tasks/entry context;
+- user journey;
 - domain playbook;
-- brand constraints và assets hiện có;
+- brand source status + assets;
 - sitemap/page roles;
-- content/image reality;
-- stack, performance, responsive và accessibility constraints;
-- existing UI strengths cần preserve nếu là redesign.
+- content/image/data reality;
+- responsive/accessibility/performance constraints;
+- preserve list nếu redesign.
 
-Nếu các input này chưa rõ, đánh dấu assumption; không tự biến assumption thành fact.
+Nếu thiếu các input làm thay đổi decision, giữ `UNKNOWN/ASSUMPTION`; không search bằng adjective cảm tính để bù lỗ hổng.
 
-## Trigger rules
+## 2. Classify the reference problem
 
-Kích hoạt khi:
+Không search chung chung. Ghi rõ decision đang cần evidence, ví dụ:
 
-- tạo mới hoặc redesign toàn site/page quan trọng;
-- user yêu cầu giao diện đẹp, premium, professional, distinctive;
-- visual hiện tại generic hoặc thiếu design direction;
-- cần tìm inspiration/reference theo ngành;
-- cần benchmark competitor + best-in-class ngoài ngành;
-- user đưa Awwwards, MUUUUU, Behance, Dribbble, Pinterest, website mẫu hoặc screenshot.
-
-Không cần kích hoạt cho local bug/fix CSS nhỏ nếu visual direction đã khóa.
-
-## Source roles
-
-Không coi mọi nguồn có độ tin cậy UX như nhau.
-
-### Tier A — Real product / real industry sites
-
-Ưu tiên để học:
-
-- IA và navigation;
-- page role;
-- content hierarchy;
-- conversion path;
-- trust signals;
-- responsive/product behavior.
-
-Tìm qua Google/web search, competitor list, industry leaders và adjacent best-in-class products.
-
-### Tier B — Curated website galleries / award sites
-
-Ví dụ:
-
-- Awwwards;
-- MUUUUU.ORG;
-- SiteInspire;
-- Land-book;
-- Godly;
-- CSS Design Awards;
-- One Page Love / Lapa Ninja khi phù hợp landing page.
-
-Dùng mạnh cho:
-
-- art direction;
-- composition;
-- typography;
-- storytelling;
-- motion;
-- visual signature.
-
-Award status không chứng minh task success, accessibility hoặc conversion performance.
-
-### Tier C — Case-study / designer platforms
-
-Ví dụ:
-
-- Behance;
-- Dribbble.
-
-Dùng cho:
-
-- component ideas;
-- brand-to-digital translation;
-- visual system;
-- page-family presentation;
-- unusual composition.
-
-Behance case study có thể là concept. Dribbble shot có thể không phải production UI. Luôn kiểm reality trước khi dùng làm UX evidence.
-
-### Tier D — Mood / art-direction platforms
-
-Ví dụ:
-
-- Pinterest;
-- editorial/graphic/photography references.
-
-Dùng cho:
-
-- photography;
-- color mood;
-- typography mood;
-- texture;
-- composition language;
-- campaign/brand expression.
-
-Không dùng làm nguồn chính cho sitemap, flow hoặc form UX.
-
-## Research strategy
-
-### Step 1 — Classify the reference problem
-
-Xác định cần học gì:
-
-- whole-site architecture;
-- homepage composition;
-- specific page type;
+- whole-site information architecture;
+- homepage orientation;
+- location page;
+- specification/product page;
+- evidence/ESG page;
+- amenities/experience page;
+- availability/search page;
+- conversion/contact page;
 - navigation;
-- conversion section;
-- product/catalogue UX;
-- editorial layout;
-- brand expression;
-- imagery;
-- motion/interactions;
+- typography/editorial grammar;
+- photography/media;
+- motion;
 - mobile behavior.
 
-Không search “beautiful website” nếu decision thực tế là “school admissions landing page for parents on mobile”.
+Mỗi materially different page role có thể cần reference role khác nhau.
 
-### Step 2 — Build query families
+## 3. Source hierarchy
 
-Tạo ít nhất 3 nhóm query:
+### Tier A — real production/category sites
+Dùng mạnh cho IA, journey, trust, content priority, conversion, responsive behavior và practical task design.
 
-1. **Industry reality**
-   - `best <industry> websites`
-   - `<industry> <page type> website`
-   - `<business model> website <region>`
+### Tier B — curated/award sites
+Dùng cho art direction, composition, typography, storytelling, motion. Award status không chứng minh usability/conversion/accessibility.
 
-2. **Experience / visual direction**
-   - `<industry> editorial website design`
-   - `<industry> premium website`
-   - `<industry> immersive website`
-   - `<industry> minimal website`
+### Tier C — case-study/designer platforms
+Dùng cho system/component/brand translation; label production vs concept.
 
-3. **Task / component**
-   - `<task> UX pattern`
-   - `<page type> conversion design`
-   - `<component> website examples`
+### Tier D — mood/editorial/photography/physical references
+Dùng cho imagery, graphic language, texture, spatial/editorial cues; không dùng làm nguồn chính cho UX flow.
 
-Thêm brand adjective chỉ khi adjective đã được project/brand evidence hỗ trợ.
+## 4. Search strategy
 
-### Step 3 — Use a mixed candidate pool
+Tạo ít nhất 3 query families:
 
-Mặc định tìm 10–20 candidates cho site/page quan trọng, gồm:
+1. Industry/category reality.
+2. Page-role/task-specific patterns.
+3. Visual/art-direction patterns.
 
-- 4–8 real industry / competitor sites;
-- 3–6 curated best-in-class sites;
-- 2–4 cross-industry references có pattern hữu ích;
-- optional case-study/mood references cho art direction.
+Với whole-site redesign, search **theo page role**, không chỉ homepage/hero.
 
-Không bắt buộc đủ số nếu domain quá hẹp. Chất lượng hơn số lượng.
+Ví dụ real estate:
 
-### Step 4 — Reject weak references early
+- commercial office location page;
+- office floor plan/specification website;
+- building amenities experience;
+- sustainability evidence property site;
+- office availability/leasing UX.
 
-Loại candidate nếu:
+## 5. Candidate pool
 
-- chỉ đẹp nhưng không liên quan audience/business goal;
-- nội dung giả làm layout đẹp nhưng không chịu được content thật;
-- interaction phá discoverability hoặc task completion;
-- mobile yếu hoặc không có cách adapt hợp lý;
-- performance cost quá cao so với project;
-- phụ thuộc asset/3D/video mà project không có;
-- brand-specific composition quá distinctive để học trực tiếp;
-- không xác định được website thật hay concept nhưng lại định dùng làm UX evidence.
+Cho substantial redesign, mặc định 10–20 candidate có mix:
 
-### Step 5 — Score finalists
+- 4–8 production/category competitors/peers;
+- 3–6 best-in-class craft references;
+- 2–4 cross-industry references cho một pattern cụ thể;
+- optional domain artifacts/mood references.
 
-Dùng scorecard mặc định 100 điểm:
+Chất lượng > số lượng.
+
+## 6. Inspect actual pages/states, not homepage thumbnails
+
+Với candidate được dùng cho material decision, ghi rõ page/state đã inspect.
+
+Nếu tooling cho phép, capture/open screenshot hoặc rendered page evidence. Không kết luận cả design system từ một hero screenshot.
+
+Reference record:
+
+| Reference | Type | Page/state inspected | User task | Principle | Caveat | Confidence |
+|---|---|---|---|---|---|---|
+
+## 7. Reject weak references early
+
+Reject nếu:
+
+- đẹp nhưng không fit audience/business/task;
+- chỉ có perfect fake content;
+- mobile/interaction khó adapt;
+- phụ thuộc 3D/video/assets project không có;
+- concept bị dùng như production UX proof;
+- brand-specific surface quá mạnh để transfer;
+- không giúp decision đang nghiên cứu;
+- chỉ cung cấp thêm một generic hero/card pattern vốn đã quá phổ biến.
+
+## 8. Score finalists
+
+Scorecard mặc định 100:
 
 | Criterion | Weight |
 |---|---:|
-| Industry / domain fit | 20 |
-| Audience / top-task fit | 15 |
-| Business / conversion fit | 15 |
+| Domain/page-role fit | 20 |
+| Audience/top-task fit | 15 |
+| Business/conversion fit | 15 |
 | Brand fit | 15 |
-| UX / information usefulness | 10 |
-| Layout / composition usefulness | 10 |
-| Visual craft quality | 5 |
-| Interaction / motion quality | 5 |
+| UX/information usefulness | 10 |
+| Composition usefulness | 10 |
+| Visual craft | 5 |
+| Interaction/motion | 5 |
 | Implementation feasibility | 5 |
 
-Có thể đổi weight nếu project rationale yêu cầu, nhưng phải ghi lý do.
+Score hỗ trợ critique, không thay critique.
 
-Không dùng tổng điểm như truth tuyệt đối. Score hỗ trợ quyết định, không thay thế critique.
+## 9. Select references by role
 
-### Step 6 — Select references by role
+Chọn 3–6 finalist nhưng **không yêu cầu một site làm mọi thứ**.
 
-Chọn 3–6 finalists. Mỗi reference phải có **job** riêng, ví dụ:
+Ví dụ:
 
-- Reference A — IA/navigation;
-- Reference B — hero/layout grammar;
-- Reference C — typography/art direction;
-- Reference D — product/category UX;
-- Reference E — motion/signature moment;
-- Reference F — mobile adaptation.
+- A — IA/navigation;
+- B — location/map composition;
+- C — specification/floor-plan hierarchy;
+- D — evidence/ESG storytelling;
+- E — amenities/workday imagery;
+- F — conversion/mobile.
 
-Không cần một reference làm mọi thứ.
+## 10. Page-role reference matrix — bắt buộc cho whole-site redesign
 
-### Step 7 — Extract principles, not surfaces
+| Page role | User question | Reference(s) used | Principle extracted | What NOT to copy | Project-specific adaptation |
+|---|---|---|---|---|---|
 
-Với mỗi finalist, ghi:
+Nếu nhiều materially different page roles đều map về cùng một hero/layout principle mà không có rationale, benchmark **FAIL** vì chưa tạo đủ design intelligence.
 
-- what works;
-- why it works for that product/audience;
-- what is transferable;
-- what is brand-specific / non-transferable;
-- what needs adaptation;
-- mobile/performance/accessibility caveat;
-- evidence confidence.
+## 11. Extract principles, not surfaces
 
-Sau đó chuyển sang `visual-design-direction` hoặc `reference-analysis-and-design-to-code`.
+Mỗi finalist phải trả lời:
 
-## Domain source matrix
+```text
+What works?
+Why does it work for that audience/task?
+What is transferable?
+What is brand-specific/non-transferable?
+What should be rejected?
+How is it adapted to our content/assets/brand?
+How does mobile change it?
+What are performance/accessibility constraints?
+```
 
-Dùng như starting point, không phải luật cứng.
+Không dùng “inspired by X” làm rationale cuối.
 
-| Domain | Priority source mix |
-|---|---|
-| Education / international school | real schools → MUUUUU → Awwwards → Behance |
-| Corporate / B2B | real category leaders → Awwwards → MUUUUU → Behance |
-| Real estate / building / architecture | real property brands → Awwwards → MUUUUU → architecture references |
-| Furniture ecommerce | real ecommerce → MUUUUU → Behance → Dribbble |
-| Fashion ecommerce | real fashion brands → Awwwards → MUUUUU → Behance |
-| SaaS / technology | real SaaS → Godly/Awwwards → Land-book → Dribbble |
-| Government / public sector | real gov/service sites → accessibility exemplars → MUUUUU |
-| Nonprofit / NGO | real NGOs → MUUUUU → Awwwards/Behance |
-| Hospitality / travel | real hotel/travel brands → Awwwards → MUUUUU |
-| Creative agency / portfolio | Awwwards → Godly → Behance → real studio sites |
-| News / media / editorial | real publishers → MUUUUU → editorial references |
-| Landing page | real category leaders → Land-book/Lapa/One Page Love → Awwwards |
+## 12. Cross-reference synthesis
 
-## Evidence discipline
+Trước handoff sang `visual-design-direction`, synthesize:
 
-Mỗi reference record nên có:
+- layout grammar;
+- page-role diversity;
+- hierarchy/type;
+- color/surface roles;
+- imagery/media;
+- domain-native decision objects;
+- trust/conversion;
+- motion;
+- mobile.
 
-| Field | Required |
-|---|---|
-| URL / source | yes |
-| Source type | yes |
-| Date checked | yes |
-| Real production vs concept | yes/unknown |
-| Role in benchmark | yes |
-| Screens/page states inspected | when available |
-| Strengths | yes |
-| Risks/caveats | yes |
-| Score / rationale | for finalists |
+### Anti-Frankenstein rule
 
-Nếu claim là “best practice”, cần evidence rộng hơn một gallery entry.
+Mỗi principle được chọn phải thuộc cùng một final design DNA. Nếu A/B/C reference tạo ba visual languages không thể hòa giải, reject bớt thay vì ghép tất cả.
 
-## Anti-copy rules
-
-- Không clone full composition của một reference.
-- Không copy logo, copywriting, proprietary imagery, illustrations hoặc distinctive branded assets.
-- Không ghép nhiều reference theo kiểu Frankenstein thiếu visual grammar.
-- Không biến trend thành brand identity mặc định.
-- Không dùng motion award-site nếu không hỗ trợ orientation, hierarchy hoặc brand expression.
-- Không dùng `inspired by X` như rationale cuối cùng. Rationale phải quay về user/business/brand.
-
-## Progressive resources
-
-- [Reference source strategy](references/source-strategy.md)
-- [Reference benchmark gate](checklists/reference-benchmark-gate.md)
-- [Benchmark example](examples/reference-benchmark-example.md)
-
-## Output
+## 13. Output
 
 Tạo `docs/design-reference-benchmark.md` hoặc equivalent:
 
@@ -292,55 +200,64 @@ Tạo `docs/design-reference-benchmark.md` hoặc equivalent:
 # Design Reference Benchmark
 
 ## Project decision
-- Domain:
-- Audience:
 - Business goal:
-- Page/task in scope:
+- Audience/top tasks:
 - Brand constraints:
+- Page roles:
+- Content/assets reality:
 
 ## Search strategy
+- Decision problems:
 - Query families:
 - Source mix:
 
-## Candidate shortlist
-| Reference | Type | Role | Score | Keep/Reject | Reason |
+## Candidate pool
+| Reference | Type | Pages inspected | Role | Score | Keep/Reject | Reason |
 
 ## Final references
-### Reference A — <role>
-- What works:
-- Transferable principles:
+### Reference A — <job>
+- Pages/states inspected:
+- Principle:
+- Why it works:
 - Do not copy:
-- Adaptation:
-- Mobile/performance/accessibility caveat:
+- Project adaptation:
+- Mobile/performance/a11y caveat:
 
-## Extracted design DNA
+## Page-role reference matrix
+...
+
+## Extracted Design DNA inputs
 - Layout grammar:
-- Hierarchy:
-- Typography:
+- Page-role composition opportunities:
+- Type:
 - Color/surface:
-- Imagery:
-- Interaction/motion:
+- Media:
+- Domain objects:
+- Interaction:
 - Conversion/trust:
 
-## Direction handoff
-- Rules for visual-design-direction:
-- Rules for reference-analysis-and-design-to-code:
+## Rejected patterns
+...
+
+## Handoff to visual-design-direction
+...
 ```
 
-## Quality gate
+## 14. Quality gate
 
-Pass khi:
+PASS chỉ khi:
 
-- [ ] Có real-industry references, không chỉ gallery shots.
-- [ ] Source mix phù hợp decision cần đưa ra.
-- [ ] 3–6 finalists có role riêng.
-- [ ] Finalists được chấm theo fit, không chỉ aesthetics.
-- [ ] Production/concept distinction được ghi rõ.
-- [ ] Pattern được extract thành principle + adaptation.
-- [ ] Mobile/performance/accessibility feasibility được xem xét.
-- [ ] Không có một reference bị copy nguyên composition/identity.
-- [ ] Output đủ rõ để `visual-design-direction` tạo visual grammar nguyên bản.
+- [ ] Có production/category references, không chỉ gallery.
+- [ ] Reference research bám business/user/page-role problem.
+- [ ] Material finalists có actual page/state inspection khi accessible.
+- [ ] 3–6 finalists có job rõ.
+- [ ] Production/concept distinction rõ.
+- [ ] Có page-role reference matrix cho substantial multi-page redesign.
+- [ ] Không lấy một universal hero/layout làm giải pháp mặc định cho mọi page.
+- [ ] Principle + do-not-copy + adaptation được ghi.
+- [ ] Mobile/performance/accessibility feasibility đã xét.
+- [ ] Output đủ cụ thể để visual-design-direction tạo 3+ representative compositions khi site có nhiều page role.
 
 ## Completion rule
 
-Không nói “đây là thiết kế tốt nhất” hoặc “UX tốt” chỉ vì reference được award/curated. Nói rõ điều gì được quan sát, điều gì là hypothesis và điều gì chưa được kiểm chứng.
+Không nói reference “tốt nhất” hay “UX tốt” chỉ vì award. Không chuyển sang code trực tiếp từ benchmark. Benchmark phải đi qua `visual-design-direction`/Design Contract trước substantial implementation.
