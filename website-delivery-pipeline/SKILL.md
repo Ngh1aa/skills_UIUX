@@ -43,7 +43,7 @@ Before any substantial code edit, the redesign must have a **Design Contract** (
 - layout grammar + typography + imagery/media direction;
 - page-role composition matrix for primary templates;
 - top-of-page/hero strategy per page role;
-- mobile transformation rules;
+- mobile transformation rules when mobile/tablet are in declared scope;
 - explicit `do / do not` rules and visual signatures.
 
 **No-code gate:** if these items are still generic (for example “modern, premium, clean”, one universal hero, or one layout copied across unrelated page roles), stop and resolve the design direction before implementation.
@@ -89,6 +89,59 @@ For sites with 5+ materially different primary page roles, require at least **3 
 | 15 Production | monitoring + service-health metrics + research | real outcome observed |
 | 16 Learning | continuous learning | signal becomes research/fix/test/eval |
 
+## Phase-aware requirement and gate accounting
+
+Multi-phase projects MUST distinguish a real blocker from work that is valid but not yet due. Do not make early phases impossible to pass by forcing future QA/release requirements into the current exit gate.
+
+For a Requirement Coverage Ledger, use:
+
+```text
+DONE_VERIFIED
+N/A_JUSTIFIED
+PENDING_FUTURE_PHASE
+BLOCKED
+```
+
+Each material/applicable requirement should also have an `OWNER_PHASE` (or equivalent lifecycle owner) and verification plan.
+
+Rules:
+
+- `DONE_VERIFIED`: required evidence for the owning/current phase exists and the pass condition is met.
+- `N/A_JUSTIFIED`: not applicable to the declared scope/mode, with rationale. Example: mobile/tablet for an explicitly `desktop_only` project; production deployment when authorization is `no_release`.
+- `PENDING_FUTURE_PHASE`: requirement is applicable, but its authoritative verification belongs to a later phase. Record owner phase + planned method. It is **not** a fake PASS and must be consumed when its owner phase arrives.
+- `BLOCKED`: a due-now exit criterion cannot be satisfied with available authority/evidence, or a real defect/conflict prevents safe progress.
+
+Mapping skill results must be phase-aware:
+
+```text
+PASS -> DONE_VERIFIED
+N/A + rationale -> N/A_JUSTIFIED
+FAIL -> BLOCKED when the requirement is due now
+PARTIAL / UNVERIFIED -> BLOCKED only when the current phase requires that verification to exit
+PARTIAL / UNVERIFIED for a later owner phase -> PENDING_FUTURE_PHASE
+UNKNOWN fact -> keep UNKNOWN; block only if that unknown prevents a current-phase material decision/claim
+```
+
+A phase may be `PASSED` when:
+
+- every requirement **due in that phase** is accounted for;
+- current-phase `BLOCKED = 0`;
+- current-phase `UNACCOUNTED = 0`;
+- phase exit criteria have evidence;
+- every `PENDING_FUTURE_PHASE` item has a named future owner + verification method.
+
+Do not require future release smoke, future regression evidence or future production integration evidence to be complete during research/design. Conversely, once the owner phase is reached, a pending item cannot remain pending merely to manufacture a PASS.
+
+For durable handoff across conversations/agents, persist phase status in a project artifact such as `docs/uiux/Phase-State.md` containing at least phase result, skill/version SHA, project commit when relevant, blocker counts and pending-owner counts. Downstream phases should prefer this artifact over relying on a literal PASS sentence remaining in chat history.
+
+### Skill-version lock bootstrap
+
+If a project requires `docs/uiux/Skill-Version-Lock.md` but the file does not yet exist, the first lifecycle phase may resolve the intended immutable skill ref and create the lock. Absence of the lock **before its bootstrap step** is not itself a blocker. Subsequent phases must use the locked ref unless an explicit reviewed migration changes it.
+
+### Release authorization
+
+`no_release` means release/deploy work is intentionally outside current authority. Do not run a release phase and then report `BLOCKED` merely because authorization was deliberately set to `no_release`; mark the release phase/scope `N/A_JUSTIFIED`. If the user explicitly requests release while authority is absent or ambiguous, then release is genuinely `BLOCKED` pending authorization.
+
 ## Reference-intelligence routing rules
 - Use real production/category sites first for IA, journey, trust and conversion questions.
 - Use curated galleries/award sites for visual grammar, art direction, typography, storytelling and motion—not as proof of UX success.
@@ -112,7 +165,7 @@ For sites with 5+ materially different primary page roles, require at least **3 
 - Every material change should map to `expected outcome → verification method → pass condition → result`.
 - Build pass is not visual proof; automated accessibility audit is not conformance; lab performance is not field outcome.
 - For substantial redesign, inspect a **cross-page screenshot set/montage** before handoff so repeated hero/section templates, brand drift and hierarchy monotony are visible side-by-side.
-- If the environment cannot render or inspect the changed UI, mark visual verification `BLOCKED` or `UNVERIFIED`; do not use source/build success as a substitute and do not present the redesign as visually finished.
+- If the environment cannot render or inspect changed UI in a phase whose exit claim requires rendered evidence, mark that due-now visual verification `BLOCKED` or `UNVERIFIED`; do not use source/build success as a substitute and do not present the redesign as visually finished. If rendered verification belongs to a later owner phase, keep it `PENDING_FUTURE_PHASE` rather than blocking an earlier research/design phase.
 
 ## V5 evidence/reliability rules
 - Trace material research/analytics claims to source, date, context and limitations.
