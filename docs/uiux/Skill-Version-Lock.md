@@ -2,6 +2,19 @@
 
 Checked: 2026-09-06 (Asia/Ho_Chi_Minh)
 
+## V5.2 agent runtime foundation candidate
+
+- Latest observed `main` at phase start: `f098e6a94aaf3f026a810bc30073df67eb653cc2`
+- `main` recovery dependency: PR `#16`, head `7373bf9201b7ad3d52eea2753a78809beb5b1562`
+- Candidate branch: `feat/v5-2-agent-runtime-foundation`
+- Candidate PR: `#17` (stacked on PR #16 recovery branch)
+- Implementation commit: `69724b9fd65a8df0f56ae2c8231da2054da73346`
+- Implementation push validation: GitHub Actions `34045466501` = `success`
+- Runtime mode: provider-neutral; no model SDK required by core validation.
+- MCP compatibility check: official MCP Python SDK v2 documentation reviewed 2026-09-06; candidate adapter uses `MCPServer` and keeps MCP optional.
+- Figma integration check: official Figma MCP / Code Connect documentation reviewed 2026-09-06; Figma remains external context rather than project source-of-truth.
+- Release authorization: `no_release`; this candidate does not change the released library lock on `main`.
+
 ## Released cross-functional intelligence upgrade
 
 - `Ngh1aa/skills_UIUX` baseline: `279c9e01ca85779fa4af2d60551fb9b1e0d16111`
