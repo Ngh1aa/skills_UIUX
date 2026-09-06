@@ -7,7 +7,7 @@
 - Risk: `medium`
 - Mode: `production_candidate`
 - Branch: `chore/reorganize-clean-repo-structure`
-- PR: `PENDING_CREATE`
+- PR: `#13`
 - Local cleanup baseline: `85d53ef90c56b40c6383c2e63e03ac5d2d3ab7d8`
 - Upstream design-intelligence lock: `314307f156aeab0c6b567bbaa1ce4e7aabd5a636`
 - Cleanup implementation commit: `621f9cad95b495916d0bbaaca81a37226f4cdc98`
@@ -36,11 +36,12 @@ Rationale: superseded/unrelated active-root documents were removed without chang
 - root `.gitignore` added for generated OS/Python/editor/dependency/build/test/env artifacts;
 - vendor skill tree remains `a23882a2d113b30e94adb8a5d3fc35bbc690591e`;
 - vendor engine tree remains `a393798fc862de6176d0c3422c16e0dfa3425821`;
-- `Validate Skills` run `34024023865` = `success` across all validation/install/retrieval/bootstrap/eval steps.
+- `Validate Skills` run `34024023865` = `success` across all validation/install/retrieval/bootstrap/eval steps;
+- cleanup handoff is open as PR `#13`.
 
 Detailed decisions and coverage: `docs/uiux/Repo-Structure-Cleanup-Audit.md`.
 Historical revision map: `docs/history/README.md`.
 
 ## Handoff rule
 
-Create/review a PR for the cleanup branch. Do not merge to `main` until explicit release authorization is provided. Any later mutation of `vendor/ui-ux-pro-max/`, profiles, installers or canonical prompt routing reopens the relevant verification gates.
+Review PR #13. Do not merge to `main` until explicit release authorization is provided. Any later mutation of `vendor/ui-ux-pro-max/`, profiles, installers or canonical prompt routing reopens the relevant verification gates.
