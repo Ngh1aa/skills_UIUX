@@ -42,10 +42,26 @@ If evidence reveals a new risk, add the relevant specialist at that point.
 ### 5. Record material routing decisions
 For large work, note `task → risk → skills/packs used → why`.
 
+## Adaptive knowledge retrieval
+
+Large searchable knowledge corpora follow the same context-budget principle as skills: **retrieve the smallest decision-relevant subset**.
+
+For the vendored UI UX Pro Max corpus:
+- route `design-intelligence-retrieval` only when an active UI/UX decision benefits from external design knowledge;
+- select the smallest mode: system direction → `--design-system`, focused concern → explicit `--domain`, implementation concern → detected `--stack`;
+- query first, then load only returned candidates and directly relevant provenance;
+- retry once if empty/off-topic, then stop and record no verified match;
+- never preload full CSV/JSON catalogs merely because they are installed;
+- never activate all vendored skills as a default UI graph;
+- keep persisted upstream design-system artifacts subordinate to the project Design Contract.
+
+A larger installed knowledge base should reduce uncertainty, not increase prompt noise.
+
 ## Examples
-- `Fix mobile menu focus trap` → project-context + interaction + responsive + accessibility; not service blueprinting.
-- `Redesign school admissions journey` → education + experience-strategy + research/validation + complex forms + inclusive/trust.
+- `Fix mobile menu focus trap` → project-context + interaction + responsive + accessibility; not service blueprinting or full design-intelligence retrieval.
+- `Redesign school admissions journey` → education + experience-strategy + research/validation + complex forms + inclusive/trust; add design-intelligence retrieval only for a concrete visual/product/stack knowledge gap.
 - `Formal pre-release audit` → testing/release + measurement/reliability specialists.
+- `Choose direction for a new healthcare portal` → project-context + domain/UX graph + focused design-intelligence `--design-system`, then synthesize before visual-direction lock.
 
 ## Gate
 If a task is spending more effort restating generic guidance than inspecting the actual project, reduce the active skill set.
@@ -55,3 +71,4 @@ If a task is spending more effort restating generic guidance than inspecting the
 - Using a large profile as a substitute for project inspection.
 - Never escalating after discovering new risk.
 - Loading deep references before knowing they are relevant.
+- Treating an installed database as prompt context instead of a retrieval source.
