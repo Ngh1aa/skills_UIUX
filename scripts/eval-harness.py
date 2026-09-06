@@ -17,6 +17,9 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+
 ROOT = Path(__file__).resolve().parents[1]
 TASK_DIR = ROOT / "evals" / "tasks"
 SMOKE_RESULTS = ROOT / "evals" / "fixtures" / "sample-trials.jsonl"
@@ -186,6 +189,27 @@ def cmd_smoke(_: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_routing(args: argparse.Namespace) -> int:
+    """Delegate to routing-eval-report for V5.1 routing quality evaluation."""
+    import importlib.util
+
+    script = Path(__file__).parent / "routing-eval-report.py"
+    if not script.exists():
+        print(f"ERROR: {script} not found", file=sys.stderr)
+        return 1
+    spec = importlib.util.spec_from_file_location("routing_eval_report", script)
+    if spec is None or spec.loader is None:
+        print(f"ERROR: cannot load {script}", file=sys.stderr)
+        return 1
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+
+    routing_args = mod.build_parser().parse_args(
+        ["--results", args.results] + (["--json"] if args.json else [])
+    )
+    return mod.cmd_report(routing_args)
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
@@ -206,6 +230,11 @@ def build_parser() -> argparse.ArgumentParser:
 
     p_smoke = sub.add_parser("smoke", help="run built-in harness smoke test")
     p_smoke.set_defaults(func=cmd_smoke)
+
+    p_routing = sub.add_parser("routing-report", help="generate routing eval quality report (V5.1)")
+    p_routing.add_argument("--results", required=True, help="Path to JSONL results with routing telemetry")
+    p_routing.add_argument("--json", action="store_true")
+    p_routing.set_defaults(func=cmd_routing)
     return parser
 
 

@@ -30,6 +30,26 @@ Optional recommended fields:
 }
 ```
 
+Optional routing telemetry (recommended for routing benchmark tasks):
+
+```json
+{
+  "routing": {
+    "activated_skills": ["project-context", "accessibility", "ui-improvement"],
+    "activation_reasons": {
+      "project-context": "project truth first",
+      "accessibility": "focus trap is a11y concern",
+      "ui-improvement": "existing component remediation"
+    },
+    "skill_context_chars": 12840,
+    "reference_context_chars": 3200,
+    "total_loaded_context": 16040
+  }
+}
+```
+
+Routing telemetry enables measuring actual context overhead — not just skill count, but total characters/tokens loaded. This answers "does the 100+ skill library cause context bloat?" with data rather than assumptions.
+
 ## Adapter responsibilities
 
 1. Start each reliability trial from a clean comparable environment.

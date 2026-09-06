@@ -107,5 +107,49 @@ def main() -> int:
     return 0
 
 
+def check_upstream() -> int:
+    """Check if the pinned commit is current with upstream HEAD."""
+    import subprocess
+
+    try:
+        result = subprocess.run(
+            ["git", "ls-remote", f"https://github.com/{UPSTREAM_REPO}.git", "HEAD"],
+            capture_output=True, text=True, check=True, timeout=30,
+        )
+        upstream_head = result.stdout.split()[0] if result.stdout.strip() else None
+    except (subprocess.CalledProcessError, FileNotFoundError, subprocess.TimeoutExpired) as exc:
+        print(f"WARNING: cannot fetch upstream HEAD: {exc}", file=sys.stderr)
+        return 0  # informational, don't block CI
+
+    if not upstream_head:
+        print("WARNING: empty response from upstream", file=sys.stderr)
+        return 0
+
+    if upstream_head == PINNED:
+        print(f"Vendor pin is current: {PINNED[:12]}")
+        return 0
+    else:
+        print(f"Vendor pin is BEHIND upstream")
+        print(f"  Pinned:   {PINNED[:12]}")
+        print(f"  Upstream: {upstream_head[:12]}")
+        print(f"  Action:   run vendor-drift-diff.py for detailed risk analysis")
+        return 0  # informational exit — does not block CI
+
+
+UPSTREAM_REPO = "nextlevelbuilder/ui-ux-pro-max-skill"
+
+
 if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--check-upstream",
+        action="store_true",
+        help="Check if pinned commit is current with upstream HEAD (informational)",
+    )
+    args = parser.parse_args()
+
+    if args.check_upstream:
+        raise SystemExit(check_upstream())
     raise SystemExit(main())

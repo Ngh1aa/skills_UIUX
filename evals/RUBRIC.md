@@ -17,10 +17,14 @@ Mỗi dimension chấm 0–4. Task-specific rubric trong `tasks/*.json` vẫn l�
 - 2: tương đối consistent.
 - 4: hierarchy, typography, spacing, imagery, motion và component grammar có chủ ý và distinctive khi scope yêu cầu.
 
+For multi-page work, `scripts/template-monotony-detector.py` provides a deterministic cross-page structural diversity signal. Identical section sequences across all primary pages or <3 composition families for ≥5 page roles is a strong indicator of score ≤2.
+
 ## 4. System quality — 10%
 - 0: hardcode/duplicate/one-off.
 - 2: có reuse nhưng contract chưa rõ.
 - 4: reusable tokens/components/states, ít duplication, maintainable và không tạo design drift.
+
+Template monotony (all pages using the same hero+cards+CTA shell) is a system quality problem even if each instance is well-coded. Use `scripts/template-monotony-detector.py` to validate cross-page composition diversity.
 
 ## 5. Inclusive/responsive quality — 10%
 - 0: unusable trên viewport/keyboard chính.
