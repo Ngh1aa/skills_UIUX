@@ -36,40 +36,40 @@ Current tree hashes remain:
 - skills: `a23882a2d113b30e94adb8a5d3fc35bbc690591e`;
 - engine: `a393798fc862de6176d0c3422c16e0dfa3425821`.
 
-Decision: **KEEP VERBATIM**. Cleanup must not rewrite, deduplicate or reorganize files inside the vendor snapshot.
+Decision: **KEEP VERBATIM**. Cleanup does not rewrite, deduplicate or reorganize files inside the vendor snapshot.
 
-### FACT — active root contains superseded prompt history
+### FACT — active root contained superseded prompt history
 
-The cleanup baseline contains multiple generations of the same three prompt families in the active root. Current canonical orchestration explicitly names only:
+The cleanup baseline contained multiple generations of the same three prompt families in the active root. Current canonical orchestration explicitly names only:
 
 - `MASTER-PRE-DESIGN-RESEARCH-PROMPT-V4.2.md`;
 - `MASTER-PROMPT-V7.2.md`;
 - `FINAL-UIUX-VISUAL-CONTENT-QA-REMEDIATION-V3.2.md`.
 
-Decision: remove superseded revisions from the working tree. Git history remains the historical archive.
+Decision: superseded revisions were removed from the working tree. Git history remains the historical archive.
 
 ### DRIFT/WARNING — README pointed at an obsolete implementation prompt
 
 The pre-cleanup README described `MASTER-PROMPT-V5.0.md` as a master orchestrator while the canonical latest redesign pipeline uses `MASTER-PROMPT-V7.2.md` for implementation and `LATEST-3-PROMPT-REDESIGN-PIPELINE.md` for orchestration.
 
-Decision: rewrite README entrypoints to distinguish library V5 from prompt versions and name only current canonical files.
+Decision: README now distinguishes library V5 from prompt versions and names only current canonical entrypoints.
 
 ### IMPROVEMENT — local repository lacked a root `.gitignore`
 
-The upstream comparison repo ignores common OS, Python cache, editor, dependency, build, test and environment artifacts. This repository previously had no root `.gitignore`, and a prior vendor smoke run had already demonstrated that Python cache artifacts can be generated during local/CI work.
+The upstream comparison repo ignores common OS, Python cache, editor, dependency, build, test and environment artifacts. This repository previously had no root `.gitignore`, and prior retrieval/vendor smoke work had already shown that Python cache artifacts can be generated during execution.
 
 Decision: add a conservative root `.gitignore` without ignoring the vendored runtime.
 
 ### FACT — unrelated/legacy standalone documents were present in root
 
-- `Mango-Ops-Technical-Proposal.md` is project-specific and unrelated to this reusable UI/UX skill library.
-- `Website-Research-Generation-Architect-Skill.md` is a legacy standalone monolith, not a packaged `<skill>/SKILL.md`, and overlaps current project-context/research/audit/reference/IA/design-system/delivery routing.
+- `Mango-Ops-Technical-Proposal.md` was project-specific and unrelated to this reusable UI/UX skill library.
+- `Website-Research-Generation-Architect-Skill.md` was a legacy standalone monolith, not a packaged `<skill>/SKILL.md`, and overlapped current project-context/research/audit/reference/IA/design-system/delivery routing.
 
-Decision: remove both from the active working tree. Their prior content remains available in Git history.
+Decision: both were removed from the active working tree. Their prior content remains available in Git history.
 
 ### FACT — historical architecture prose is not a runtime compatibility contract
 
-`V2-ARCHITECTURE.md`, `V3-ARCHITECTURE.md` and `V4-ARCHITECTURE.md` describe superseded architecture generations. Backward-compatible profiles/config schemas remain implemented elsewhere.
+`V2-ARCHITECTURE.md`, `V3-ARCHITECTURE.md` and `V4-ARCHITECTURE.md` described superseded architecture generations. Backward-compatible profiles/config schemas remain implemented elsewhere.
 
 Decision: remove these historical prose files from the active root while keeping `V5-ARCHITECTURE.md` canonical.
 
@@ -114,18 +114,43 @@ Not copied blindly:
 - this audit;
 - cleanup/version-lock/phase-state evidence.
 
+## Verification evidence
+
+Cleanup implementation commit: `621f9cad95b495916d0bbaaca81a37226f4cdc98`.
+
+GitHub Actions `Validate Skills` run `34024023865` completed successfully. Verified steps include:
+
+- `validate-skills.py` structure checks;
+- V5 profiles/packs/project configs/eval/resources validation;
+- vendored design-intelligence integrity;
+- source retrieval smoke;
+- core profile installer dry run;
+- installed consumer design-intelligence dependency smoke;
+- project-aware installer dry run;
+- project bootstrap/sync smoke;
+- provider-neutral eval harness smoke.
+
+Post-cleanup vendor tree verification:
+
+- `vendor/ui-ux-pro-max/skills` = `a23882a2d113b30e94adb8a5d3fc35bbc690591e`;
+- `vendor/ui-ux-pro-max/engine` = `a393798fc862de6176d0c3422c16e0dfa3425821`.
+
+No vendor blob/tree changed during cleanup.
+
 ## Requirement coverage
 
 | ID | Requirement | OWNER_PHASE | Status | Verification |
 |---|---|---|---|---|
 | CLEAN-001 | Compare repository structure with current pinned upstream | audit | DONE_VERIFIED | upstream/local branch + tree inspection |
-| CLEAN-002 | Preserve complete UI UX Pro Max vendor skills/runtime | remediation | DONE_VERIFIED | no vendor-tree mutation planned; tree hashes rechecked after change |
-| CLEAN-003 | Remove clearly superseded prompt revisions | remediation | DONE_VERIFIED | active root contains only canonical prompt revisions after commit |
-| CLEAN-004 | Remove unrelated/legacy standalone root documents | remediation | DONE_VERIFIED | path absence after commit |
+| CLEAN-002 | Preserve complete UI UX Pro Max vendor skills/runtime | remediation | DONE_VERIFIED | post-change tree hashes unchanged |
+| CLEAN-003 | Remove clearly superseded prompt revisions | remediation | DONE_VERIFIED | active root contains only canonical prompt revisions |
+| CLEAN-004 | Remove unrelated/legacy standalone root documents | remediation | DONE_VERIFIED | commit diff/path absence |
 | CLEAN-005 | Reduce generated-artifact risk | remediation | DONE_VERIFIED | root `.gitignore` added |
-| CLEAN-006 | Preserve skill/profile/install/eval behavior | verification | PENDING_FUTURE_PHASE | GitHub Actions validators/install/retrieval/eval smoke |
+| CLEAN-006 | Preserve skill/profile/install/eval behavior | verification | DONE_VERIFIED | Actions run `34024023865` = success |
 | CLEAN-007 | Merge cleanup to `main` | release | PENDING_FUTURE_PHASE | explicit future authorization required |
 
-## Phase decision before CI
+## Phase result
 
-No existing runtime BUG/BLOCKER was identified. This cleanup is maintenance plus one documentation drift fix. The remediation phase remains incomplete until branch CI confirms the active skill/install/eval contracts are unchanged.
+`PASSED`
+
+No runtime BUG/BLOCKER was identified. This cleanup is repository hygiene plus one concrete documentation-drift fix. The remediation phase has no due-now blocker; merge remains a separately owned future release action.
