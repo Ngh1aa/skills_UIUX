@@ -6,7 +6,7 @@ description: Orchestrates the full lifecycle of building or redesigning a profes
 # Website Delivery Pipeline — V5 Orchestrator
 
 ## Core principle
-`business/user goal → project truth → evidence → audience/entry intent → whole journey → success definition → validated UX/IA → reference intelligence → distinctive experience/system → system reality → planned implementation → verification → release → measured outcomes → continuous learning`
+`business/user goal → project truth → evidence → audience/entry intent → whole journey → success definition → validated UX/IA → reference intelligence → optional design-intelligence retrieval → distinctive experience/system → system reality → planned implementation → verification → release → measured outcomes → continuous learning`
 
 Route the **smallest useful skill graph**. Do not load the whole library.
 
@@ -22,13 +22,15 @@ For an **existing implemented UI** where the user asks to fix, improve, polish, 
 
 If a page/site redesign has weak, generic or undefined visual direction, or the user explicitly asks to learn from strong websites/references, route through `design-reference-research-and-benchmark` before locking `visual-design-direction`.
 
+If broader product/style/color/type/icon/motion/chart/UX/stack knowledge can materially improve an active UI/UX decision, route `design-intelligence-retrieval` after project/domain/audience/page-role context is known and before the affected visual/design-system decision is locked. Do not activate it merely because the vendor database is installed.
+
 If the work contains forms, search, auth, checkout, CMS/API data, analytics or other behavior that can look real while being mock/simulated, activate `system-reality-and-production-readiness` before calling it working or production-ready.
 
 ### Redesign hard-routing override
 
 For a **whole-site redesign/rebuild**, especially when the user supplies a legacy site, brand source and asks to research comparable websites, do **not** let `ui-improvement` become the primary path. The minimum redesign graph is:
 
-`project-context → website-audit-and-redesign → audience/user-journey/domain playbook → design-reference-research-and-benchmark → visual-design-direction → design-system/components → frontend implementation → responsive/accessibility → rendered visual QA`
+`project-context → website-audit-and-redesign → audience/user-journey/domain playbook → design-reference-research-and-benchmark → [design-intelligence-retrieval when useful] → visual-design-direction → design-system/components → frontend implementation → responsive/accessibility → rendered visual QA`
 
 Add domain-specific and reality/security/performance skills only when justified.
 
@@ -73,8 +75,9 @@ For sites with 5+ materially different primary page roles, require at least **3 
 | 3 UX/IA | journey + IA + optional card/tree testing | flows/findability validated to risk |
 | 4 Content/experience | journey-driven layout + experience principles | sections advance user decisions |
 | 4A Reference benchmark | conditional `design-reference-research-and-benchmark` | mixed source pool, finalists by role, no blind copying |
+| 4B Design intelligence | conditional `design-intelligence-retrieval` | narrow verified retrieval, ADOPT/ADAPT/REJECT synthesis, no database-as-truth |
 | 5 Brand/visual | brand + visual + optional digital signature | implementable, recognizable grammar + page-role matrix |
-| 5A Design contract | required for substantial redesign | owner/user goals, journey, brand, references, compositions and do/don't are concrete before code |
+| 5A Design contract | required for substantial redesign | owner/user goals, journey, brand, references, adopted intelligence, compositions and do/don't are concrete before code |
 | 6 System | design system + interaction + optional designops | reusable components/states without template monotony |
 | 6A System reality | conditional reality/data/API/CMS audit | real/mock/static/simulated/partial/unknown explicit |
 | 7 Plan | architecture + change plan + guardrails | owners, dependencies, acceptance and verification known |
@@ -142,6 +145,23 @@ If a project requires `docs/uiux/Skill-Version-Lock.md` but the file does not ye
 
 `no_release` means release/deploy work is intentionally outside current authority. Do not run a release phase and then report `BLOCKED` merely because authorization was deliberately set to `no_release`; mark the release phase/scope `N/A_JUSTIFIED`. If the user explicitly requests release while authority is absent or ambiguous, then release is genuinely `BLOCKED` pending authorization.
 
+## Design-intelligence routing rules
+
+The pinned UI UX Pro Max corpus is a retrieval source, not another orchestrator.
+
+1. Read project truth and determine product/domain/audience/page-or-app role first.
+2. New/system-wide visual direction → `--design-system`.
+3. Focused UX/design concern → one explicit `--domain`.
+4. Implementation-specific concern → `--stack` only after detecting the actual stack from project source.
+5. Use one dominant intent and 2–5 meaningful query terms plus a useful constraint.
+6. Verify the returned match. Retry once with a narrower query/explicit mode if empty or off-topic; after that, record `no verified match` and fall back to higher-priority local/project evidence.
+7. Synthesize material candidates as `ADOPT / ADAPT / REJECT` and record adaptation rationale/verification.
+8. Do not persist unverified output, load the full corpus into prompt context, or activate all vendored skills by default.
+9. Upstream-generated `design-system/*/MASTER.md` or page overrides are candidate artifacts; the adopted Design Contract remains canonical. Never use upstream `--force` without explicit user authorization.
+10. Retrieved recommendations do not prove usability, conversion, accessibility or production readiness.
+
+For substantial redesign, use `DESIGN-INTELLIGENCE-AUGMENTED-REDESIGN-PROMPT.md` when this layer is active. It augments real reference research and never replaces structural redesign/media/rendered QA gates.
+
 ## Reference-intelligence routing rules
 - Use real production/category sites first for IA, journey, trust and conversion questions.
 - Use curated galleries/award sites for visual grammar, art direction, typography, storytelling and motion—not as proof of UX success.
@@ -190,11 +210,13 @@ If a project requires `docs/uiux/Skill-Version-Lock.md` but the file does not ye
 ## Evaluation loop
 1. `python scripts/validate-skills.py`
 2. `python scripts/validate-v2.py`
-3. `python scripts/eval-harness.py list`
-4. Run representative tasks through the chosen provider adapter for multiple trials when needed.
-5. Emit JSONL per [../evals/ADAPTER-CONTRACT.md](../evals/ADAPTER-CONTRACT.md).
-6. `python scripts/eval-harness.py summarize --results results.jsonl --k 3`
-7. Promote stable capability failures/successes into regression coverage.
+3. `python scripts/validate-vendor-uiux-pro-max.py`
+4. Smoke the retrieval adapter with a focused `--design-system` query.
+5. `python scripts/eval-harness.py list`
+6. Run representative tasks through the chosen provider adapter for multiple trials when needed.
+7. Emit JSONL per [../evals/ADAPTER-CONTRACT.md](../evals/ADAPTER-CONTRACT.md).
+8. `python scripts/eval-harness.py summarize --results results.jsonl --k 3`
+9. Promote stable capability failures/successes into regression coverage.
 
 ## Completion rule
 Never say `done`, `working`, `integrated`, `production-ready`, `fully responsive`, `accessible`, `WCAG conformant`, `validated`, `secure`, `UX improved`, `redesigned`, `visually finished` or `reliable` without evidence appropriate to that exact claim. Report verified versus unverified explicitly.
