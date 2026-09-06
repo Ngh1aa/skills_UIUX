@@ -2,11 +2,15 @@
 
 Checked: 2026-09-06 (Asia/Ho_Chi_Minh)
 
-## Local baseline for current cross-functional upgrade
+## Current cross-functional upgrade
 
 - `Ngh1aa/skills_UIUX` baseline: `279c9e01ca85779fa4af2d60551fb9b1e0d16111`
 - Branch: `feat/cross-functional-product-growth-intelligence`
-- Phase ref policy: use this baseline plus the exact external pins below until the integration phase is reviewed/released.
+- PR: `#15`
+- Implementation commit: `201642e6857dd26994002facfa70b029a35a1bc4`
+- Push validation: GitHub Actions `34032698500` = `success`
+- PR validation: GitHub Actions `34032720908` = `success`
+- Release authorization: `no_release`; merge remains future release work.
 
 ## External source locks
 
@@ -36,14 +40,14 @@ Detailed cross-functional provenance: `vendor/cross-functional-intelligence/SOUR
 - Vendored skill tree: `a23882a2d113b30e94adb8a5d3fc35bbc690591e`
 - Upstream engine tree: `a393798fc862de6176d0c3422c16e0dfa3425821`
 - Vendored engine tree: `a393798fc862de6176d0c3422c16e0dfa3425821`
-- Integration post-merge validation: GitHub Actions run `34021619346` = `success`
+- Integration post-merge validation: GitHub Actions `34021619346` = `success`
 
 ## Released repository cleanup
 
 - Cleanup PR: `#13`
 - Merge commit: `22ddd2ed3352316495bef7b56467caad218cb900`
 - Cleanup release verification commit: `35673d3983f51182ed2212590f55351908b36e03`
-- Post-release validation: GitHub Actions run `34024338827` = `success`
+- Post-release validation: GitHub Actions `34024338827` = `success`
 
 ## Released external UI/UX specialist integration
 
@@ -52,14 +56,14 @@ Detailed cross-functional provenance: `vendor/cross-functional-intelligence/SOUR
 - Final PR head: `a1cd2a22db72c73fa04a7dcc0f52ab499ece3f22`
 - Merge commit: `bcfecfc3d7e36314f27adad716e393c41fe2ce9b`
 - Release evidence docs commit: `279c9e01ca85779fa4af2d60551fb9b1e0d16111`
-- PR-head validation: GitHub Actions run `34026738306` = `success`
-- Post-merge validation: GitHub Actions run `34026784186` = `success`
-- Final docs validation: GitHub Actions run `34027027106` = `success`
+- PR-head validation: GitHub Actions `34026738306` = `success`
+- Post-merge validation: GitHub Actions `34026784186` = `success`
+- Final docs validation: GitHub Actions `34027027106` = `success`
 
 ## Adoption policy
 
 - External repositories are pinned knowledge sources, not parallel lifecycle orchestrators.
 - Prefer local synthesis/progressive disclosure and extend existing owners when overlap is high.
 - Do not fetch mutable upstream `main` during normal project execution as a substitute for a reviewed source update.
-- Time-sensitive vendor/product/search/statistics claims require current verification when exact details matter.
-- Changing a locked ref requires source/license/behavior diff review, overlap/conflict resolution and structural/profile/eval verification before release.
+- Time-sensitive product/search/platform/statistics claims require current verification when exact details matter.
+- Changing any locked ref requires source/license/behavior diff review, overlap/conflict resolution and structural/profile/eval verification before release.
