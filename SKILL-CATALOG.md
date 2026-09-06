@@ -23,7 +23,6 @@
 | `content-design-and-question-design` | Interface content structure and question design for forms/transactional journeys |
 | `ux-writing-and-microcopy` | State-level UI copy, labels, CTA, errors, empty/loading/success/recovery, terminology and localization-safe microcopy |
 | `design-system-and-components` | Tokens, components, variants, states |
-| `figma-system-bridge` | Reconcile canonical Design Contract/code tokens/components with Figma variables/libraries/components/Code Connect when real Figma tooling is available |
 | `interaction-patterns-and-form-ux` | Common forms/search/filter/dialog patterns |
 | `motion-and-microinteractions` | Purposeful motion |
 | `asset-media-and-art-direction` | Image/video/icon direction |
@@ -77,10 +76,6 @@ Additional external knowledge is integrated through pinned provenance and local 
 ### Web UI/code QA
 
 `web-ui-code-review` is informed by Vercel Web Interface Guidelines + React Best Practices. Route it for source-level UI review/pre-merge review or when rendered findings need code root-cause analysis. General web-interface checks apply first; React/Next performance rules activate only after detecting the actual stack/version. It does not replace accessibility conformance, project performance measurement or rendered visual QA.
-
-### Figma system synchronization
-
-`figma-system-bridge` routes only when the actual task includes Figma/design-system synchronization. It maps `Design Contract ↔ code ↔ Figma`, discovers/reuses libraries/components before creating, synchronizes variables before components and requires truthful tool reality (`REAL / STATIC / PARTIAL / UNKNOWN`). Figma/OpenAI workflow sources are reference-only; their source text is not vendored.
 
 ### UX writing
 
@@ -146,7 +141,6 @@ Additional external knowledge is integrated through pinned provenance and local 
 ### DesignOps & AI
 - `design-critique-and-rationale`
 - `design-system-governance-and-adoption`
-- `figma-system-bridge`
 - `human-ai-interaction-design`
 
 ## Capability packs
@@ -171,7 +165,6 @@ Keep base profiles small. Add packs only when scope/risk justifies them.
 - External design database → `design-intelligence-retrieval` only for an active knowledge gap after project/domain/audience/page-role context is known.
 - Generic/interchangeable visual direction → `visual-taste-calibration` after the visual direction exists, not as a replacement for research/Design Contract.
 - UI state/string comprehension/recovery → `ux-writing-and-microcopy`.
-- Figma/code system synchronization → `figma-system-bridge` only when Figma is genuinely in scope/tooling is available; otherwise produce at most a truthful static mapping.
 - Code-level UI/pre-merge review → `web-ui-code-review`; React/Next specialization only after stack/version detection.
 - Domain-native artifacts/rituals → `real-world-artifact-and-domain-metaphor-design` when they improve mental-model fit or visual signature.
 - Production candidate/release → `production-delivery` when integrations/security/performance/browser/rollback/production truth are material.
