@@ -4,6 +4,8 @@
   "skills": [
     "website-delivery-pipeline",
     "product-discovery",
+    "product-decision-and-stakeholder-framing",
+    "product-strategy-and-prioritization",
     "brand-guidelines",
     "ux-research-and-journey",
     "ux-laws-and-heuristics",
@@ -27,11 +29,13 @@
     "ui-craft-and-visual-qa",
     "web-ui-code-review",
     "web-quality-and-performance",
+    "search-demand-and-content-briefing",
     "seo-strategy",
     "security-and-privacy",
     "testing-strategy",
     "code-review-and-release",
     "analytics-and-experimentation",
+    "experimentation-interpretation",
     "ai-agent-coding-guardrails"
   ]
 }

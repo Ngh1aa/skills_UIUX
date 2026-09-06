@@ -1,295 +1,133 @@
 ---
 name: analytics-and-experimentation
-description: |
-  Hướng dẫn AI agent setup analytics: event taxonomy, consent management,
-  funnel tracking, activation metrics, retention signals, experiment guardrails
-  và tracking plan documentation.
-globs:
-  - "docs/tracking-plan.md"
-  - "**/*.js"
-  - "**/*.html"
+description: Defines outcome metrics, counter-metrics, event/funnel instrumentation and pre-run experiment plans for UI/UX/product decisions. Use when deciding what to measure, designing an A/B test before launch, or documenting analytics/consent/tracking; use experimentation-interpretation after results exist.
 ---
 
 # Analytics & Experimentation
 
-## Mục đích
+## Boundary
 
-Analytics biến assumptions thành data. Skill này đảm bảo tracking được setup đúng từ đầu, respects privacy, và cung cấp actionable insights thay vì vanity metrics.
+This skill owns **measurement design before/while implementation**:
 
-## Prerequisites
+`user/business outcome → metric tree → counter-metrics → instrumentation → hypothesis/experiment plan → validation`
 
-- `product-discovery` hoàn tất (có KPIs)
-- Website deployed hoặc sắp deploy
+Use `experimentation-interpretation` for completed-result analysis. Use `security-and-privacy` for jurisdiction-specific tracking/privacy controls when material.
 
-## Quy trình bắt buộc
+## 1. Start from the outcome
 
-### 1. Analytics Strategy
+Do not start from events. Define:
 
-```markdown
-## Analytics Philosophy
-- Track để LEARN, không phải để có dashboards
-- Mỗi event phải trả lời được một câu hỏi cụ thể
-- Privacy-first: chỉ track những gì cần thiết
-- Consent trước tracking (nếu luật yêu cầu)
+```text
+User need / service purpose:
+Desired outcome:
+Primary decision metric:
+Baseline or N/A:
+Target/decision threshold or UNKNOWN:
+Data source:
+Review cadence:
 ```
 
-### 2. Event Taxonomy
+Prefer outcomes that reflect delivered value over vanity totals. If a metric changing would not change a decision, question why it is tracked.
 
-```markdown
-## Naming Convention
-Format: [object]_[action]
-Examples: page_view, cta_click, form_submit, nav_click
+## 2. Build a small metric tree
 
-## Event Catalog
+Connect the core value outcome to actionable inputs such as acquisition, activation, task completion, engagement and retention only when relevant.
 
-### Page Events
-| Event Name | Trigger | Properties | Question It Answers |
-|-----------|---------|------------|---------------------|
-| page_view | Page load | page_title, page_path, referrer | Which pages get traffic? |
-| page_scroll_depth | 25%, 50%, 75%, 100% | depth_percent, page_path | How far do users read? |
-| page_time_spent | Page unload | seconds_on_page, page_path | How engaged are users? |
+For every optimized metric, define at least one **counter/guardrail metric** that catches harm. Examples:
+- signup conversion ↔ activation/lead quality;
+- task speed ↔ error/recovery rate;
+- CTA click rate ↔ completed conversion/trust signal;
+- revenue per user ↔ churn/refund/support burden.
 
-### Navigation Events
-| Event Name | Trigger | Properties | Question |
-|-----------|---------|------------|----------|
-| nav_click | Nav item clicked | nav_item, nav_type (primary/footer/mobile) | How do users navigate? |
-| cta_click | CTA button clicked | cta_text, cta_location, cta_type (primary/secondary) | Which CTAs convert? |
-| external_link_click | External link clicked | link_url, link_text, page_path | Where do users go? |
+Exact formulas beat labels. Define numerator, denominator, population, window and exclusions.
 
-### Engagement Events
-| Event Name | Trigger | Properties | Question |
-|-----------|---------|------------|----------|
-| project_view | Case study opened | project_name, project_category | Which work interests users? |
-| resume_download | CV/Resume downloaded | file_name, page_path | How many download CV? |
-| social_click | Social media link clicked | platform, location (header/footer/bio) | Which socials get clicks? |
+## 3. Instrument only decision-relevant events
 
-### Form Events
-| Event Name | Trigger | Properties | Question |
-|-----------|---------|------------|----------|
-| form_start | First field focused | form_name, page_path | How many start filling? |
-| form_field_error | Validation error | field_name, error_type | Where do users struggle? |
-| form_submit | Form submitted | form_name, success (bool) | Conversion rate? |
-| form_abandon | Page left with partial form | form_name, last_field_filled | Where do users quit? |
+Use stable names such as `object_action` and document:
 
-### Error Events
-| Event Name | Trigger | Properties | Question |
-|-----------|---------|------------|----------|
-| error_404 | 404 page loaded | attempted_url, referrer | What links are broken? |
-| error_js | JS error caught | error_message, page_path | Technical issues? |
+`event | trigger | properties | population | question answered | privacy classification | verification`
+
+Typical journey events:
+- page/route view where meaningful;
+- key navigation/CTA actions;
+- form start/error/submit/success;
+- critical task completion;
+- error/retry/recovery;
+- search/filter result interactions where the product decision needs them.
+
+Do not collect sensitive/PII fields merely because the analytics tool allows them. Verify consent/legal requirements instead of embedding a universal cookie rule.
+
+## 4. Define funnels from actual journeys
+
+A funnel is a hypothesis about progression, not proof of causality. Record:
+
+`step → event/state → eligible population → expected question → known drop-off evidence`
+
+Do not invent target rates. Baselines/targets require project or benchmark evidence with source/context.
+
+## 5. Pre-run experiment design
+
+Before building an experiment, write:
+
+**Hypothesis:** `If [specific change] for [audience], then [primary metric] will [direction / decision-relevant magnitude], because [evidence-based reason].`
+
+Then define:
+- one primary metric;
+- guardrail metrics;
+- eligibility/randomization unit;
+- baseline and minimum detectable effect when available;
+- sample-size/power calculation appropriate to the metric/method;
+- duration covering relevant business/behavior cycles rather than a universal day count;
+- pre-registered segments when material;
+- analysis method and planned decision rule;
+- what happens for win/loss/inconclusive.
+
+Avoid changing several causal ideas at once unless the experiment is intentionally testing a package.
+
+## 6. Verification
+
+Before calling tracking live:
+- inspect network/debug/provider events;
+- confirm naming/properties/population;
+- test success and failure paths;
+- check duplicate/late events when material;
+- verify consent/privacy behavior for the actual jurisdiction/project;
+- reconcile dashboard metric formula with the written metric contract.
+
+Rendered UI or a tracking plan is not proof events are live.
+
+## Output
+
+Use or update `docs/tracking-plan.md` / project equivalent with:
+
+```text
+Outcome + metric tree
+Metric formulas + counter-metrics
+Event taxonomy
+Funnels/journeys
+Consent/privacy notes
+Experiment plans
+Implementation/testing status
+Known gaps/UNKNOWNs
 ```
 
-### 3. Funnel Definition
+## Hard rules
 
-```markdown
-## Primary Funnel: [Goal Name]
+- No vanity metric without a decision purpose.
+- No target/baseline invented to fill a table.
+- No experiment without a written hypothesis/analysis plan when causal evidence is the goal.
+- No peeking/early-stop recommendation unless the statistical method supports it.
+- No claim of live tracking without runtime evidence.
+- No PII/sensitive tracking without necessity and appropriate authority/legal basis.
 
-| Step | Event | Target Rate | Notes |
-|------|-------|-------------|-------|
-| 1. Visit | page_view (homepage) | 100% (baseline) | |
-| 2. Explore | nav_click OR project_view | > 60% | Engaged visitors |
-| 3. Interest | cta_click (contact/hire) | > 10% | Interested in services |
-| 4. Convert | form_submit (success) | > 3% | Actual conversion |
+## External knowledge handoff
 
-## Drop-off Analysis
-- Step 1→2 drop: Content not compelling OR slow load
-- Step 2→3 drop: No clear CTA OR trust deficit
-- Step 3→4 drop: Form too long OR technical error
-```
+Pre-run experiment principles are informed by the pinned ProductSkills source in `vendor/cross-functional-intelligence/SOURCE-LOCKS.md`. Completed-result interpretation belongs to `experimentation-interpretation`, informed by the pinned Rampstack source.
 
-### 4. Consent Management
+## Acceptance criteria
 
-```html
-<!-- Simple Cookie Consent -->
-<div id="cookie-consent" class="cookie-banner" role="dialog" aria-label="Cookie consent" hidden>
-  <div class="cookie-banner__content">
-    <p>Chúng tôi sử dụng cookies để cải thiện trải nghiệm. 
-       <a href="/privacy">Tìm hiểu thêm</a></p>
-    <div class="cookie-banner__actions">
-      <button id="cookie-accept" class="btn btn--primary">Chấp nhận</button>
-      <button id="cookie-decline" class="btn btn--ghost">Từ chối</button>
-    </div>
-  </div>
-</div>
-```
-
-```javascript
-// Consent-based analytics loading
-const CONSENT_KEY = 'analytics_consent';
-
-function hasConsent() {
-  return localStorage.getItem(CONSENT_KEY) === 'true';
-}
-
-function setConsent(value) {
-  localStorage.setItem(CONSENT_KEY, value.toString());
-  if (value) {
-    loadAnalytics();
-  }
-}
-
-function loadAnalytics() {
-  if (!hasConsent()) return;
-  
-  // Load analytics script dynamically
-  const script = document.createElement('script');
-  script.src = 'https://analytics-provider.com/script.js';
-  script.async = true;
-  document.head.appendChild(script);
-}
-
-// Check on page load
-if (hasConsent()) {
-  loadAnalytics();
-} else if (localStorage.getItem(CONSENT_KEY) === null) {
-  // Show consent banner (first visit)
-  document.getElementById('cookie-consent').hidden = false;
-}
-
-document.getElementById('cookie-accept')?.addEventListener('click', () => {
-  setConsent(true);
-  document.getElementById('cookie-consent').hidden = true;
-});
-
-document.getElementById('cookie-decline')?.addEventListener('click', () => {
-  setConsent(false);
-  document.getElementById('cookie-consent').hidden = true;
-});
-```
-
-### 5. Privacy-Friendly Analytics Alternatives
-
-```markdown
-## Options
-
-| Tool | Privacy | Cost | Features | Self-hosted? |
-|------|---------|------|----------|-------------|
-| Google Analytics 4 | Medium | Free | Full-featured | No |
-| Plausible | High | $9/mo | Simple, lightweight | Yes |
-| Umami | High | Free (self-host) | Simple, open-source | Yes |
-| Fathom | High | $14/mo | Privacy-first | No |
-| Simple Analytics | High | $19/mo | Very simple | No |
-
-## Recommendation
-- Portfolio/marketing site: Plausible or Umami (lightweight, privacy-friendly)
-- SaaS/complex: GA4 with consent management
-- Privacy-critical: Umami self-hosted
-```
-
-### 6. Implementation (GA4 Example)
-
-```html
-<!-- Google Analytics 4 (load after consent) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-XXXXXXXXXX', {
-    'anonymize_ip': true,
-    'cookie_flags': 'SameSite=None;Secure'
-  });
-</script>
-```
-
-```javascript
-// Custom event tracking
-function trackEvent(eventName, properties = {}) {
-  if (!hasConsent()) return;
-  
-  // GA4
-  if (typeof gtag !== 'undefined') {
-    gtag('event', eventName, properties);
-  }
-  
-  // Console log in development
-  if (window.location.hostname === 'localhost') {
-    console.log(`[Analytics] ${eventName}`, properties);
-  }
-}
-
-// Track CTA clicks
-document.addEventListener('click', (e) => {
-  const cta = e.target.closest('[data-track-cta]');
-  if (cta) {
-    trackEvent('cta_click', {
-      cta_text: cta.textContent.trim(),
-      cta_location: cta.dataset.trackCta,
-      page_path: window.location.pathname
-    });
-  }
-});
-
-// Track scroll depth
-let maxScroll = 0;
-const scrollThresholds = [25, 50, 75, 100];
-window.addEventListener('scroll', throttle(() => {
-  const scrollPercent = Math.round(
-    (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100
-  );
-  
-  scrollThresholds.forEach(threshold => {
-    if (scrollPercent >= threshold && maxScroll < threshold) {
-      trackEvent('page_scroll_depth', {
-        depth_percent: threshold,
-        page_path: window.location.pathname
-      });
-    }
-  });
-  
-  maxScroll = Math.max(maxScroll, scrollPercent);
-}, 250));
-```
-
-### 7. Tracking Plan Documentation
-
-```markdown
-## Tracking Plan
-
-### Implementation Status
-| Event | Implemented | Tested | Production |
-|-------|-----------|--------|------------|
-| page_view | ✅ | ✅ | ✅ |
-| cta_click | ✅ | ✅ | ✅ |
-| form_submit | ✅ | ✅ | ✅ |
-| page_scroll_depth | ✅ | ⬜ | ⬜ |
-| nav_click | ⬜ | ⬜ | ⬜ |
-
-### Dashboard Metrics
-| Metric | Source Events | Update Frequency |
-|--------|-------------|------------------|
-| Unique visitors | page_view | Daily |
-| Bounce rate | page_view (single page sessions) | Daily |
-| Top pages | page_view by page_path | Daily |
-| CTA performance | cta_click by cta_text | Weekly |
-| Form conversion | form_submit / page_view (contact) | Weekly |
-| Engagement | scroll_depth > 50% | Weekly |
-```
-
-## Output bắt buộc
-
-### `docs/tracking-plan.md`
-- Event taxonomy
-- Funnel definitions
-- Consent strategy
-- Implementation status
-- Dashboard metric definitions
-
-## Acceptance Criteria
-
-- [ ] Event taxonomy documented
-- [ ] Consent management implemented (if required)
-- [ ] Core events tracked: page_view, cta_click, form_submit
-- [ ] No tracking before consent
-- [ ] Events fire correctly (verified in console/debug mode)
-- [ ] Funnel defined with target rates
-- [ ] Privacy policy mentions analytics
-
-## Anti-patterns cần tránh
-
-❌ Tracking everything "just in case"
-❌ No consent management when required by law
-❌ Analytics script blocking page render
-❌ Tracking PII (names, emails) without necessity
-❌ No naming convention → messy data
-❌ Setting up analytics but never checking data
-❌ Vanity metrics (total page views) without actionable context
+- Primary outcome/metric is decision-relevant and precisely defined.
+- Optimized metrics have counter/guardrail metrics.
+- Events answer explicit questions and have verification.
+- Experiment plans specify audience/change/metric/evidence/method/decision rule.
+- Unknown data remains UNKNOWN.
