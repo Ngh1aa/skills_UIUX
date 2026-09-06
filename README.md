@@ -54,10 +54,29 @@ Workflow:
 
 Hard rule: award/gallery popularity không phải bằng chứng UX, accessibility hoặc conversion performance; agent phải extract principle + adaptation, không clone surface.
 
+## Vendored design-intelligence layer
+
+`skills_UIUX` vendors the complete pinned UI UX Pro Max skill set and searchable engine under `vendor/ui-ux-pro-max/`:
+
+- all seven upstream `.claude/skills/*` packages;
+- the complete `src/ui-ux-pro-max` data/search/reasoning/templates/tests snapshot;
+- upstream MIT license and immutable commit metadata.
+
+The vendor corpus is **not** global prompt context. Route through `design-intelligence-retrieval`, which selects the smallest search mode (`--design-system`, one `--domain`, or detected `--stack`), verifies the match, retries once if necessary and requires `ADOPT / ADAPT / REJECT` synthesis against project truth.
+
+Canonical augmentation module: [DESIGN-INTELLIGENCE-AUGMENTED-REDESIGN-PROMPT.md](DESIGN-INTELLIGENCE-AUGMENTED-REDESIGN-PROMPT.md).
+
+Precedence remains:
+
+`current user request → project truth/source → passed Design Contract/artifacts → routed local skills → retrieved design intelligence → generic model prior`
+
+An upstream-generated `design-system/<project>/MASTER.md` is treated as a candidate retrieval artifact; the adopted `skills_UIUX` Design Contract remains the project source of truth. Do not use upstream `--force` without explicit user authorization.
+
 ## Architecture
 
 - [MASTER-PROMPT-V5.0.md](MASTER-PROMPT-V5.0.md)
 - [LATEST-3-PROMPT-REDESIGN-PIPELINE.md](LATEST-3-PROMPT-REDESIGN-PIPELINE.md)
+- [DESIGN-INTELLIGENCE-AUGMENTED-REDESIGN-PROMPT.md](DESIGN-INTELLIGENCE-AUGMENTED-REDESIGN-PROMPT.md)
 - [PHASE-AWARE-GATING.md](PHASE-AWARE-GATING.md)
 - [PROJECT-INSTRUCTIONS-PHASE-AWARE.md](PROJECT-INSTRUCTIONS-PHASE-AWARE.md)
 - [V5-ARCHITECTURE.md](V5-ARCHITECTURE.md)
@@ -127,7 +146,7 @@ Use the smallest set justified by task scope and risk.
 
 ## V5 working model
 
-`project truth → evidence → audience/intent → journey → success definition → UX/IA → reference intelligence → brand/system → system reality/data contract → plan → implementation → verification → release → real outcomes → learning`
+`project truth → evidence → audience/intent → journey → success definition → UX/IA → reference intelligence → design-intelligence retrieval when useful → brand/system → system reality/data contract → plan → implementation → verification → release → real outcomes → learning`
 
 Hard rules:
 
@@ -137,6 +156,7 @@ Hard rules:
 - no repeated trials → no reliability claim;
 - no intentional review → no automatic visual-baseline acceptance;
 - award/curated reference → inspiration evidence, not UX proof;
+- retrieved design recommendation → candidate intelligence, not project truth or outcome proof;
 - rendered success state → not system success proof;
 - lab score → not field performance proof;
 - mock/simulated integration → not production-ready;
@@ -159,13 +179,15 @@ Provider adapters follow [evals/ADAPTER-CONTRACT.md](evals/ADAPTER-CONTRACT.md).
 ```bash
 python scripts/validate-skills.py
 python scripts/validate-v2.py
+python scripts/validate-vendor-uiux-pro-max.py
+python -B design-intelligence-retrieval/scripts/query.py "education admissions mobile" --design-system
 python scripts/skill-stats.py
 python scripts/eval-harness.py smoke
 ```
 
 ## Research baseline
 
-At execution time verify time-sensitive requirements. V5 is informed by W3C/WAI accessibility evaluation methodology, GOV.UK service/user-needs/performance guidance, current OWASP verification guidance, web performance budget practice and agent workflow patterns from modern public coding-agent skill ecosystems. External skill repos are used as benchmarking input only; this library keeps its own project-truth, evidence, UX, brand and adaptive-routing model.
+At execution time verify time-sensitive requirements. V5 is informed by W3C/WAI accessibility evaluation methodology, GOV.UK service/user-needs/performance guidance, current OWASP verification guidance, web performance budget practice and agent workflow patterns from modern public coding-agent skill ecosystems. External skill repos are used as benchmarking input; vendored UI UX Pro Max is additionally available as a version-locked searchable design-intelligence source. This library still keeps its own project-truth, evidence, UX, brand and adaptive-routing model.
 
 ## Backward compatibility
 
