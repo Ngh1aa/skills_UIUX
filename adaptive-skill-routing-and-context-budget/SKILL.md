@@ -63,7 +63,6 @@ External knowledge sources are represented by narrow local adapters with pinned 
 
 - `visual-taste-calibration` → only after a visual direction exists and feels generic/interchangeable, over-decorated or insufficiently subject-specific;
 - `web-ui-code-review` → code-level UI/pre-merge review or source-level root-cause analysis; React/Next reference only after detecting stack/version;
-- `figma-system-bridge` → only when Figma/code design-system synchronization is genuinely in scope; absent real Figma tooling, do not activate write-specific references or claim mutation;
 - `reference-extraction-and-design-audit` → only for selected references/current-project system evidence needing deeper token/layout/component extraction, not every benchmark candidate;
 - `ux-writing-and-microcopy` → only when interface strings/states materially affect comprehension, action, trust, recovery or localization.
 
@@ -98,18 +97,16 @@ Record material conflict; never silently let an external convention override bra
 
 ### External adapter near-miss examples
 
-- Header button is 2px off a known project token → project-context + ui-improvement; **not** visual taste, Vercel, Figma, extraction or design database.
+- Header button is 2px off a known project token → project-context + ui-improvement; **not** visual taste, Vercel, extraction or design database.
 - One CTA label is vague during payment confirmation → route `ux-writing-and-microcopy`, plus system reality if consequence/recovery depends on backend behavior; do not activate full content strategy.
 - Next.js component has serial data awaits → `web-ui-code-review` with React/Next reference; do not route visual-design skills unless UI composition is also in scope.
 - User provides 15 inspiration URLs → benchmark all at appropriate depth, but run deep extraction only on shortlisted/material references.
-- Figma exists but task is a CSS bug in current code → do not activate `figma-system-bridge` unless the fix must synchronize the design library.
 
 ## Examples
 - `Fix mobile menu focus trap` → project-context + interaction + responsive + accessibility; not service blueprinting or full design-intelligence retrieval.
 - `Redesign school admissions journey` → education + experience-strategy + research/validation + complex forms + inclusive/trust; add design-intelligence retrieval only for a concrete visual/product/stack knowledge gap; add visual taste only after a direction draft exists.
 - `Formal pre-release UI code audit for Next.js` → project-context + web-ui-code-review + testing/release; escalate to accessibility/performance/rendered QA owners for material findings.
 - `Choose direction for a new healthcare portal` → project-context + domain/UX graph + focused design-intelligence `--design-system`, then synthesize before visual-direction lock; run visual taste calibration only if the result remains interchangeable/generic.
-- `Sync code tokens/components into Figma library` → project-context + design-system owner + figma-system-bridge; discover/reuse before writes and verify actual tool reality.
 
 ## Gate
 If a task is spending more effort restating generic guidance than inspecting the actual project, reduce the active skill set.
