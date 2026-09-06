@@ -3,42 +3,49 @@
 ## Current phase
 
 - Scope: `system`
-- Type: `implementation / remediation`
+- Type: `release / post-release verification`
 - Risk: `medium`
-- Mode: `production_candidate`
-- Branch: `feat/vendor-uiux-pro-max-design-intelligence`
-- PR: `#12`
+- Mode: `production`
+- Branch: `main`
+- PR: `#12` — merged
 - Base skill lock: `a2c4f4765144bcdf2648e7c2f32cdd01a0b52751`
 - Upstream design-intelligence lock: `314307f156aeab0c6b567bbaa1ce4e7aabd5a636`
-- Release authorization: `no_release`
+- Integration merge commit: `130b7a2181760d98fca89fe1acf26a7bbd6794f0`
+- Release authorization: `explicitly authorized by user on 2026-09-06`
 
 ## Phase result
 
 `PASSED`
 
-Rationale: the implementation and installed-consumer path were verified by GitHub Actions before handoff. Documentation-only handoff commits remain subject to the same branch CI; any later code/vendor/profile change reopens the relevant verification gate.
+Rationale: the complete upstream skill/runtime snapshot was verified before merge, PR #12 was merged to `main`, the post-merge vendor trees still exactly match upstream, and the post-merge validation workflow completed successfully.
 
 ## Gate accounting
 
 - DUE-NOW `BLOCKED`: 0
 - DUE-NOW `UNACCOUNTED`: 0
-- `PENDING_FUTURE_PHASE`: 0 for this integration implementation phase
-- Release/merge: `N/A_JUSTIFIED` because the current request did not authorize merge/release
+- `PENDING_FUTURE_PHASE`: 0
+- Release/merge: `DONE_VERIFIED`
+- Post-release verification: `DONE_VERIFIED`
 
 ## Verified evidence
 
-- complete seven-package upstream skill snapshot exists;
-- full upstream engine/database/provenance snapshot exists;
+- upstream `main` = locked commit `314307f156aeab0c6b567bbaa1ce4e7aabd5a636`;
+- complete seven-package upstream skill tree is vendored with exact tree SHA match;
+- complete upstream engine/database/provenance tree is vendored with exact tree SHA match;
 - vendor integrity validator passes;
 - source retrieval smoke passes;
 - `professional-core` install copies bridge + vendor dependency into a consumer project;
 - retrieval through the installed consumer bridge passes;
 - V5 profile/project/resource validators pass;
 - eval harness smoke passes;
-- PR #12 is open and unmerged.
+- PR #12 merged to `main` as `130b7a2181760d98fca89fe1acf26a7bbd6794f0`;
+- post-merge `Validate Skills` run `34021619346` = `success`;
+- post-merge `main` vendor skill tree = upstream `.claude/skills` tree;
+- post-merge `main` vendor engine tree = upstream `src/ui-ux-pro-max` tree.
 
-Detailed decisions, coverage and evidence: `docs/uiux/UIUX-Pro-Max-Integration.md`.
+Detailed decisions and implementation evidence: `docs/uiux/UIUX-Pro-Max-Integration.md`.
+Completeness/release audit: `docs/uiux/UIUX-Pro-Max-Completeness-Audit.md`.
 
 ## Handoff rule
 
-Do not merge/release without explicit authorization. A future upstream upgrade must change the immutable vendor lock through a reviewed migration and rerun all vendor/profile/install/eval gates.
+A future upstream upgrade must use a reviewed immutable upstream commit, compare any movement of skill/runtime boundaries, update the lock/provenance, and rerun vendor, installer, retrieval, profile and eval gates before promotion to `main`.

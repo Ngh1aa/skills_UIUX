@@ -65,6 +65,14 @@ If future upstream releases move skill/runtime content outside `.claude/skills` 
 
 These local files do not modify the upstream vendor trees.
 
+## Release evidence
+
+- PR `#12` merged to `main`.
+- Integration merge commit: `130b7a2181760d98fca89fe1acf26a7bbd6794f0`.
+- Post-merge `main` vendor skill tree remains `a23882a2d113b30e94adb8a5d3fc35bbc690591e`.
+- Post-merge `main` vendor engine tree remains `a393798fc862de6176d0c3422c16e0dfa3425821`.
+- Post-merge `Validate Skills` run `34021619346` completed with `success`.
+
 ## Requirement coverage
 
 | ID | Requirement | OWNER_PHASE | Status | Verification | Evidence |
@@ -73,12 +81,10 @@ These local files do not modify the upstream vendor trees.
 | UPM-COMP-002 | All upstream skill packages are present | release-audit | DONE_VERIFIED | Git tree SHA equality | `.claude/skills` tree = vendored `skills` tree |
 | UPM-COMP-003 | Complete design-intelligence engine/database is present | release-audit | DONE_VERIFIED | Git tree SHA equality | `src/ui-ux-pro-max` tree = vendored `engine` tree |
 | UPM-COMP-004 | Upstream license is retained | release-audit | DONE_VERIFIED | blob SHA equality | exact LICENSE blob match |
-| UPM-COMP-005 | Consumer installs can use the vendored engine | release-audit | DONE_VERIFIED | CI installed-project smoke query | `Validate Skills` installed dependency smoke passed before release |
-| UPM-COMP-006 | Merge integration to `main` | release | PENDING_FUTURE_PHASE | merge PR #12 + verify `main` | owner: release |
-| UPM-COMP-007 | Post-merge CI and main-tree verification | post-release | PENDING_FUTURE_PHASE | Actions + GitHub tree checks | owner: post-release |
+| UPM-COMP-005 | Consumer installs can use the vendored engine | release-audit | DONE_VERIFIED | CI installed-project smoke query | installed dependency smoke passed |
+| UPM-COMP-006 | Merge integration to `main` | release | DONE_VERIFIED | PR merge + main ref | PR #12 merged as `130b7a2181760d98fca89fe1acf26a7bbd6794f0` |
+| UPM-COMP-007 | Post-merge CI and main-tree verification | post-release | DONE_VERIFIED | Actions + GitHub tree checks | run `34021619346` success; both vendor trees exact-match upstream |
 
 ## Audit result
 
-**PASSED for completeness of the upstream skill set + design-intelligence engine/database at commit `314307f156aeab0c6b567bbaa1ce4e7aabd5a636`.**
-
-Release and post-release items remain phase-owned until the merge and main verification complete.
+**PASSED.** `Ngh1aa/skills_UIUX` contains the complete canonical UI UX Pro Max skill set plus the complete design-intelligence engine/database for upstream commit `314307f156aeab0c6b567bbaa1ce4e7aabd5a636`, and the released `main` integration has passed post-merge verification.
