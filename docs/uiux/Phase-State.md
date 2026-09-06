@@ -3,48 +3,46 @@
 ## Current phase
 
 - Scope: `system`
-- Type: `release / post-release verification`
+- Type: `remediation / verification / release`
 - Risk: `medium`
-- Mode: `production`
-- Branch: `main`
-- PR: `#13` — merged
-- Local cleanup baseline: `85d53ef90c56b40c6383c2e63e03ac5d2d3ab7d8`
-- Upstream design-intelligence lock: `314307f156aeab0c6b567bbaa1ce4e7aabd5a636`
-- Cleanup implementation commit: `621f9cad95b495916d0bbaaca81a37226f4cdc98`
-- Cleanup PR head: `a0bef3018655a1a08d2d1457ad57764221e1aea9`
-- Release merge commit: `22ddd2ed3352316495bef7b56467caad218cb900`
-- Release authorization: `explicitly authorized by user on 2026-09-06`
+- Mode: `production_candidate`
+- Branch: `feat/external-uiux-specialist-adapters`
+- PR: `#14` — open
+- Local baseline: `35673d3983f51182ed2212590f55351908b36e03`
+- Original implementation commit: `3a3d4ebd933a0b7ceeeb7d9c21035ab11730b9aa`
+- Original implementation validation: GitHub Actions `34026113160` = `success`
+- UI UX Pro Max lock: `314307f156aeab0c6b567bbaa1ce4e7aabd5a636`
+- External source locks: `vendor/external-uiux/SOURCE-LOCKS.md`
+- Current remediation: remove Figma-specific additions introduced by PR #14.
+- Release authorization: `explicitly authorized by user on 2026-09-06`.
 
 ## Phase result
 
-`PASSED`
+`PENDING VERIFICATION`
 
-Rationale: PR #13 was mergeable from the unchanged cleanup base, validation passed on the exact PR head before merge, the PR was merged to `main` with an expected-head guard, and the post-merge `Validate Skills` workflow passed on the resulting `main` commit.
+The remaining external-skill integration keeps four sources: Anthropic Frontend Design, Vercel Web Design Guidelines + React Best Practices, Design Extractor/Auditor, and UX Writing & Content Design. Figma-specific additions from PR #14 are being removed before release.
 
 ## Gate accounting
 
 - DUE-NOW `BLOCKED`: 0
 - DUE-NOW `UNACCOUNTED`: 0
-- Cleanup remediation/verification: `DONE_VERIFIED`
-- Merge to `main`: `DONE_VERIFIED`
-- Post-merge verification: `DONE_VERIFIED`
-- `PENDING_FUTURE_PHASE`: 0
+- Figma-specific remediation: `DONE_VERIFIED` once branch diff confirms removal set
+- Remaining adapter capability implementation: `DONE_VERIFIED`
+- Final PR-head structural/install/eval verification: `PENDING_FUTURE_PHASE`
+- Merge to `main`: `PENDING_FUTURE_PHASE` with authorization granted
+- Post-merge verification: `PENDING_FUTURE_PHASE`
 
-## Verified evidence
+## Current verified evidence
 
-- pre-merge `main` remained at base `85d53ef90c56b40c6383c2e63e03ac5d2d3ab7d8`;
-- PR #13 head was `a0bef3018655a1a08d2d1457ad57764221e1aea9` and `mergeable=true`;
-- PR-head `Validate Skills` run `34024108520` = `success`;
-- PR #13 merged successfully to `main` as `22ddd2ed3352316495bef7b56467caad218cb900`;
-- post-merge `Validate Skills` run `34024255317` = `success`;
-- post-merge validation passed skill structure, V5 resources, vendor integrity, design-intelligence retrieval, core/project-aware installers, bootstrap/sync and eval-harness smoke;
-- current canonical prompt set remains `V4.2 / V7.2 / V3.2` plus latest-pipeline orchestration;
-- vendor skill tree remains `a23882a2d113b30e94adb8a5d3fc35bbc690591e`;
-- vendor engine tree remains `a393798fc862de6176d0c3422c16e0dfa3425821`.
+- Anthropic Frontend Design remains pinned at `85cce0381e7860082641b59d961a2b8c368b8b79`;
+- Vercel Agent Skills remains pinned at `063bee94c3f4df8453406c830b0a7df0f2860278` and Web Interface Guidelines at `e3d624baaf29dc1fc645aff3e38f03e564d2d6b1`;
+- Bill Hector design skills remains pinned at `afee427d8f1e2d9deb004a96bcaa8391c572c9f5`;
+- Huey frontend agent skills remains pinned at `2841c079dd8a9c634882227194dc42e25227710d`;
+- remaining adapters are `visual-taste-calibration`, `web-ui-code-review`, `reference-extraction-and-design-audit`, and `ux-writing-and-microcopy`;
+- Figma-specific additions introduced by this PR are intentionally removed without deleting unrelated pre-existing reference-analysis behavior.
 
-Detailed decisions and coverage: `docs/uiux/Repo-Structure-Cleanup-Audit.md`.
-Historical revision map: `docs/history/README.md`.
+Detailed decisions and coverage: `docs/uiux/External-Skill-Integration-Plan.md`.
 
 ## Handoff rule
 
-Future cleanup or upstream upgrades must start from current `main`, preserve the locked vendor boundary unless an upstream migration is explicitly reviewed, and rerun the relevant structural/vendor/retrieval/install/eval gates before any subsequent release.
+Run the full repository validation on the final remediated PR head. Merge PR #14 only if that exact head passes and the PR remains mergeable against the expected `main` base. After merge, rerun/confirm validation on resulting `main` before marking release `PASSED`.

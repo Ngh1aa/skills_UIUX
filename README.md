@@ -68,9 +68,45 @@ Source roles:
 
 Hard rule: popularity/awards are not UX, accessibility or conversion proof. Extract principles and adapt; do not clone branded surface/assets.
 
+For selected references or current-project system audits, `reference-extraction-and-design-audit` can deepen evidence by extracting source-attributed color/type/spacing/layout/component/responsive patterns. Extraction documents what exists; it does not make the extracted system canonical and never licenses cloning.
+
+## Design intelligence and specialist adapters
+
+`skills_UIUX` uses external knowledge through **pinned, progressive specialist adapters** rather than loading multiple external skill libraries as parallel orchestrators.
+
+```text
+CORE OS
+  project-context
+  adaptive-skill-routing-and-context-budget
+  website-delivery-pipeline
+  Design Contract
+  QA / Release
+        ↓
+LOCAL SPECIALISTS
+        ↓
+SPECIALIST ADAPTERS (only when triggered)
+  design-intelligence-retrieval
+  visual-taste-calibration
+  web-ui-code-review
+  reference-extraction-and-design-audit
+  ux-writing-and-microcopy
+        ↓
+PINNED EXTERNAL KNOWLEDGE / PROVENANCE
+```
+
+Adapter roles:
+
+- `design-intelligence-retrieval` → searchable UI UX Pro Max product/style/color/type/UX/stack intelligence;
+- `visual-taste-calibration` → subject-matter fit and anti-template critique after a visual direction exists;
+- `web-ui-code-review` → source-level web interface review + conditional React/Next performance review;
+- `reference-extraction-and-design-audit` → deep source-attributed reference/current-system extraction;
+- `ux-writing-and-microcopy` → state-level UI strings, action labels, feedback and recovery copy.
+
+External sources are recorded in [vendor/external-uiux/SOURCE-LOCKS.md](vendor/external-uiux/SOURCE-LOCKS.md). A large installed knowledge base must reduce uncertainty, not increase prompt noise: adapters load their deeper references only when their decision is active.
+
 ## Vendored UI UX Pro Max design intelligence
 
-`skills_UIUX` vendors the complete pinned UI UX Pro Max skill/runtime source under `vendor/ui-ux-pro-max/`:
+`skills_UIUX` vendors the complete pinned public UI UX Pro Max skill/runtime source under `vendor/ui-ux-pro-max/`:
 
 - all seven upstream `.claude/skills/*` packages;
 - complete `src/ui-ux-pro-max` data/search/reasoning/templates/tests tree;
@@ -87,7 +123,7 @@ current user request
 → project truth/source
 → passed Design Contract/artifacts
 → routed local skills
-→ retrieved design intelligence
+→ retrieved/adapted external intelligence
 → generic model prior
 ```
 
@@ -109,13 +145,15 @@ skills_UIUX/
 ├── docs/
 │   ├── history/
 │   └── uiux/
-├── vendor/ui-ux-pro-max/
+├── vendor/
+│   ├── ui-ux-pro-max/       # complete pinned public runtime/data snapshot
+│   └── external-uiux/       # provenance/source locks, not bulk repo dumps
 └── .github/workflows/
 ```
 
 Root skill folders are intentionally preserved because profiles/installers/validators resolve `*/SKILL.md`. Do not reorganize them into another namespace without a migration of consumer install/runtime contracts.
 
-The `vendor/ui-ux-pro-max/` trees are immutable snapshots for the locked upstream SHA. Local routing/adapter/docs must live outside the vendor tree.
+The `vendor/ui-ux-pro-max/` trees are immutable snapshots for the locked upstream SHA. Other external sources are generally integrated as attributed local synthesis and provenance pins; do not bulk-vendor a repository unless license, runtime value and context cost justify it.
 
 ## Recommended project config
 
@@ -170,7 +208,7 @@ For release-critical consumers, prefer immutable tag/commit SHA over floating `m
 | `production-delivery` | real integrations, security/privacy, performance/browser, release/rollback/monitoring |
 | `advanced-interaction` | search, complex forms, workflows, tables, dashboards, account UX |
 | `inclusive-trust` | broad audience, high consequence/trust, cognitive/AT concerns |
-| `designops-governance` | mature design systems and cross-project consistency |
+| `designops-governance` | mature design systems, governance and cross-project consistency |
 | `human-ai` | end-user generative/predictive/agentic AI |
 
 ## Hard truth rules
@@ -179,7 +217,7 @@ For release-critical consumers, prefer immutable tag/commit SHA over floating `m
 - no appropriate evaluation → no accessibility conformance claim;
 - no outcome data → no claim that UX improved;
 - award/curated reference → inspiration evidence, not UX proof;
-- retrieved design recommendation → candidate intelligence, not project truth;
+- retrieved/adapted external recommendation → candidate intelligence, not project truth;
 - rendered success state → not backend/system success proof;
 - mock/simulated integration → not production-ready;
 - build/CI success → not rendered visual QA;

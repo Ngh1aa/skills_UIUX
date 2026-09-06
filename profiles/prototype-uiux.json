@@ -9,11 +9,15 @@
     "ux-laws-and-heuristics",
     "information-architecture",
     "design-reference-research-and-benchmark",
+    "reference-extraction-and-design-audit",
     "design-intelligence-retrieval",
     "visual-design-direction",
+    "visual-taste-calibration",
     "ui-improvement",
     "design-system-and-components",
     "conversion-and-content",
+    "content-design-and-question-design",
+    "ux-writing-and-microcopy",
     "interaction-patterns-and-form-ux",
     "motion-and-microinteractions",
     "asset-media-and-art-direction",
@@ -22,6 +26,7 @@
     "responsive-and-device-strategy",
     "accessibility",
     "ui-craft-and-visual-qa",
+    "web-ui-code-review",
     "testing-strategy",
     "ai-agent-coding-guardrails"
   ]
