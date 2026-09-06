@@ -88,7 +88,6 @@ SPECIALIST ADAPTERS (only when triggered)
   design-intelligence-retrieval
   visual-taste-calibration
   web-ui-code-review
-  figma-system-bridge
   reference-extraction-and-design-audit
   ux-writing-and-microcopy
         ↓
@@ -100,7 +99,6 @@ Adapter roles:
 - `design-intelligence-retrieval` → searchable UI UX Pro Max product/style/color/type/UX/stack intelligence;
 - `visual-taste-calibration` → subject-matter fit and anti-template critique after a visual direction exists;
 - `web-ui-code-review` → source-level web interface review + conditional React/Next performance review;
-- `figma-system-bridge` → canonical Design Contract/code ↔ Figma variables/components/Code Connect reconciliation;
 - `reference-extraction-and-design-audit` → deep source-attributed reference/current-system extraction;
 - `ux-writing-and-microcopy` → state-level UI strings, action labels, feedback and recovery copy.
 
@@ -181,7 +179,7 @@ The `vendor/ui-ux-pro-max/` trees are immutable snapshots for the locked upstrea
 }
 ```
 
-Add `production-delivery` only when production-level integration/release requirements are active. Add `figma-system-bridge` directly or via `designops-governance` when the actual task includes Figma/code design-system synchronization.
+Add `production-delivery` only when production-level integration/release requirements are active.
 
 ## Install / sync
 
@@ -210,7 +208,7 @@ For release-critical consumers, prefer immutable tag/commit SHA over floating `m
 | `production-delivery` | real integrations, security/privacy, performance/browser, release/rollback/monitoring |
 | `advanced-interaction` | search, complex forms, workflows, tables, dashboards, account UX |
 | `inclusive-trust` | broad audience, high consequence/trust, cognitive/AT concerns |
-| `designops-governance` | mature design systems, Figma↔code synchronization and cross-project consistency |
+| `designops-governance` | mature design systems, governance and cross-project consistency |
 | `human-ai` | end-user generative/predictive/agentic AI |
 
 ## Hard truth rules
@@ -224,7 +222,6 @@ For release-critical consumers, prefer immutable tag/commit SHA over floating `m
 - mock/simulated integration → not production-ready;
 - build/CI success → not rendered visual QA;
 - screenshot existence → not visual inspection;
-- Figma mapping/spec without a successful connector write → not a completed Figma library;
 - deploy success → not production verification without relevant smoke.
 
 ## Eval / validation
