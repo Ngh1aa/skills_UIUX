@@ -8,7 +8,7 @@
     "asset-media-and-art-direction",
     "design-system-and-components",
     "responsive-and-device-strategy",
-    "typography-and-typesetting"
+    "brand-guidelines"
   ],
   "routing": {
     "required_owners": ["project-context", "visual-design-direction", "ui-craft-and-visual-qa"],
@@ -16,7 +16,7 @@
       "asset-media-and-art-direction",
       "design-system-and-components",
       "responsive-and-device-strategy",
-      "typography-and-typesetting",
+      "brand-guidelines",
       "pricing-and-monetization"
     ],
     "forbidden_without_trigger": [
