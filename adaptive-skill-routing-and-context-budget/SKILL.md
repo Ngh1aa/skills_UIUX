@@ -1,122 +1,145 @@
 ---
 name: adaptive-skill-routing-and-context-budget
-description: Selects the smallest useful skill graph for the current task based on project context, scope and risk, while escalating to deeper packs only when needed. Use at agent task start or when the skill library is large enough that loading everything would waste context and reduce focus.
+description: Selects the smallest useful skill graph for the current task based on project context, scope and risk, escalating into UI/UX, product, growth, search, experimentation or engineering specialists only when their decision boundary is active.
 ---
 
 # Adaptive Skill Routing & Context Budget
 
 ## Principle
+
 `maximum decision quality / minimum unnecessary context`
 
-Do not load every installed skill merely because it exists.
+Installed does not mean active. Do not load every skill or external corpus merely because it exists.
 
 ## Routing workflow
-### 1. Classify task scope
-Typical levels:
-- **local** — one component/state/style defect;
-- **page** — one page/flow redesign;
-- **journey** — multiple pages/steps for a user outcome;
-- **system/site** — IA, brand, design system or whole-site redesign;
-- **production/reliability** — release, conformance, regression or measurement work.
 
-### 2. Classify risk
-Escalate for:
-- money/privacy/consent/security;
-- accessibility-critical flows;
-- high traffic/conversion consequence;
-- major brand/IA/content change;
-- irreversible migration;
-- complex data/workflow;
-- weak/contradictory evidence.
+### 1. Classify task
+
+Scope examples:
+- `local` — one component/state/style defect;
+- `page` — one page/flow;
+- `journey` — multiple steps/pages for an outcome;
+- `system/site` — IA/brand/design system/whole-site;
+- `production/reliability` — release/conformance/regression/measurement.
+
+Escalate risk for money/privacy/consent/security, accessibility-critical flows, high conversion consequence, major IA/brand change, irreversible migration, complex data/workflow, or weak/conflicting evidence.
+
+### 2. Read project truth first
+
+Project/user/source-of-truth beats generic skill defaults. Load only source sections relevant to the active decision.
 
 ### 3. Build the minimal graph
-Always read project context/source-of-truth first. Then choose:
-- domain/base capabilities;
-- one orchestrating skill when needed;
-- narrow specialists justified by task/risk;
-- references/checklists only when their decision is active.
 
-### 4. Escalate, do not pre-load
-If evidence reveals a new risk, add the relevant specialist at that point.
+Choose:
+- one orchestrator only when needed;
+- local/domain owner skills;
+- narrow specialists justified by the active decision;
+- deeper references only after the specialist is active.
 
-### 5. Record material routing decisions
-For large work, note `task → risk → skills/packs used → why`.
+### 4. Escalate when evidence reveals a new risk
 
-## Adaptive knowledge retrieval
+Do not pre-load “just in case”. Add a specialist only when the current owner cannot safely resolve a material decision.
 
-Large searchable knowledge corpora follow the same context-budget principle as skills: **retrieve the smallest decision-relevant subset**.
+### 5. Record material routing
 
-For the vendored UI UX Pro Max corpus:
-- route `design-intelligence-retrieval` only when an active UI/UX decision benefits from external design knowledge;
-- select the smallest mode: system direction → `--design-system`, focused concern → explicit `--domain`, implementation concern → detected `--stack`;
-- query first, then load only returned candidates and directly relevant provenance;
-- retry once if empty/off-topic, then stop and record no verified match;
-- never preload full CSV/JSON catalogs merely because they are installed;
-- never activate all vendored skills as a default UI graph;
-- keep persisted upstream design-system artifacts subordinate to the project Design Contract.
+For large work: `task → trigger/risk → skill/packs → material decision → verification`.
 
-A larger installed knowledge base should reduce uncertainty, not increase prompt noise.
+## Design / UI external specialists
 
-## External specialist adapter routing
+- `design-intelligence-retrieval` → active UI/product/style/color/type/icon/motion/chart/stack knowledge gap; query smallest relevant domain/system/stack subset.
+- `visual-taste-calibration` → after a visual direction exists but remains generic/interchangeable/over-decorated.
+- `web-ui-code-review` → source-level UI/pre-merge/root-cause review; React/Next specialization only after stack/version detection.
+- `reference-extraction-and-design-audit` → deep extraction from shortlisted references/current system, not every inspiration link.
+- `ux-writing-and-microcopy` → string/state copy affects comprehension/action/trust/recovery/localization.
 
-External knowledge sources are represented by narrow local adapters with pinned provenance. **Installed does not mean active.** Route only the adapter that owns the current decision:
+## Cross-functional product/growth specialists
 
-- `visual-taste-calibration` → only after a visual direction exists and feels generic/interchangeable, over-decorated or insufficiently subject-specific;
-- `web-ui-code-review` → code-level UI/pre-merge review or source-level root-cause analysis; React/Next reference only after detecting stack/version;
-- `reference-extraction-and-design-audit` → only for selected references/current-project system evidence needing deeper token/layout/component extraction, not every benchmark candidate;
-- `ux-writing-and-microcopy` → only when interface strings/states materially affect comprehension, action, trust, recovery or localization.
+These complement UI/UX; they do not create a second product-management/marketing lifecycle.
 
-### Progressive disclosure rule
+- `product-decision-and-stakeholder-framing` → incoming ask is an ambiguous/conflicting solution request and the underlying problem/priority call is unclear.
+- `product-strategy-and-prioritization` → problem/outcome is understood enough to position, rank competing opportunities/features or cut scope.
+- `conversion-and-content` → marketing-page argument, message match, proof, objections, CTA hierarchy or CRO hypothesis is active.
+- `analytics-and-experimentation` → define metrics/counter-metrics, tracking/funnels or a pre-run experiment plan.
+- `experimentation-interpretation` → experiment has completed result data and the question is ship/kill/iterate/rerun or why experiment/dashboard numbers disagree.
+- `search-demand-and-content-briefing` → current search/query demand or Search Console evidence should influence topic/page role/content brief.
+- `seo-strategy` → technical/on-page implementation: indexability/canonical/schema/metadata/sitemap/robots/redirects.
+- `ai-agent-coding-guardrails` → coding task needs context curation, dependency-aware plan, vertical slices/checkpoints or change safety.
 
-For an external specialist:
+### Cross-functional ordering examples
 
 ```text
-adapter SKILL.md
-→ decide whether deeper knowledge is needed
-→ read one directly linked reference
-→ inspect project evidence
+Stakeholder says “add chatbot”
+→ product-decision-and-stakeholder-framing
+→ if a real opportunity survives: product-strategy-and-prioritization
+→ then UX/design owners
+```
+
+```text
+Landing page conversion is low
+→ inspect actual evidence
+→ conversion-and-content
+→ analytics-and-experimentation if testing a hypothesis
+→ experimentation-interpretation only after results exist
+```
+
+```text
+“Create a page for keyword X”
+→ search-demand-and-content-briefing if current demand evidence is needed
+→ IA/content owners
+→ seo-strategy for technical implementation
+```
+
+## Progressive disclosure
+
+For any specialist/external knowledge source:
+
+```text
+owner/adaptor SKILL.md
+→ decide if deeper knowledge is needed
+→ one directly linked reference/checklist
+→ project evidence
 → act / verify
 ```
 
-Do not load every external reference in a phase. Do not load the original upstream repository merely to restate generic guidance.
+Do not load original upstream repositories during normal project execution simply to restate generic guidance. Source pins are for provenance/update review.
 
-### Precedence and collision control
-
-When an external source recommends something that conflicts with project truth:
+## Precedence and collision control
 
 ```text
 current user request
 → project truth/source
 → passed Design Contract/artifacts
 → routed local owner skill
-→ external specialist synthesis
+→ cross-functional/external specialist synthesis
 → generic model prior
 ```
 
-Record material conflict; never silently let an external convention override brand, responsive scope, framework version, design-system ownership or release rules.
+Material conflicts are recorded; external PM/growth/SEO conventions cannot silently override project truth, accessibility, security, responsive scope or release authority.
 
-### External adapter near-miss examples
+## Near-miss rules
 
-- Header button is 2px off a known project token → project-context + ui-improvement; **not** visual taste, Vercel, extraction or design database.
-- One CTA label is vague during payment confirmation → route `ux-writing-and-microcopy`, plus system reality if consequence/recovery depends on backend behavior; do not activate full content strategy.
-- Next.js component has serial data awaits → `web-ui-code-review` with React/Next reference; do not route visual-design skills unless UI composition is also in scope.
-- User provides 15 inspiration URLs → benchmark all at appropriate depth, but run deep extraction only on shortlisted/material references.
+- Header spacing is 2px off a known token → `project-context + ui-improvement`; not product/growth/external specialists.
+- CTA label unclear in payment confirmation → `ux-writing-and-microcopy` + system reality if needed; not marketing CRO by default.
+- Stakeholder asks for a larger logo and evidence already shows exact brand spec → use project/brand/UI owner; do not run a product-decision workshop.
+- Two backlog items lack Reach data → `product-strategy-and-prioritization` may use UNKNOWN/evidence matrix; never fabricate RICE inputs.
+- Experiment has not launched → `analytics-and-experimentation`, not `experimentation-interpretation`.
+- User asks for meta/canonical bug fix → `seo-strategy`; no live keyword research unless demand is the actual question.
+- Single obvious source edit → `ai-agent-coding-guardrails` remains lightweight; no full planning ritual.
 
-## Examples
-- `Fix mobile menu focus trap` → project-context + interaction + responsive + accessibility; not service blueprinting or full design-intelligence retrieval.
-- `Redesign school admissions journey` → education + experience-strategy + research/validation + complex forms + inclusive/trust; add design-intelligence retrieval only for a concrete visual/product/stack knowledge gap; add visual taste only after a direction draft exists.
-- `Formal pre-release UI code audit for Next.js` → project-context + web-ui-code-review + testing/release; escalate to accessibility/performance/rendered QA owners for material findings.
-- `Choose direction for a new healthcare portal` → project-context + domain/UX graph + focused design-intelligence `--design-system`, then synthesize before visual-direction lock; run visual taste calibration only if the result remains interchangeable/generic.
+## Context budget management
+
+Keep persistent rules/project truth, active contract, current files and current failure evidence. Compress/drop resolved exploration, obsolete tool output and superseded drafts. A larger context window is not permission to flood the task with irrelevant knowledge.
 
 ## Gate
-If a task is spending more effort restating generic guidance than inspecting the actual project, reduce the active skill set.
+
+If more effort is spent restating frameworks than inspecting the actual project/evidence, reduce the active skill set.
 
 ## Anti-patterns
+
 - All packs on every task.
-- Using a large profile as a substitute for project inspection.
-- Never escalating after discovering new risk.
-- Loading deep references before knowing they are relevant.
-- Treating an installed database as prompt context instead of a retrieval source.
-- Activating all external specialist adapters just because they are installed.
-- Loading both local owner guidance and several external copies of the same rule when one pinned synthesis is enough.
-- Letting a vendor/external skill become a second lifecycle orchestrator.
+- Product/growth skills activated merely because the project has a business goal.
+- CRO best practices reported as proven conversion causes.
+- Search volumes or experiment statistics invented to complete a framework.
+- Both pre-run and post-run experiment skills loaded when only one lifecycle stage applies.
+- External specialist becomes a second orchestrator.
+- Deep references loaded before the trigger/decision is known.

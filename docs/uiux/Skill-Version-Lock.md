@@ -2,15 +2,31 @@
 
 Checked: 2026-09-06 (Asia/Ho_Chi_Minh)
 
+## Local baseline for current cross-functional upgrade
+
+- `Ngh1aa/skills_UIUX` baseline: `279c9e01ca85779fa4af2d60551fb9b1e0d16111`
+- Branch: `feat/cross-functional-product-growth-intelligence`
+- Phase ref policy: use this baseline plus the exact external pins below until the integration phase is reviewed/released.
+
+## External source locks
+
 | Source | Role | Locked ref |
 |---|---|---|
-| `Ngh1aa/skills_UIUX` | released external-specialist integration | `bcfecfc3d7e36314f27adad716e393c41fe2ce9b` |
 | `nextlevelbuilder/ui-ux-pro-max-skill` | vendored design-intelligence skill/data source | `314307f156aeab0c6b567bbaa1ce4e7aabd5a636` |
 | `anthropics/claude-plugins-official` | Frontend Design visual-taste source | `85cce0381e7860082641b59d961a2b8c368b8b79` |
 | `vercel-labs/agent-skills` | Web Design Guidelines + React Best Practices source | `063bee94c3f4df8453406c830b0a7df0f2860278` |
 | `vercel-labs/web-interface-guidelines` | pinned web-interface rule source | `e3d624baaf29dc1fc645aff3e38f03e564d2d6b1` |
 | `billhector/design-skills` | design extraction/audit source | `afee427d8f1e2d9deb004a96bcaa8391c572c9f5` |
 | `hueyexe/frontend-agent-skills` | UX writing/content-design source | `2841c079dd8a9c634882227194dc42e25227710d` |
+| `assimovt/productskills` | product positioning/prioritization/scope/metrics source | `66f9cee5868d6daf9cf106b4a74090428d6fa83e` |
+| `mindtheproduct/skills` | hard product-decision framing source | `3fb3d46092c4149d1653fc317aed77d63f2a98ca` |
+| `ai-vita/skills` | page CRO + marketing copy source | `dda98df83ec242cf32c208a0a78b759f0b3e658b` |
+| `rampstackco/claude-skills` | experimentation result-interpretation source | `a67dd34c609f034c0cfd736a348659bbdf1605bf` |
+| `addyosmani/agent-skills` | coding context/planning/vertical-slice source | `48cb1168aeaaa70dfc2bbf709eddfa2a8ed8129a` |
+| `mblode/agent-skills` | search-demand/content-briefing source | `0a639b1ef3b75aa6cc945e778fb1486def1d41bf` |
+
+Detailed existing UI/UX provenance: `vendor/external-uiux/SOURCE-LOCKS.md`.
+Detailed cross-functional provenance: `vendor/cross-functional-intelligence/SOURCE-LOCKS.md`.
 
 ## Released UI UX Pro Max integration
 
@@ -29,25 +45,21 @@ Checked: 2026-09-06 (Asia/Ho_Chi_Minh)
 - Cleanup release verification commit: `35673d3983f51182ed2212590f55351908b36e03`
 - Post-release validation: GitHub Actions run `34024338827` = `success`
 
-## Released external specialist integration
+## Released external UI/UX specialist integration
 
-- Scope: `system`
-- Type: `research / implementation / remediation / verification / release`
-- Risk: `medium`
-- Mode: `production`
 - PR: `#14`
 - Baseline: `35673d3983f51182ed2212590f55351908b36e03`
 - Final PR head: `a1cd2a22db72c73fa04a7dcc0f52ab499ece3f22`
 - Merge commit: `bcfecfc3d7e36314f27adad716e393c41fe2ce9b`
+- Release evidence docs commit: `279c9e01ca85779fa4af2d60551fb9b1e0d16111`
 - PR-head validation: GitHub Actions run `34026738306` = `success`
 - Post-merge validation: GitHub Actions run `34026784186` = `success`
-- Release authorization: explicitly authorized by user on 2026-09-06.
+- Final docs validation: GitHub Actions run `34027027106` = `success`
 
-### Adoption policy
+## Adoption policy
 
-- Anthropic, Vercel, Bill Hector and Huey sources are adapted with recorded license/provenance rather than becoming parallel orchestrators.
-- Figma-specific additions introduced during the initial PR #14 implementation were removed before release and are not part of this released integration.
-- External pins are used for reproducibility. Do not fetch mutable upstream `main` during project execution as a substitute for a reviewed source update.
-- `vendor/external-uiux/SOURCE-LOCKS.md` is the detailed source/adoption ledger.
-
-Changing any locked external ref requires reviewing source/license/trigger/behavior changes, resolving overlap/conflict with local skills and rerunning structural/profile/install/eval verification before release.
+- External repositories are pinned knowledge sources, not parallel lifecycle orchestrators.
+- Prefer local synthesis/progressive disclosure and extend existing owners when overlap is high.
+- Do not fetch mutable upstream `main` during normal project execution as a substitute for a reviewed source update.
+- Time-sensitive vendor/product/search/statistics claims require current verification when exact details matter.
+- Changing a locked ref requires source/license/behavior diff review, overlap/conflict resolution and structural/profile/eval verification before release.
