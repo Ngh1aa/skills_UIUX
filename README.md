@@ -16,6 +16,27 @@ V5 giữ toàn bộ lớp Evidence/Measurement/Reliability và reference intelli
 - `testing-strategy` dùng critical journey + risk + browser/viewport pressure matrix + truthful system state.
 - `code-review-and-release` dùng two-stage review, project-specific gates, safe rollback/revert và post-deploy smoke; destructive force-reset không còn là default rollback.
 
+## Current lifecycle reliability rules
+
+Multi-phase work must use phase-aware gating from:
+
+- `website-delivery-pipeline/SKILL.md`
+- `PHASE-AWARE-GATING.md`
+- `PROJECT-INSTRUCTIONS-PHASE-AWARE.md` for ChatGPT Project configuration/reference
+
+Canonical requirement states:
+
+```text
+DONE_VERIFIED
+N/A_JUSTIFIED
+PENDING_FUTURE_PHASE
+BLOCKED
+```
+
+Only requirements that are **DUE NOW** participate in the current phase exit gate. Future QA/release evidence must not create artificial early blockers.
+
+For substantial redesigns, use [LATEST-3-PROMPT-REDESIGN-PIPELINE.md](LATEST-3-PROMPT-REDESIGN-PIPELINE.md), which points to the current phase-aware/scope-aware Prompt 1/2/3 versions.
+
 ## Reference intelligence
 
 `design-reference-research-and-benchmark` được route trước `visual-design-direction` cho substantial website/page design hoặc redesign khi visual direction chưa đủ mạnh.
@@ -36,12 +57,17 @@ Hard rule: award/gallery popularity không phải bằng chứng UX, accessibili
 ## Architecture
 
 - [MASTER-PROMPT-V5.0.md](MASTER-PROMPT-V5.0.md)
+- [LATEST-3-PROMPT-REDESIGN-PIPELINE.md](LATEST-3-PROMPT-REDESIGN-PIPELINE.md)
+- [PHASE-AWARE-GATING.md](PHASE-AWARE-GATING.md)
+- [PROJECT-INSTRUCTIONS-PHASE-AWARE.md](PROJECT-INSTRUCTIONS-PHASE-AWARE.md)
 - [V5-ARCHITECTURE.md](V5-ARCHITECTURE.md)
 - [V4-ARCHITECTURE.md](V4-ARCHITECTURE.md)
 - [V3-ARCHITECTURE.md](V3-ARCHITECTURE.md)
 - [SKILL-CATALOG.md](SKILL-CATALOG.md)
 
 ## Recommended project config
+
+For ordinary design/redesign implementation work that is not yet at production-hardening/release stage, prefer an interactive prototype baseline:
 
 ```json
 {
@@ -51,14 +77,13 @@ Hard rule: award/gallery popularity không phải bằng chứng UX, accessibili
     "research-validation",
     "experience-strategy",
     "inclusive-trust",
-    "measurement-reliability",
-    "production-delivery"
+    "measurement-reliability"
   ],
   "additional_skills": ["website-audit-and-redesign"],
   "exclude_skills": [],
   "project": {
     "name": "My Project",
-    "mode": "production-candidate",
+    "mode": "interactive-prototype",
     "domain": "corporate"
   },
   "source_of_truth": ["docs/brand.md", "docs/sitemap.md"],
@@ -66,7 +91,7 @@ Hard rule: award/gallery popularity không phải bằng chứng UX, accessibili
 }
 ```
 
-Use `production-delivery` only when project mode/risk actually needs production hardening; interactive prototypes should still expose mock/simulated reality but do not need every production release gate.
+Add `production-delivery` and use `production-candidate` only when the project actually requires production-level integration, security/privacy, performance/browser, release and rollback verification. Interactive prototypes must still expose mock/simulated reality truthfully but do not need every production release gate.
 
 ## Install
 
