@@ -1,0 +1,131 @@
+# Repository Structure Cleanup Audit
+
+Checked: 2026-09-06 (Asia/Ho_Chi_Minh)
+
+## Phase classification
+
+- Scope: `system`
+- Type: `audit / remediation`
+- Risk: `medium`
+- Mode: `production_candidate`
+- Local cleanup baseline: `85d53ef90c56b40c6383c2e63e03ac5d2d3ab7d8`
+- Upstream UI UX Pro Max comparison ref: `314307f156aeab0c6b567bbaa1ce4e7aabd5a636`
+- Working branch: `chore/reorganize-clean-repo-structure`
+- Release authorization: `no_release`
+
+## Skill Activation Plan
+
+| Task | Trigger/risk | Skill | Expected impact | Verification |
+|---|---|---|---|---|
+| Preserve source truth while cleaning | system-level repository change | `project-context` | avoid deleting runtime/project truth by filename guess | inspect current main + canonical docs |
+| Keep context/routing lean | root/version-history clutter | `adaptive-skill-routing-and-context-budget` | reduce ambiguous active prompt surface | current canonical entrypoints remain unique |
+| Remove overlap safely | skill-library maintenance | `skill-authoring-and-governance` | remove legacy/duplicate capability prose without deleting real skill packages | SKILL structure + V5 validation |
+| Preserve lifecycle contracts | prompt/governance cleanup | `website-delivery-pipeline` | keep phase-aware canonical pipeline intact | latest pipeline + eval/install smoke |
+
+## Findings
+
+### FACT — vendor snapshot is already correctly separated
+
+The local vendor remains split into:
+
+- `vendor/ui-ux-pro-max/skills` = upstream `.claude/skills` tree;
+- `vendor/ui-ux-pro-max/engine` = upstream `src/ui-ux-pro-max` tree.
+
+Current tree hashes remain:
+
+- skills: `a23882a2d113b30e94adb8a5d3fc35bbc690591e`;
+- engine: `a393798fc862de6176d0c3422c16e0dfa3425821`.
+
+Decision: **KEEP VERBATIM**. Cleanup must not rewrite, deduplicate or reorganize files inside the vendor snapshot.
+
+### FACT — active root contains superseded prompt history
+
+The cleanup baseline contains multiple generations of the same three prompt families in the active root. Current canonical orchestration explicitly names only:
+
+- `MASTER-PRE-DESIGN-RESEARCH-PROMPT-V4.2.md`;
+- `MASTER-PROMPT-V7.2.md`;
+- `FINAL-UIUX-VISUAL-CONTENT-QA-REMEDIATION-V3.2.md`.
+
+Decision: remove superseded revisions from the working tree. Git history remains the historical archive.
+
+### DRIFT/WARNING — README pointed at an obsolete implementation prompt
+
+The pre-cleanup README described `MASTER-PROMPT-V5.0.md` as a master orchestrator while the canonical latest redesign pipeline uses `MASTER-PROMPT-V7.2.md` for implementation and `LATEST-3-PROMPT-REDESIGN-PIPELINE.md` for orchestration.
+
+Decision: rewrite README entrypoints to distinguish library V5 from prompt versions and name only current canonical files.
+
+### IMPROVEMENT — local repository lacked a root `.gitignore`
+
+The upstream comparison repo ignores common OS, Python cache, editor, dependency, build, test and environment artifacts. This repository previously had no root `.gitignore`, and a prior vendor smoke run had already demonstrated that Python cache artifacts can be generated during local/CI work.
+
+Decision: add a conservative root `.gitignore` without ignoring the vendored runtime.
+
+### FACT — unrelated/legacy standalone documents were present in root
+
+- `Mango-Ops-Technical-Proposal.md` is project-specific and unrelated to this reusable UI/UX skill library.
+- `Website-Research-Generation-Architect-Skill.md` is a legacy standalone monolith, not a packaged `<skill>/SKILL.md`, and overlaps current project-context/research/audit/reference/IA/design-system/delivery routing.
+
+Decision: remove both from the active working tree. Their prior content remains available in Git history.
+
+### FACT — historical architecture prose is not a runtime compatibility contract
+
+`V2-ARCHITECTURE.md`, `V3-ARCHITECTURE.md` and `V4-ARCHITECTURE.md` describe superseded architecture generations. Backward-compatible profiles/config schemas remain implemented elsewhere.
+
+Decision: remove these historical prose files from the active root while keeping `V5-ARCHITECTURE.md` canonical.
+
+## Upstream comparison
+
+Useful organization principles adopted from `nextlevelbuilder/ui-ux-pro-max-skill`:
+
+1. keep skills/runtime in explicit source boundaries instead of mixing generated/runtime data with root documentation;
+2. maintain a root `.gitignore` for common generated artifacts;
+3. treat `.claude/skills` as skill source and `src/ui-ux-pro-max` as searchable runtime/data source;
+4. do not copy upstream repository-maintenance/plugin metadata into the local vendor runtime unless it is required by the local consumer contract.
+
+Not copied blindly:
+
+- upstream CLI/package/release/plugin repository structure is specific to its npm/plugin distribution model;
+- `skills_UIUX` intentionally keeps local skill folders at root because existing profiles/installers/validators resolve `<skill>/SKILL.md` there.
+
+## Cleanup actions
+
+### KEEP
+
+- all root `<skill>/SKILL.md` packages;
+- `README.md`, `SKILL-CATALOG.md`;
+- current canonical prompt trio + latest pipeline;
+- phase-aware governance docs;
+- `V5-ARCHITECTURE.md` and `V5-RELEASE-NOTES.md`;
+- `profiles/`, `packs/`, `evals/`, `scripts/`, `examples/`, `.github/`;
+- entire `vendor/ui-ux-pro-max/` snapshot unchanged.
+
+### DELETE FROM ACTIVE WORKING TREE
+
+- superseded Prompt 1/2/3 versions listed in `docs/history/README.md`;
+- `V2-ARCHITECTURE.md`, `V3-ARCHITECTURE.md`, `V4-ARCHITECTURE.md`;
+- `Website-Research-Generation-Architect-Skill.md`;
+- `Mango-Ops-Technical-Proposal.md`.
+
+### ADD / UPDATE
+
+- `.gitignore`;
+- concise canonical `README.md`;
+- `docs/history/README.md`;
+- this audit;
+- cleanup/version-lock/phase-state evidence.
+
+## Requirement coverage
+
+| ID | Requirement | OWNER_PHASE | Status | Verification |
+|---|---|---|---|---|
+| CLEAN-001 | Compare repository structure with current pinned upstream | audit | DONE_VERIFIED | upstream/local branch + tree inspection |
+| CLEAN-002 | Preserve complete UI UX Pro Max vendor skills/runtime | remediation | DONE_VERIFIED | no vendor-tree mutation planned; tree hashes rechecked after change |
+| CLEAN-003 | Remove clearly superseded prompt revisions | remediation | DONE_VERIFIED | active root contains only canonical prompt revisions after commit |
+| CLEAN-004 | Remove unrelated/legacy standalone root documents | remediation | DONE_VERIFIED | path absence after commit |
+| CLEAN-005 | Reduce generated-artifact risk | remediation | DONE_VERIFIED | root `.gitignore` added |
+| CLEAN-006 | Preserve skill/profile/install/eval behavior | verification | PENDING_FUTURE_PHASE | GitHub Actions validators/install/retrieval/eval smoke |
+| CLEAN-007 | Merge cleanup to `main` | release | PENDING_FUTURE_PHASE | explicit future authorization required |
+
+## Phase decision before CI
+
+No existing runtime BUG/BLOCKER was identified. This cleanup is maintenance plus one documentation drift fix. The remediation phase remains incomplete until branch CI confirms the active skill/install/eval contracts are unchanged.
