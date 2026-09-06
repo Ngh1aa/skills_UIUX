@@ -3,49 +3,45 @@
 ## Current phase
 
 - Scope: `system`
-- Type: `release / post-release verification`
+- Type: `audit / remediation`
 - Risk: `medium`
-- Mode: `production`
-- Branch: `main`
-- PR: `#12` — merged
-- Base skill lock: `a2c4f4765144bcdf2648e7c2f32cdd01a0b52751`
+- Mode: `production_candidate`
+- Branch: `chore/reorganize-clean-repo-structure`
+- PR: `#13`
+- Local cleanup baseline: `85d53ef90c56b40c6383c2e63e03ac5d2d3ab7d8`
 - Upstream design-intelligence lock: `314307f156aeab0c6b567bbaa1ce4e7aabd5a636`
-- Integration merge commit: `130b7a2181760d98fca89fe1acf26a7bbd6794f0`
-- Release authorization: `explicitly authorized by user on 2026-09-06`
+- Cleanup implementation commit: `621f9cad95b495916d0bbaaca81a37226f4cdc98`
+- Release authorization: `no_release`
 
 ## Phase result
 
 `PASSED`
 
-Rationale: the complete upstream skill/runtime snapshot was verified before merge, PR #12 was merged to `main`, the post-merge vendor trees still exactly match upstream, and the post-merge validation workflow completed successfully.
+Rationale: superseded/unrelated active-root documents were removed without changing any skill package or vendored UI UX Pro Max tree, current canonical prompt entrypoints remain present, and GitHub Actions verified skill structure, V5 resources, vendor integrity, retrieval, consumer installation, bootstrap and eval behavior.
 
 ## Gate accounting
 
 - DUE-NOW `BLOCKED`: 0
 - DUE-NOW `UNACCOUNTED`: 0
-- `PENDING_FUTURE_PHASE`: 0
-- Release/merge: `DONE_VERIFIED`
-- Post-release verification: `DONE_VERIFIED`
+- Due-now remediation/verification: `DONE_VERIFIED`
+- Merge to `main`: `PENDING_FUTURE_PHASE`
 
 ## Verified evidence
 
-- upstream `main` = locked commit `314307f156aeab0c6b567bbaa1ce4e7aabd5a636`;
-- complete seven-package upstream skill tree is vendored with exact tree SHA match;
-- complete upstream engine/database/provenance tree is vendored with exact tree SHA match;
-- vendor integrity validator passes;
-- source retrieval smoke passes;
-- `professional-core` install copies bridge + vendor dependency into a consumer project;
-- retrieval through the installed consumer bridge passes;
-- V5 profile/project/resource validators pass;
-- eval harness smoke passes;
-- PR #12 merged to `main` as `130b7a2181760d98fca89fe1acf26a7bbd6794f0`;
-- post-merge `Validate Skills` run `34021619346` = `success`;
-- post-merge `main` vendor skill tree = upstream `.claude/skills` tree;
-- post-merge `main` vendor engine tree = upstream `src/ui-ux-pro-max` tree.
+- upstream `main` still resolves to locked commit `314307f156aeab0c6b567bbaa1ce4e7aabd5a636`;
+- current canonical prompt set remains `V4.2 / V7.2 / V3.2` plus latest-pipeline orchestration;
+- superseded prompt revisions were removed from the active working tree;
+- unrelated `Mango-Ops-Technical-Proposal.md` and legacy standalone `Website-Research-Generation-Architect-Skill.md` were removed;
+- historical `V2/V3/V4` architecture prose was removed while backward-compatible profile/config implementations remain;
+- root `.gitignore` added for generated OS/Python/editor/dependency/build/test/env artifacts;
+- vendor skill tree remains `a23882a2d113b30e94adb8a5d3fc35bbc690591e`;
+- vendor engine tree remains `a393798fc862de6176d0c3422c16e0dfa3425821`;
+- `Validate Skills` run `34024023865` = `success` across all validation/install/retrieval/bootstrap/eval steps;
+- cleanup handoff is open as PR `#13`.
 
-Detailed decisions and implementation evidence: `docs/uiux/UIUX-Pro-Max-Integration.md`.
-Completeness/release audit: `docs/uiux/UIUX-Pro-Max-Completeness-Audit.md`.
+Detailed decisions and coverage: `docs/uiux/Repo-Structure-Cleanup-Audit.md`.
+Historical revision map: `docs/history/README.md`.
 
 ## Handoff rule
 
-A future upstream upgrade must use a reviewed immutable upstream commit, compare any movement of skill/runtime boundaries, update the lock/provenance, and rerun vendor, installer, retrieval, profile and eval gates before promotion to `main`.
+Review PR #13. Do not merge to `main` until explicit release authorization is provided. Any later mutation of `vendor/ui-ux-pro-max/`, profiles, installers or canonical prompt routing reopens the relevant verification gates.
