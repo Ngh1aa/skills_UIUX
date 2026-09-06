@@ -5,11 +5,14 @@ Checked: 2026-09-06 (Asia/Ho_Chi_Minh)
 ## Phase classification
 
 - Scope: `system`
-- Type: `research / implementation`
+- Type: `research / implementation / verification`
 - Risk: `medium`
 - Mode: `production_candidate`
 - Local baseline: `35673d3983f51182ed2212590f55351908b36e03`
 - Working branch: `feat/external-uiux-specialist-adapters`
+- PR: `#14`
+- Implementation commit: `3a3d4ebd933a0b7ceeeb7d9c21035ab11730b9aa`
+- Implementation validation: GitHub Actions `Validate Skills` run `34026113160` = `success`
 - Release authorization: `no_release`
 
 ## Skill Activation Plan
@@ -18,10 +21,19 @@ Checked: 2026-09-06 (Asia/Ho_Chi_Minh)
 |---|---|---|---|---|
 | Preserve project truth and precedence | system-level library mutation | `project-context` | external sources cannot override local contracts | inspect current main/core docs |
 | Prevent context overload | multiple external skill families | `adaptive-skill-routing-and-context-budget` | adapters + progressive references instead of bulk loading | profile/catalog/routing review + evals |
-| Preserve lifecycle ownership | new review/design capabilities | `website-delivery-pipeline` | skills enter the right phase and do not become parallel orchestrators | pipeline/catalog checks |
-| Avoid duplicate capabilities | five requested external sources overlap local skills | `skill-authoring-and-governance` | narrow adapter boundaries, progressive disclosure, representative evals | overlap decision log + validators |
+| Preserve lifecycle ownership | new review/design capabilities | `website-delivery-pipeline` | skills enter the right phase and do not become parallel orchestrators | canonical lifecycle retained; adapter owner boundaries audited |
+| Avoid duplicate capabilities | five requested external sources overlap local skills | `skill-authoring-and-governance` | narrow adapter boundaries, progressive disclosure, representative evals | overlap decisions + validators + near-miss eval |
 
-## Source findings
+## Skill Usage Ledger
+
+| Skill | Trigger | Requirement applied | Change created | Verification | Evidence |
+|---|---|---|---|---|---|
+| `project-context` | external sources could compete with local truth | project/user/Design Contract precedence | every adapter declares local source precedence and truthful system reality | source/skill review | adapter SKILL.md files + source-lock ledger |
+| `adaptive-skill-routing-and-context-budget` | five additional knowledge families could increase context | smallest useful graph; progressive disclosure; escalate not preload | external adapters use short SKILL.md + direct references; Figma conditional; React conditional; extraction only on selected refs | near-miss eval + V5 validation | `external-uiux-006-adapter-near-miss.json`, run `34026113160` |
+| `website-delivery-pipeline` | capabilities must not become competing orchestrators | keep research/design/implementation/QA/release ownership phase-aware | adapters explicitly hand findings to existing owners; no external lifecycle replaces canonical pipeline | catalog/routing review + eval smoke | `SKILL-CATALOG.md`, adapter boundaries, run `34026113160` |
+| `skill-authoring-and-governance` | source overlap > risk of duplicate skills | capability boundary, progressive resources, representative positive/negative evals | five narrow adapters, source-lock ledger, six evals; existing content/question skill updated for handoff | structural/V5/eval validation | run `34026113160` |
+
+## Source findings and decisions
 
 ### FACT — Anthropic Frontend Design
 
@@ -34,7 +46,7 @@ Useful capabilities:
 - restrained non-user-triggered motion;
 - one memorable visual commitment rather than many decorations.
 
-Decision: `ADAPT`. It overlaps local `visual-design-direction`, so the new local capability is a narrow calibration adapter: `visual-taste-calibration`.
+Decision: `ADAPT_WITH_ATTRIBUTION`. It overlaps local `visual-design-direction`, so the local capability is a narrow calibration adapter: `visual-taste-calibration`.
 
 ### FACT — Vercel Web Design Guidelines + React Best Practices
 
@@ -50,7 +62,7 @@ Useful capabilities:
 
 Conflict: upstream `web-design-guidelines` fetches mutable `main` at review time. Local governance requires reproducibility.
 
-Decision: `ADAPT`. Create `web-ui-code-review` with pinned local references; no mutable runtime fetch.
+Decision: `ADAPT_WITH_ATTRIBUTION`. `web-ui-code-review` uses pinned local references; no mutable runtime fetch.
 
 ### FACT — Figma Generate Library / Figma MCP workflow
 
@@ -66,7 +78,7 @@ Useful capabilities:
 - Code Connect/actual-component mapping;
 - sequential stateful mutations and visual validation.
 
-Decision: `ADAPT / REFERENCE_ONLY`. Create `figma-system-bridge`. No upstream Figma/OpenAI source text is copied because redistribution terms were not established in this review; only provenance + local synthesis are stored.
+Decision: `REFERENCE_ONLY` for upstream source text. `figma-system-bridge` is a local workflow synthesis. No OpenAI/Figma source text is vendored because redistribution terms were not established in this review.
 
 ### FACT — Design Extractor/Auditor
 
@@ -78,7 +90,7 @@ Useful capabilities:
 - separation of dark-mode evidence from fabrication;
 - accessibility observations attached to extracted system evidence.
 
-Decision: `ADAPT`. Create `reference-extraction-and-design-audit`, but remove mandatory Firecrawl and Tailwind migration assumptions.
+Decision: `ADAPT_WITH_ATTRIBUTION`. `reference-extraction-and-design-audit` removes mandatory Firecrawl and automatic Tailwind migration assumptions.
 
 ### FACT — UX Writing & Content Design
 
@@ -91,7 +103,7 @@ Useful capabilities:
 - Avoid→Explain→Resolve errors;
 - accessibility/localization/system-state awareness.
 
-Decision: `ADAPT`. Create narrow `ux-writing-and-microcopy`, while existing `content-design-and-question-design` keeps broader question/content-flow ownership.
+Decision: `ADAPT_WITH_ATTRIBUTION`. `ux-writing-and-microcopy` owns string/state-level product copy while existing `content-design-and-question-design` keeps broader question/content-flow ownership.
 
 ## Architecture after integration
 
@@ -113,8 +125,8 @@ skills_UIUX
 │   └── ...
 │
 ├── EXTERNAL-KNOWLEDGE PROVENANCE
-│   ├── vendor/ui-ux-pro-max/          # complete pinned runtime/data snapshot
-│   └── vendor/external-uiux/          # source locks + adoption decisions
+│   ├── vendor/ui-ux-pro-max/          # complete pinned public runtime/data snapshot
+│   └── vendor/external-uiux/          # source locks + adoption decisions, not bulk repo dumps
 │
 └── SPECIALIST ADAPTERS
     ├── design-intelligence-retrieval
@@ -125,24 +137,50 @@ skills_UIUX
     └── ux-writing-and-microcopy
 ```
 
-External repositories are not bulk-loaded into prompt context. Deeper knowledge is read only through the adapter's directly linked references.
+External repositories are not bulk-loaded into prompt context. Deeper knowledge is read only through an adapter's directly linked references.
+
+## Routing / installation decisions
+
+- `professional-core` and `prototype-uiux` install the four context-light, commonly useful adapters: reference extraction, visual taste, UX writing and web UI/code review. Installation does not imply activation.
+- `figma-system-bridge` is installed through the `designops-governance` pack rather than generic profiles because it requires Figma-specific task/tool reality.
+- `adaptive-skill-routing-and-context-budget` includes explicit trigger and near-miss rules for all five adapters.
+- `content-design-and-question-design` delegates exact state-string problems to `ux-writing-and-microcopy` instead of duplicating its workflow.
+
+## Verification evidence
+
+Implementation commit: `3a3d4ebd933a0b7ceeeb7d9c21035ab11730b9aa`.
+
+`Validate Skills` run `34026113160` = `success` across:
+
+- `validate-skills.py` structure checks;
+- V5 profiles/packs/project configs/evals/resources validation;
+- vendored UI UX Pro Max integrity;
+- source design-intelligence retrieval smoke;
+- core profile installer dry-run;
+- installed design-intelligence dependency smoke;
+- project-aware installer dry-run with packs;
+- project bootstrap/sync smoke;
+- provider-neutral eval harness smoke.
+
+Compare against baseline: `29 files changed`, `1656 additions`, `62 deletions`; branch is one commit ahead and zero behind the unchanged baseline.
 
 ## Requirement coverage
 
 | ID | Requirement | OWNER_PHASE | Status | Verification |
 |---|---|---|---|---|
-| EXT-001 | Learn from Anthropic Frontend Design without duplicate visual orchestrator | implementation | DONE_VERIFIED | `visual-taste-calibration` + pinned reference |
-| EXT-002 | Add Vercel web UI + React/Next code review capability | implementation | DONE_VERIFIED | `web-ui-code-review` + two pinned references |
-| EXT-003 | Add Design Contract ↔ Figma ↔ code bridge | implementation | DONE_VERIFIED | `figma-system-bridge` + reference-only source contract |
-| EXT-004 | Add reference/design-system extraction and audit | implementation | DONE_VERIFIED | `reference-extraction-and-design-audit` |
-| EXT-005 | Add microcopy/content UX specialist | implementation | DONE_VERIFIED | `ux-writing-and-microcopy` |
-| EXT-006 | Keep external sources reproducible and context-efficient | implementation | DONE_VERIFIED | `vendor/external-uiux/SOURCE-LOCKS.md` + no mutable runtime fetch |
-| EXT-007 | Route/install new capabilities without loading them by default | implementation | PENDING_FUTURE_PHASE | catalog/profile/router changes + validators/evals |
-| EXT-008 | Structural/profile/eval verification | verification | PENDING_FUTURE_PHASE | GitHub Actions + eval harness |
-| EXT-009 | Merge to `main` | release | PENDING_FUTURE_PHASE | explicit release authorization required |
+| EXT-001 | Learn from Anthropic Frontend Design without duplicate visual orchestrator | implementation | DONE_VERIFIED | `visual-taste-calibration` + pinned reference + validation |
+| EXT-002 | Add Vercel web UI + React/Next code review capability | implementation | DONE_VERIFIED | `web-ui-code-review` + two pinned references + validation |
+| EXT-003 | Add Design Contract ↔ Figma ↔ code bridge | implementation | DONE_VERIFIED | `figma-system-bridge` + reference-only source contract + pack validation |
+| EXT-004 | Add reference/design-system extraction and audit | implementation | DONE_VERIFIED | `reference-extraction-and-design-audit` + eval |
+| EXT-005 | Add microcopy/content UX specialist | implementation | DONE_VERIFIED | `ux-writing-and-microcopy` + content-owner handoff + eval |
+| EXT-006 | Keep external sources reproducible and context-efficient | implementation | DONE_VERIFIED | `vendor/external-uiux/SOURCE-LOCKS.md`; no mutable runtime fetch |
+| EXT-007 | Route/install new capabilities without loading them by default | implementation | DONE_VERIFIED | catalog, adaptive router, profiles/designops pack, near-miss eval |
+| EXT-008 | Structural/profile/install/eval verification | verification | DONE_VERIFIED | Actions run `34026113160` = success |
+| EXT-009 | Open reviewable PR without release | handoff | DONE_VERIFIED | PR `#14` open; `main` unchanged at baseline when opened |
+| EXT-010 | Merge to `main` | release | PENDING_FUTURE_PHASE | explicit future release authorization required |
 
-## Current phase result
+## Phase result
 
-`PENDING VERIFICATION`
+`PASSED`
 
-No due-now blocker has been identified. Release remains a separately owned future phase.
+DUE-NOW `BLOCKED = 0`; DUE-NOW `UNACCOUNTED = 0`. Merge remains owned by a future release phase and is not required for this implementation phase to pass.

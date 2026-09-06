@@ -36,11 +36,14 @@ Checked: 2026-09-06 (Asia/Ho_Chi_Minh)
 ## External specialist integration phase
 
 - Scope: `system`
-- Type: `research / implementation`
+- Type: `research / implementation / verification`
 - Risk: `medium`
 - Mode: `production_candidate`
 - Working branch: `feat/external-uiux-specialist-adapters`
 - Baseline: `35673d3983f51182ed2212590f55351908b36e03`
+- Implementation commit: `3a3d4ebd933a0b7ceeeb7d9c21035ab11730b9aa`
+- PR: `#14`
+- Implementation validation: GitHub Actions run `34026113160` = `success`
 - Release authorization: `no_release`
 
 ### Adoption policy
