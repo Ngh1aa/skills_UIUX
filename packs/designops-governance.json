@@ -1,9 +1,8 @@
 {
   "name": "designops-governance",
-  "description": "Structured critique plus design-system governance, Figma↔code synchronization, contribution, deprecation and adoption.",
+  "description": "Structured critique plus design-system governance, contribution, deprecation and adoption.",
   "skills": [
     "design-critique-and-rationale",
-    "design-system-governance-and-adoption",
-    "figma-system-bridge"
+    "design-system-governance-and-adoption"
   ]
 }
