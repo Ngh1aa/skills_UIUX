@@ -1,0 +1,399 @@
+name: Vendor UI UX Pro Max
+
+on:
+  push:
+    branches:
+      - feat/vendor-uiux-pro-max-design-intelligence
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  vendor:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout skills_UIUX branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Checkout pinned UI UX Pro Max upstream
+        uses: actions/checkout@v4
+        with:
+          repository: nextlevelbuilder/ui-ux-pro-max-skill
+          ref: 314307f156aeab0c6b567bbaa1ce4e7aabd5a636
+          path: .vendor-source/ui-ux-pro-max
+          persist-credentials: false
+
+      - name: Vendor upstream skills and design-intelligence engine
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf vendor/ui-ux-pro-max
+          mkdir -p vendor/ui-ux-pro-max
+          cp -R .vendor-source/ui-ux-pro-max/.claude/skills vendor/ui-ux-pro-max/skills
+          cp -R .vendor-source/ui-ux-pro-max/src/ui-ux-pro-max vendor/ui-ux-pro-max/engine
+          cp .vendor-source/ui-ux-pro-max/LICENSE vendor/ui-ux-pro-max/LICENSE
+          cat > vendor/ui-ux-pro-max/UPSTREAM.md <<'EOF'
+          # UI UX Pro Max vendored source
+
+          - Upstream: `nextlevelbuilder/ui-ux-pro-max-skill`
+          - Pinned commit: `314307f156aeab0c6b567bbaa1ce4e7aabd5a636`
+          - Imported: `2026-09-06`
+          - License: MIT (see `LICENSE`)
+          - Policy: upstream files in `skills/` and `engine/` are vendored verbatim. Local behavior belongs in the bridge skill and prompt, not in silent edits to upstream files.
+
+          ## Included
+
+          - all upstream `.claude/skills/*` packages;
+          - full `src/ui-ux-pro-max` engine, including databases, stack guidance, templates, search and validation scripts;
+          - upstream MIT license.
+
+          ## Update rule
+
+          Do not float on upstream `main`. Review a new immutable commit, inspect license/provenance/data changes, update this lock, run vendor integrity + target skill validators, and record migration impact before promotion.
+          EOF
+
+      - name: Add skills_UIUX design-intelligence bridge
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p design-intelligence-retrieval/references design-intelligence-retrieval/scripts docs/uiux
+          cat > design-intelligence-retrieval/SKILL.md <<'EOF'
+          ---
+          name: design-intelligence-retrieval
+          description: Retrieves focused visual, product, typography, color, icon, motion, chart, UX and stack guidance from the vendored design-intelligence database when a UI/UX task needs broader pattern knowledge. Use after project truth and user/domain intent are known, before visual direction or implementation decisions that benefit from external design intelligence; never load the full database into context.
+          ---
+
+          # Design Intelligence Retrieval
+
+          ## Goal
+          Use the vendored UI UX Pro Max corpus as a **retrieval source**, while keeping `skills_UIUX` responsible for project truth, evidence discipline, design contracts, implementation safety and QA.
+
+          ## Ownership boundary
+          This skill owns **retrieval and synthesis of candidate design knowledge**. It does not override:
+          1. current user requirements;
+          2. project truth/source code;
+          3. passed Design Contract and artifacts;
+          4. routed `skills_UIUX` domain/UX/accessibility/implementation rules.
+
+          Treat retrieved recommendations as `EVIDENCE_BACKED_INFERENCE` or `PROFESSIONAL_HYPOTHESIS` unless a stronger project/primary source supports them. Never convert a palette/style/product recommendation into a universal fact.
+
+          ## Retrieval workflow
+          1. Read `project-context` first and identify product/domain, audience, business goal, platform, page/app role and stack.
+          2. Decide whether external design intelligence can materially improve the active decision. If not, do not query it.
+          3. Build a narrow search phrase from real task attributes, not generic terms such as `modern premium` alone.
+          4. For broad design direction, run the upstream `--design-system` retrieval first.
+          5. Add domain-specific searches only for active decisions: style, product, color, typography, UX, icon, motion, chart, landing/app-interface or stack.
+          6. Keep only a small relevant result set. Do **not** paste or load whole CSV/JSON catalogs into model context.
+          7. Reconcile candidates against project truth, accessibility, brand, content density, platform conventions and feasibility.
+          8. Record adopted principles in the Design Contract or implementation artifact with source=`vendored-design-intelligence`, upstream commit and adaptation rationale.
+
+          ## Default command
+          ```bash
+          python design-intelligence-retrieval/scripts/query.py "<product/domain + audience + role + desired character>" --design-system
+          ```
+
+          Use the adapter rather than calling arbitrary data files directly. It pins the vendored engine path and makes the upstream boundary explicit.
+
+          ## When to route
+          Route this skill when one or more apply:
+          - substantial new page/site/app visual direction;
+          - redesign is drifting toward generic AI UI;
+          - domain/product pattern knowledge is weak;
+          - typography/palette/style/icon/motion/chart selection lacks evidence;
+          - implementation needs stack-specific UI guidance;
+          - the user explicitly asks to leverage the vendored design-intelligence database.
+
+          Do not route for a trivial local CSS fix when project truth already determines the answer.
+
+          ## Synthesis contract
+          Output only the decision-ready subset:
+          - `query/context`;
+          - `retrieved candidates`;
+          - `adopt / adapt / reject`;
+          - `reason`;
+          - `project constraint affected`;
+          - `verification method`.
+
+          Retrieved data is input to reasoning, not an automatic design system.
+
+          ## Hard gates
+          - Never let external recommendations override explicit brand/user/project truth silently.
+          - Never claim a retrieved pattern proves UX, conversion or accessibility performance.
+          - Do not use deprecated/pending upstream records as canonical recommendations unless explicitly reviewed.
+          - Preserve upstream provenance/license and immutable commit lock.
+          - For substantial redesign, retrieval does not replace reference research, Design Contract, structural redesign delta, media-crop integrity or rendered visual QA.
+          - For implementation, stack recommendations must be reconciled with the actual project version/codebase before code changes.
+
+          ## Resources
+          - [Upstream integration contract](references/upstream-integration-contract.md)
+          - Vendored source: `../vendor/ui-ux-pro-max/`
+          - Prompt: `../DESIGN-INTELLIGENCE-AUGMENTED-REDESIGN-PROMPT.md`
+
+          ## Verification
+          - `python scripts/validate-vendor-uiux-pro-max.py`
+          - `python design-intelligence-retrieval/scripts/query.py "education admissions mobile" --design-system`
+          - normal library validators/evals must continue to pass.
+          EOF
+
+          cat > design-intelligence-retrieval/references/upstream-integration-contract.md <<'EOF'
+          # Upstream design-intelligence integration contract
+
+          ## Roles
+          - `vendor/ui-ux-pro-max/skills/`: upstream skill packages, vendored verbatim.
+          - `vendor/ui-ux-pro-max/engine/`: upstream searchable corpus and deterministic retrieval engine, vendored verbatim.
+          - `design-intelligence-retrieval/`: local adapter/orchestration boundary.
+          - `skills_UIUX` core skills: authoritative project/evidence/design/implementation/QA governance.
+
+          ## Precedence
+          `current user request > project truth/source > passed contract/artifacts > routed local skills > retrieved design intelligence > generic model prior`
+
+          ## Context-budget rule
+          Query first. Load only the returned candidate subset and any directly required provenance. Full catalog files are storage/indexes, not prompt context.
+
+          ## Provenance
+          Every promoted design-intelligence decision should retain upstream commit `314307f156aeab0c6b567bbaa1ce4e7aabd5a636` until a reviewed vendor upgrade changes the lock.
+
+          ## Conflict rule
+          On conflict with brand, accessibility, source code or current user requirement, log the conflict and prefer the higher-priority source. Do not silently blend contradictory rules.
+          EOF
+
+          cat > design-intelligence-retrieval/scripts/query.py <<'EOF'
+          #!/usr/bin/env python3
+          """Thin stable adapter around the pinned vendored UI UX Pro Max search engine."""
+          from __future__ import annotations
+
+          import subprocess
+          import sys
+          from pathlib import Path
+
+          ROOT = Path(__file__).resolve().parents[2]
+          SEARCH = ROOT / "vendor" / "ui-ux-pro-max" / "engine" / "scripts" / "search.py"
+
+          def main() -> int:
+              if not SEARCH.exists():
+                  print(f"Vendored search engine not found: {SEARCH}", file=sys.stderr)
+                  return 2
+              cmd = [sys.executable, str(SEARCH), *sys.argv[1:]]
+              return subprocess.call(cmd, cwd=str(SEARCH.parent))
+
+          if __name__ == "__main__":
+              raise SystemExit(main())
+          EOF
+          chmod +x design-intelligence-retrieval/scripts/query.py
+
+          cat > DESIGN-INTELLIGENCE-AUGMENTED-REDESIGN-PROMPT.md <<'EOF'
+          # Design-Intelligence-Augmented Redesign Prompt
+
+          Use this prompt for page, multi-page, app or whole-site visual redesign when broad design-pattern intelligence can improve decisions. It augments, not replaces, the phase-aware `skills_UIUX` lifecycle.
+
+          ## Mandatory order
+          1. **Project truth first** — read source, routes, components, tokens, data/API, constraints and existing passed artifacts.
+          2. **Classify** — scope, type, risk and mode.
+          3. **Route smallest local skill graph** — do not preload the vendor corpus.
+          4. **Research/Design Contract** — for substantial redesign, satisfy existing pre-design gates before code.
+          5. **Retrieve design intelligence** — invoke `design-intelligence-retrieval` only after domain/audience/page-role/stack are known.
+          6. **Synthesize, do not obey blindly** — classify each returned candidate `ADOPT / ADAPT / REJECT` against project truth, brand, accessibility, content density, page role and feasibility.
+          7. **Lock structural direction** — hierarchy, composition families, typography logic, media behavior, interaction grammar and responsive transformation must be explicit before implementation.
+          8. **Implement safely** — reuse/extend before duplicate; preserve unrelated behavior; apply actual stack/version constraints.
+          9. **Verify rendered reality** — OLD/NEW when redesigning existing UI, cross-page representative screenshots, media crop/focal integrity, accessibility and functional/system reality appropriate to scope.
+          10. **Record evidence** — adopted external intelligence must retain upstream commit + adaptation rationale; it is not UX/conversion proof by itself.
+
+          ## Retrieval recipe
+          Start with one broad design-system query:
+
+          ```bash
+          python design-intelligence-retrieval/scripts/query.py "<domain> <product> <audience> <page/app role> <desired character>" --design-system
+          ```
+
+          Then query only active gaps. Examples:
+          - a dense admin product → stack + app-interface + chart/UX guidance;
+          - hospitality/editorial site → style + typography + color + landing guidance;
+          - ecommerce → product + UX + icon + stack guidance;
+          - native app → app-interface + platform stack guidance.
+
+          ## Decision table
+          For each meaningful retrieval result, record:
+
+          | Candidate | Source domain | Status | Project fit | Decision | Adaptation | Verification |
+          |---|---|---|---|---|---|---|
+          | ... | ... | active/supplemental/etc. | high/medium/low | ADOPT/ADAPT/REJECT | ... | rendered/code/evidence check |
+
+          ## Non-negotiable anti-patterns
+          - loading the full database into prompt context;
+          - picking a style only because the database ranks it highly;
+          - treating palette/font/product recommendations as facts;
+          - overriding project tokens/components without a documented reason;
+          - using vendor recommendations as a substitute for actual reference research when reference evidence is required;
+          - cosmetic-only redesign while preserving the same hierarchy/composition/journey;
+          - claiming final visual quality without rendered inspection.
+
+          ## Outcome
+          The vendor corpus acts as a searchable **design-intelligence engine**; `skills_UIUX` remains the operating system that decides what is relevant, safe, evidence-backed and verified for the real project.
+          EOF
+
+          cat > scripts/validate-vendor-uiux-pro-max.py <<'EOF'
+          #!/usr/bin/env python3
+          from __future__ import annotations
+
+          import json
+          import sys
+          from pathlib import Path
+
+          ROOT = Path(__file__).resolve().parents[1]
+          VENDOR = ROOT / "vendor" / "ui-ux-pro-max"
+          EXPECTED_SKILLS = {
+              "banner-design", "brand", "design-system", "design", "slides", "ui-styling", "ui-ux-pro-max"
+          }
+          REQUIRED = [
+              VENDOR / "LICENSE",
+              VENDOR / "UPSTREAM.md",
+              VENDOR / "engine" / "scripts" / "search.py",
+              VENDOR / "engine" / "scripts" / "core.py",
+              VENDOR / "engine" / "scripts" / "design_system.py",
+              VENDOR / "engine" / "data" / "catalog-summary.json",
+              VENDOR / "engine" / "data" / "data-provenance.json",
+              VENDOR / "engine" / "data" / "styles.csv",
+              VENDOR / "engine" / "data" / "colors.csv",
+              VENDOR / "engine" / "data" / "products.csv",
+              VENDOR / "engine" / "data" / "typography.csv",
+          ]
+
+          def main() -> int:
+              errors: list[str] = []
+              for path in REQUIRED:
+                  if not path.exists():
+                      errors.append(f"missing required vendor file: {path.relative_to(ROOT)}")
+              skills_dir = VENDOR / "skills"
+              actual = {p.name for p in skills_dir.iterdir() if p.is_dir()} if skills_dir.exists() else set()
+              missing = EXPECTED_SKILLS - actual
+              if missing:
+                  errors.append(f"missing upstream skill packages: {sorted(missing)}")
+              for skill in EXPECTED_SKILLS & actual:
+                  if not (skills_dir / skill / "SKILL.md").exists():
+                      errors.append(f"missing SKILL.md for upstream skill: {skill}")
+              summary_path = VENDOR / "engine" / "data" / "catalog-summary.json"
+              if summary_path.exists():
+                  try:
+                      summary = json.loads(summary_path.read_text(encoding="utf-8"))
+                      counts = summary.get("counts", {})
+                      for key in ("styles", "products", "fontPairings", "uxGuidelines", "stacks"):
+                          if key not in counts:
+                              errors.append(f"catalog summary missing count key: {key}")
+                  except Exception as exc:
+                      errors.append(f"invalid catalog-summary.json: {exc}")
+              upstream = VENDOR / "UPSTREAM.md"
+              if upstream.exists() and "314307f156aeab0c6b567bbaa1ce4e7aabd5a636" not in upstream.read_text(encoding="utf-8"):
+                  errors.append("UPSTREAM.md does not contain pinned commit")
+              if errors:
+                  print("Vendor validation errors:", file=sys.stderr)
+                  for error in errors:
+                      print(f"- {error}", file=sys.stderr)
+                  return 1
+              print(f"Vendor integrity passed: {len(EXPECTED_SKILLS)} upstream skills + full engine/data snapshot")
+              return 0
+
+          if __name__ == "__main__":
+              raise SystemExit(main())
+          EOF
+          chmod +x scripts/validate-vendor-uiux-pro-max.py
+
+          cat > docs/uiux/Skill-Version-Lock.md <<'EOF'
+          # Skill Version Lock
+
+          Checked: 2026-09-06
+
+          | Source | Role | Locked ref |
+          |---|---|---|
+          | `Ngh1aa/skills_UIUX` | local UI/UX operating system base | `a2c4f4765144bcdf2648e7c2f32cdd01a0b52751` |
+          | `nextlevelbuilder/ui-ux-pro-max-skill` | vendored design-intelligence source | `314307f156aeab0c6b567bbaa1ce4e7aabd5a636` |
+
+          The vendor ref is immutable for this integration phase. Change it only after reviewing upstream diff/license/provenance/search behavior and updating the migration record.
+          EOF
+
+      - name: Wire routing and documentation
+        shell: python
+        run: |
+          from pathlib import Path
+
+          additions = {
+              "README.md": r'''
+
+          ## Vendored design-intelligence layer
+
+          `skills_UIUX` now vendors the complete pinned UI UX Pro Max skill set and searchable design-intelligence engine under `vendor/ui-ux-pro-max/`. The vendor corpus is **not** loaded as global prompt context. Route through `design-intelligence-retrieval`, which queries only the relevant subset after project truth, domain, audience, page/app role and stack are known.
+
+          Canonical integration prompt: [DESIGN-INTELLIGENCE-AUGMENTED-REDESIGN-PROMPT.md](DESIGN-INTELLIGENCE-AUGMENTED-REDESIGN-PROMPT.md).
+
+          Precedence remains: `current user request → project truth/source → passed contract/artifacts → routed local skills → retrieved design intelligence → generic model prior`.
+          ''',
+              "SKILL-CATALOG.md": r'''
+
+          ## External design intelligence
+
+          - `design-intelligence-retrieval` — queries the pinned vendored UI UX Pro Max corpus for product/style/color/type/icon/motion/chart/UX/stack candidates, then requires `ADOPT / ADAPT / REJECT` synthesis against project truth. Use it for substantial visual design/redesign, weak design direction or active design-knowledge gaps; do not preload the entire vendor database.
+          - Vendor source: `vendor/ui-ux-pro-max/` contains all seven upstream skill packages plus the full `src/ui-ux-pro-max` engine/data snapshot at the locked commit recorded in `docs/uiux/Skill-Version-Lock.md`.
+
+          Selection rule: external design intelligence is a conditional retrieval layer, not a replacement orchestrator. Route it after project/domain/audience context is known and before locking visual direction/design system when it can improve a material decision.
+          ''',
+              "website-delivery-pipeline/SKILL.md": r'''
+
+          ## Design-intelligence retrieval routing
+          When a substantial page/site/app design or redesign needs broader product/style/typography/color/icon/motion/chart/UX/stack intelligence, route `design-intelligence-retrieval` **after** project truth + domain/audience/page-role context and **before** final visual direction/design-system lock.
+
+          Use retrieval, not preload: start with a focused `--design-system` query, add only the active domain/stack gaps, and synthesize each meaningful result as `ADOPT / ADAPT / REJECT`. The vendored corpus cannot override current user requirements, project truth, a passed Design Contract, accessibility or actual stack/version constraints.
+
+          For substantial redesign, this layer augments `design-reference-research-and-benchmark`; it does not replace real reference research, structural redesign delta gates, media-crop integrity, responsive/accessibility verification or rendered visual QA.
+          ''',
+              "adaptive-skill-routing-and-context-budget/SKILL.md": r'''
+
+          ## Adaptive knowledge retrieval
+          Large searchable knowledge corpora must follow the same context-budget principle as skills: **retrieve the smallest decision-relevant subset**. For vendored design intelligence, route `design-intelligence-retrieval` only when the active decision benefits from it; query first, then load the returned candidates/provenance required for synthesis. Never preload full CSV/JSON catalogs merely because they are installed.
+          ''',
+          }
+
+          for filename, addition in additions.items():
+              path = Path(filename)
+              text = path.read_text(encoding="utf-8")
+              marker = addition.strip().splitlines()[0]
+              if marker not in text:
+                  path.write_text(text.rstrip() + "\n" + addition.strip("\n") + "\n", encoding="utf-8")
+
+          workflow = Path(".github/workflows/validate-skills.yml")
+          text = workflow.read_text(encoding="utf-8")
+          needle = "      - name: Validate vendored design intelligence\n        run: python scripts/validate-vendor-uiux-pro-max.py\n"
+          if "Validate vendored design intelligence" not in text:
+              insert_after = "      - name: Validate V5 profiles, packs, project configs, evals and resources\n        run: python scripts/validate-v2.py\n"
+              text = text.replace(insert_after, insert_after + needle)
+              workflow.write_text(text, encoding="utf-8")
+
+      - name: Remove temporary checkout
+        run: rm -rf .vendor-source
+
+      - name: Validate target library and vendor integration
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/validate-skills.py
+          python scripts/validate-v2.py
+          python scripts/validate-vendor-uiux-pro-max.py
+          python design-intelligence-retrieval/scripts/query.py "education admissions mobile" --design-system > /tmp/design-intelligence-smoke.txt
+          test -s /tmp/design-intelligence-smoke.txt
+          python scripts/eval-harness.py smoke
+
+      - name: Commit generated vendor snapshot and integration
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add vendor/ui-ux-pro-max design-intelligence-retrieval DESIGN-INTELLIGENCE-AUGMENTED-REDESIGN-PROMPT.md docs/uiux/Skill-Version-Lock.md README.md SKILL-CATALOG.md website-delivery-pipeline/SKILL.md adaptive-skill-routing-and-context-budget/SKILL.md scripts/validate-vendor-uiux-pro-max.py .github/workflows/validate-skills.yml
+          if git diff --cached --quiet; then
+            echo "Vendor snapshot already current"
+          else
+            git commit -m "feat: integrate pinned UI UX Pro Max design intelligence"
+            git push origin HEAD:feat/vendor-uiux-pro-max-design-intelligence
+          fi
