@@ -2,15 +2,20 @@
 
 Checked: 2026-09-06 (Asia/Ho_Chi_Minh)
 
-## Current cross-functional upgrade
+## Released cross-functional intelligence upgrade
 
 - `Ngh1aa/skills_UIUX` baseline: `279c9e01ca85779fa4af2d60551fb9b1e0d16111`
 - Branch: `feat/cross-functional-product-growth-intelligence`
 - PR: `#15`
 - Implementation commit: `201642e6857dd26994002facfa70b029a35a1bc4`
-- Push validation: GitHub Actions `34032698500` = `success`
-- PR validation: GitHub Actions `34032720908` = `success`
-- Release authorization: `no_release`; merge remains future release work.
+- Final PR head: `1743c137849223fccdf0681b93fda156f652939a`
+- Merge commit: `9591b238b1b0700aff6fed8deb79d13b6535d143`
+- Implementation push validation: GitHub Actions `34032698500` = `success`
+- Implementation PR validation: GitHub Actions `34032720908` = `success`
+- Final-head push validation: GitHub Actions `34032869876` = `success`
+- Final-head PR validation: GitHub Actions `34032872075` = `success`
+- Post-merge validation: GitHub Actions `34033674244` = `success`
+- Release authorization: explicitly authorized by user on 2026-09-06.
 
 ## External source locks
 

@@ -5,17 +5,21 @@ Checked: 2026-09-06 (Asia/Ho_Chi_Minh)
 ## Phase classification
 
 - Scope: `system`
-- Type: `research / implementation / verification`
+- Type: `research / implementation / verification / release / post-release verification`
 - Risk: `medium`
-- Mode: `production_candidate`
+- Mode: `production`
 - Baseline `main`: `279c9e01ca85779fa4af2d60551fb9b1e0d16111`
 - Branch: `feat/cross-functional-product-growth-intelligence`
-- PR: `#15`
+- PR: `#15` — merged
 - Implementation commit: `201642e6857dd26994002facfa70b029a35a1bc4`
-- Push validation: GitHub Actions `34032698500` = `success`
-- PR validation: GitHub Actions `34032720908` = `success`
-- Release authorization: `no_release`
-- Merge/deploy: `PENDING_FUTURE_PHASE`
+- Final PR head: `1743c137849223fccdf0681b93fda156f652939a`
+- Merge commit: `9591b238b1b0700aff6fed8deb79d13b6535d143`
+- Implementation push validation: GitHub Actions `34032698500` = `success`
+- Implementation PR validation: GitHub Actions `34032720908` = `success`
+- Final-head push validation: GitHub Actions `34032869876` = `success`
+- Final-head PR validation: GitHub Actions `34032872075` = `success`
+- Post-merge validation: GitHub Actions `34033674244` = `success`
+- Release authorization: explicitly authorized by user on 2026-09-06.
 
 ## Skill Activation Plan
 
@@ -119,7 +123,7 @@ No external source becomes project truth or a second lifecycle orchestrator.
 
 ## Verification
 
-Exact implementation head `201642e6857dd26994002facfa70b029a35a1bc4` passed both push and pull-request `Validate Skills` workflows. Verified steps include:
+Final PR head `1743c137849223fccdf0681b93fda156f652939a` passed both push and pull-request `Validate Skills` workflows. Verified steps include:
 
 - SKILL.md structure;
 - V5 profiles, packs, project configs, evals and resources;
@@ -130,7 +134,7 @@ Exact implementation head `201642e6857dd26994002facfa70b029a35a1bc4` passed both
 - bootstrap/sync smoke;
 - provider-neutral eval-harness smoke.
 
-PR #15 is open, non-draft and mergeable; merge is intentionally outside current authority.
+PR #15 was merged using expected-head SHA `1743c137849223fccdf0681b93fda156f652939a` into `main` as `9591b238b1b0700aff6fed8deb79d13b6535d143`. Post-merge `Validate Skills` run `34033674244` completed successfully on that exact merge commit.
 
 ## Requirement coverage
 
@@ -144,9 +148,10 @@ PR #15 is open, non-draft and mergeable; merge is intentionally outside current 
 | CFI-006 | Engineering/context/planning complement | implementation | DONE_VERIFIED | upgraded guardrails + CI |
 | CFI-007 | Conditional routing/context discipline | implementation | DONE_VERIFIED | router + pack + near-miss evals + CI |
 | CFI-008 | Reproducible provenance/licenses | implementation | DONE_VERIFIED | source locks |
-| CFI-009 | Representative eval/schema/harness coverage | verification | DONE_VERIFIED | six eval tasks + Actions `34032698500` / `34032720908` |
-| CFI-010 | PR-head CI | verification | DONE_VERIFIED | Actions `34032720908` success |
-| CFI-011 | Merge to main | release | PENDING_FUTURE_PHASE | requires explicit user release authorization |
+| CFI-009 | Representative eval/schema/harness coverage | verification | DONE_VERIFIED | six eval tasks + CI |
+| CFI-010 | PR-head CI | verification | DONE_VERIFIED | Actions `34032872075` success |
+| CFI-011 | Merge to main | release | DONE_VERIFIED | merge `9591b238b1b0700aff6fed8deb79d13b6535d143` |
+| CFI-012 | Post-merge validation | release | DONE_VERIFIED | Actions `34033674244` success |
 
 ## Phase result
 
@@ -154,4 +159,4 @@ PR #15 is open, non-draft and mergeable; merge is intentionally outside current 
 
 - DUE-NOW `BLOCKED = 0`
 - DUE-NOW `UNACCOUNTED = 0`
-- only release-owned merge remains `PENDING_FUTURE_PHASE`
+- `PENDING_FUTURE_PHASE = 0`
