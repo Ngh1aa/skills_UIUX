@@ -13,6 +13,7 @@
 | `information-architecture` | Inventory, taxonomy, labels, hierarchy, navigation/findability, page roles and URL migration |
 | `ux-laws-and-heuristics` | Heuristic review |
 | `design-reference-research-and-benchmark` | Search, score and synthesize real/curated design references by domain, audience, business goal and implementation fit |
+| `design-intelligence-retrieval` | Retrieve a small verified subset from the pinned UI UX Pro Max design-intelligence corpus, then synthesize ADOPT/ADAPT/REJECT against project truth |
 | `real-world-artifact-and-domain-metaphor-design` | Translate real domain objects, documents, spaces and rituals into mental-model-aligned digital structure, components and visual signatures without literal skeuomorphic imitation |
 | `visual-design-direction` | Layout, hierarchy and visual grammar |
 | `ui-improvement` | Existing UI remediation orchestrator: diagnose → preserve → route specialists → implement → verify |
@@ -44,6 +45,18 @@
 ## Reference intelligence
 
 `design-reference-research-and-benchmark` sits between UX/content decisions and `visual-design-direction` for substantial new design/redesign work. It uses a mixed source model: real industry sites for product/UX truth, curated/award sources for visual craft, case-study/shot platforms for system/component ideas and mood platforms for art direction. It must not treat awards or gallery popularity as evidence of usability/conversion success.
+
+## External design intelligence
+
+`design-intelligence-retrieval` exposes the complete pinned UI UX Pro Max corpus without turning it into global prompt context. Vendor source is stored at `vendor/ui-ux-pro-max/`: all seven upstream skill packages plus the full `src/ui-ux-pro-max` engine/data snapshot and MIT license.
+
+Routing rule:
+- new page/project/system visual direction → `--design-system`;
+- focused concern → one explicit `--domain`;
+- implementation-specific concern → `--stack` only after detecting the actual stack from project source;
+- empty/off-topic match → retry once, then record `no verified match` rather than fabricate evidence.
+
+Retrieved candidates are synthesized as `ADOPT / ADAPT / REJECT`. The canonical Design Contract stays authoritative; upstream-generated MASTER/page files are subordinate candidate artifacts. Do not preload full catalogs and do not use upstream `--force` without explicit user authorization.
 
 ## Real-world artifact intelligence
 
@@ -120,4 +133,4 @@
 `corporate-website`, `education-website`, `ecommerce-website`, `real-estate-and-building-website`, `hospitality-website`, `portfolio-website`, `news-and-media-website`, `saas-website`, `landing-page`, `government-and-public-sector-website`, `nonprofit-website`, `startup-and-incubator-website`.
 
 ## Selection rule
-Keep base profiles small. Add packs only when scope/risk justifies them. For UI remediation, route through `ui-improvement` and activate only relevant specialists. For substantial visual redesign/new-site work, activate `design-reference-research-and-benchmark` when reference intelligence materially improves direction. Activate `real-world-artifact-and-domain-metaphor-design` when the domain has recognizable artifacts/rituals that can improve mental-model fit, information structure or distinctive visual grammar. For production-candidate/release work, activate `production-delivery` when integrations, security, performance, browser verification, rollback or production truth are material. Do not activate deep production gates for a local styling fix or visual-only prototype unless the exact issue requires them.
+Keep base profiles small. Add packs only when scope/risk justifies them. For UI remediation, route through `ui-improvement` and activate only relevant specialists. For substantial visual redesign/new-site work, activate `design-reference-research-and-benchmark` when reference intelligence materially improves direction. Activate `design-intelligence-retrieval` only when searchable external design knowledge can improve an active decision, after project/domain/audience/page-role context is known and before final visual/design-system lock. Activate `real-world-artifact-and-domain-metaphor-design` when the domain has recognizable artifacts/rituals that can improve mental-model fit, information structure or distinctive visual grammar. For production-candidate/release work, activate `production-delivery` when integrations, security, performance, browser verification, rollback or production truth are material. Do not activate deep production gates or external design retrieval for a local styling fix unless the exact issue requires them.
