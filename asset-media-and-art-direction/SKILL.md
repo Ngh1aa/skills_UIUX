@@ -38,6 +38,20 @@ Không mix corporate stock, cinematic 3D và casual phone photography nếu khô
 
 Hero/feature image cần safe zone và focal point. Mobile có thể cần crop/asset khác; đừng phụ thuộc hoàn toàn vào `object-fit: cover`.
 
+### Human-subject / primary-focal hard gate
+
+Khi hero/feature media có người, khuôn mặt, sản phẩm hoặc focal subject rõ:
+
+1. Xác định **focal subject + no-cut zone** trước khi code crop.
+2. Inspect actual rendered crop ở mọi declared target viewport/pressure point.
+3. `object-fit: cover`, `object-position: center`, `20%`, `top`... chỉ là implementation candidate; không phải bằng chứng crop đúng.
+4. Không cắt qua mắt, khuôn mặt, đỉnh đầu hoặc identifying feature chính nếu art direction không cố ý yêu cầu như vậy.
+5. Kiểm cả overlay/panel/copy block có che subject không.
+6. Nếu một source asset không sống được qua các ratio cần thiết, dùng `<picture>`, alternate crop/asset, source-aware `object-position`, hoặc đổi composition; không ép một crop universal.
+7. Sau fix phải recapture và **mở ảnh kiểm bằng mắt**. Screenshot tồn tại nhưng chưa inspect không tính là evidence.
+
+Primary hero crop làm mất face/head/focal subject là P1 visual defect; nếu làm mất nội dung quyết định chính có thể P0 và phải chặn handoff/release.
+
 ## Icons
 
 - Một icon family/style chính.
@@ -68,7 +82,9 @@ Chọn format/size theo browser/framework project. Luôn khai báo dimensions ho
 
 - [ ] Mỗi asset có purpose và source hợp lệ.
 - [ ] Image style nhất quán với brand.
-- [ ] Crop mobile/desktop được kiểm.
+- [ ] Crop được kiểm ở mọi viewport nằm trong declared scope.
+- [ ] Human/primary focal subject có safe zone và không bị crop vô lý.
+- [ ] `object-fit/object-position` đã được verified trên actual render, không chỉ đọc source.
 - [ ] Alt/caption đúng vai trò.
 - [ ] Dimensions/aspect ratio reserve layout.
 - [ ] Icon family không bị trộn tùy tiện.
