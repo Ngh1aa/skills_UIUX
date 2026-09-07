@@ -195,7 +195,7 @@ class OpenAIResponsesProvider:
                 "format": {
                     "type": "json_schema",
                     "name": "uiux_stage_response",
-                    "strict": True,
+                    "strict": False,
                     "schema": schema,
                 }
             },
