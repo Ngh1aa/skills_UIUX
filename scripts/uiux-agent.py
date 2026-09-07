@@ -92,9 +92,7 @@ def main() -> int:
         if args.approve_gate:
             manager.approve_gate(managed, args.approve_gate)
             approved_gate = args.approve_gate
-            if managed.state == "AWAITING_APPROVAL":
-                managed.state = "RUNNING"
-                manager._checkpoint_managed(managed)
+            manager.complete_stage(managed)
 
         if args.replan_signal:
             decision = manager.replan(
