@@ -206,6 +206,10 @@ class DevelopmentManagerAgent:
     ) -> ReplanDecision:
         stage_id = current_stage or managed.active_stage
         self._stage(managed, stage_id)
+        if apply and stage_id != managed.active_stage:
+            raise ValueError(
+                f"cannot apply replan from stage {stage_id}; active stage is {managed.active_stage}"
+            )
 
         context = dict(managed.task_context)
         context.update(context_updates or {})
