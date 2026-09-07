@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass, field, replace
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -66,6 +66,7 @@ def validate_flow_document(doc: dict[str, Any]) -> list[str]:
         errors.append("schema_version must be 1")
     if not isinstance(doc.get("id"), str) or not doc.get("id"):
         errors.append("id must be a non-empty string")
+
     stages = doc.get("stages")
     if not isinstance(stages, list) or not stages:
         errors.append("stages must be a non-empty array")
@@ -77,6 +78,7 @@ def validate_flow_document(doc: dict[str, Any]) -> list[str]:
         if not isinstance(stage, dict):
             errors.append(f"{prefix} must be an object")
             continue
+
         stage_id = stage.get("id")
         if not isinstance(stage_id, str) or not stage_id:
             errors.append(f"{prefix}.id must be a non-empty string")
@@ -84,12 +86,15 @@ def validate_flow_document(doc: dict[str, Any]) -> list[str]:
             errors.append(f"duplicate stage id: {stage_id}")
         else:
             stage_ids.add(stage_id)
+
         if not isinstance(stage.get("agent"), str) or not stage.get("agent"):
             errors.append(f"{prefix}.agent must be a non-empty string")
+
         for key in ("required_skills", "optional_skills"):
             value = stage.get(key, [])
             if not isinstance(value, list) or any(not isinstance(item, str) for item in value):
                 errors.append(f"{prefix}.{key} must be an array of skill names")
+
         conditional = stage.get("conditional_skills", [])
         if not isinstance(conditional, list):
             errors.append(f"{prefix}.conditional_skills must be an array")
@@ -111,10 +116,15 @@ def validate_flow_document(doc: dict[str, Any]) -> list[str]:
         max_replans = replanning.get("max_replans", 0)
         if not isinstance(max_replans, int) or max_replans < 0:
             errors.append("replanning.max_replans must be a non-negative integer")
+
         triggers = replanning.get("triggers", [])
-        unknown = [item for item in triggers if item not in REPLAN_SIGNALS]
-        if unknown:
-            errors.append("unknown replanning triggers: " + ", ".join(unknown))
+        if not isinstance(triggers, list):
+            errors.append("replanning.triggers must be an array")
+        else:
+            unknown = [item for item in triggers if item not in REPLAN_SIGNALS]
+            if unknown:
+                errors.append("unknown replanning triggers: " + ", ".join(unknown))
+
         policies = replanning.get("policies", [])
         if not isinstance(policies, list):
             errors.append("replanning.policies must be an array")
@@ -129,6 +139,11 @@ def validate_flow_document(doc: dict[str, Any]) -> list[str]:
                     errors.append(
                         f"replanning.policies[{pidx}].target_stage references unknown stage {policy['target_stage']}"
                     )
+                for key in ("add_skills", "drop_skills"):
+                    value = policy.get(key, [])
+                    if not isinstance(value, list) or any(not isinstance(item, str) for item in value):
+                        errors.append(f"replanning.policies[{pidx}].{key} must be an array")
+
     return errors
 
 
@@ -138,6 +153,7 @@ class ResolvedStage:
     agent: str
     purpose: str
     skills: list[str]
+    mandatory_skills: list[str] = field(default_factory=list)
     gates: list[dict[str, Any]] = field(default_factory=list)
 
 
@@ -148,6 +164,8 @@ class ResolvedFlow:
     score: int
     stages: list[ResolvedStage]
     replanning: dict[str, Any]
+    revision: int = 0
+    replan_history: list[dict[str, Any]] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -201,6 +219,7 @@ class FlowResolver:
             if actual not in allowed:
                 return None
             score += weight
+
         required_features = _as_set(match.get("features"))
         if required_features:
             actual_features = _as_set(context.get("features"))
@@ -215,11 +234,17 @@ class FlowResolver:
             score = self._score(doc, context)
             if score is not None:
                 candidates.append((score, doc["id"], path, doc))
+
         if not candidates:
             raise ValueError(
                 "no applicable flow found for "
-                + ", ".join(f"{key}={context.get(key)!r}" for key in sorted(CONTEXT_KEYS) if key in context)
+                + ", ".join(
+                    f"{key}={context.get(key)!r}"
+                    for key in sorted(CONTEXT_KEYS)
+                    if key in context
+                )
             )
+
         candidates.sort(key=lambda item: (item[0], item[1]), reverse=True)
         score, _, path, doc = candidates[0]
         return path, doc, score
@@ -256,8 +281,8 @@ class SkillResolver:
         defaults = list(roles[agent].get("default_skills", []))
         additions = list(additional_skills or [])
         excludes = set(exclude_skills or [])
-        protected = set(defaults + required)
-        illegal = sorted(excludes.intersection(protected))
+        mandatory = _unique(defaults + required)
+        illegal = sorted(excludes.intersection(mandatory))
         if illegal:
             raise ValueError(
                 f"cannot exclude mandatory/default skills from stage {stage['id']}: {', '.join(illegal)}"
@@ -274,12 +299,13 @@ class SkillResolver:
             agent=agent,
             purpose=str(stage.get("purpose", "")),
             skills=skills,
+            mandatory_skills=mandatory,
             gates=list(stage.get("gates", [])),
         )
 
 
 class ReplanningEngine:
-    """Turns explicit failure/risk signals into bounded, declarative plan changes."""
+    """Turns explicit signals into bounded, auditable changes to the resolved flow."""
 
     def decide(
         self,
@@ -292,6 +318,7 @@ class ReplanningEngine:
         triggers = set(config.get("triggers", []))
         if signal not in triggers:
             return ReplanDecision(False, signal, "signal is not configured as a replanning trigger")
+
         max_replans = int(config.get("max_replans", 0))
         if replan_count >= max_replans:
             return ReplanDecision(False, signal, f"replan budget exhausted ({max_replans})")
@@ -300,19 +327,56 @@ class ReplanningEngine:
         enriched["signal"] = signal
         for policy in config.get("policies", []):
             if _condition_matches(dict(policy.get("when", {})), enriched):
+                target_stage = policy.get("target_stage") or context.get("current_stage")
                 return ReplanDecision(
                     True,
                     signal,
                     str(policy.get("reason", "matched declarative replanning policy")),
-                    target_stage=policy.get("target_stage"),
+                    target_stage=str(target_stage) if target_stage else None,
                     add_skills=_unique(policy.get("add_skills", [])),
                     drop_skills=_unique(policy.get("drop_skills", [])),
                 )
+
         return ReplanDecision(False, signal, "no replanning policy matched the current context")
+
+    def apply(self, flow: ResolvedFlow, decision: ReplanDecision) -> ResolvedFlow:
+        if not decision.accepted:
+            return flow
+        if not decision.target_stage:
+            raise ValueError("accepted replan decision must identify a target stage")
+
+        stage_ids = [stage.id for stage in flow.stages]
+        if decision.target_stage not in stage_ids:
+            raise ValueError(f"replanning target stage does not exist: {decision.target_stage}")
+
+        next_stages: list[ResolvedStage] = []
+        for stage in flow.stages:
+            if stage.id != decision.target_stage:
+                next_stages.append(stage)
+                continue
+
+            illegal_drops = sorted(set(decision.drop_skills).intersection(stage.mandatory_skills))
+            if illegal_drops:
+                raise ValueError(
+                    "replanning cannot drop mandatory/default skills from "
+                    f"{stage.id}: {', '.join(illegal_drops)}"
+                )
+
+            skills = _unique(stage.skills + decision.add_skills)
+            drop_set = set(decision.drop_skills)
+            skills = [skill for skill in skills if skill not in drop_set]
+            next_stages.append(replace(stage, skills=skills))
+
+        return replace(
+            flow,
+            stages=next_stages,
+            revision=flow.revision + 1,
+            replan_history=flow.replan_history + [decision.to_dict()],
+        )
 
 
 class DevelopmentManager:
-    """Resolves a professional website task into an agent/skill flow and bounded replan decisions."""
+    """Resolves website tasks into agent/skill flows and applies bounded replans."""
 
     def __init__(self, library_root: Path, policy_doc: dict[str, Any]) -> None:
         self.library_root = library_root
@@ -354,10 +418,26 @@ class DevelopmentManager:
     ) -> ReplanDecision:
         decision = self.replanner.decide(flow, signal, context, replan_count)
         if decision.accepted:
-            missing = [skill for skill in decision.add_skills if not (self.library_root / skill / "SKILL.md").is_file()]
+            missing = [
+                skill
+                for skill in decision.add_skills
+                if not (self.library_root / skill / "SKILL.md").is_file()
+            ]
             if missing:
-                raise ValueError("replanning policy references missing skills: " + ", ".join(missing))
+                raise ValueError(
+                    "replanning policy references missing skills: " + ", ".join(missing)
+                )
+
             stage_ids = {stage.id for stage in flow.stages}
             if decision.target_stage and decision.target_stage not in stage_ids:
-                raise ValueError(f"replanning target stage does not exist: {decision.target_stage}")
+                raise ValueError(
+                    f"replanning target stage does not exist: {decision.target_stage}"
+                )
         return decision
+
+    def apply_replan(
+        self,
+        flow: ResolvedFlow,
+        decision: ReplanDecision,
+    ) -> ResolvedFlow:
+        return self.replanner.apply(flow, decision)
