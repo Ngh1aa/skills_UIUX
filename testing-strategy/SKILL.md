@@ -34,7 +34,7 @@ Nếu browser/device support chưa được project định nghĩa, dùng repres
 ## 2. Priority
 
 - `P0` — critical journey/data/security/payment blocker; must pass for production release.
-- `P1` — major function/UX/accessibility/responsive issue; normally release-blocking unless accepted mitigation.
+- `P1` — major function/UX/accessibility/responsive/visual sanity issue; normally release-blocking unless accepted mitigation.
 - `P2` — craft/secondary path/regression concern.
 - `P3` — optional/low-consequence preference.
 
@@ -144,6 +144,8 @@ Rendered UI changed → inspect rendered result.
 
 Check:
 
+- **elementary visual sanity first:** no important text/control only visible when selected/highlighted; no foreground≈background; no disappearing hover/focus/active/disabled labels;
+- surface/foreground semantic pairing and actual computed cascade/specificity;
 - hierarchy;
 - grid/alignment;
 - typography/wrapping;
@@ -154,6 +156,10 @@ Check:
 - page diversity vs template repetition;
 - responsive pressure points;
 - visual regression on shared owners.
+
+For shared header/footer/nav/theme/button/surface changes, representative sampling is insufficient for elementary sanity. Map the shared owner to **all affected routes/templates** and run the sanity check everywhere it renders; deeper visual/aesthetic inspection may remain representative.
+
+For human/primary-subject hero media, `object-fit: cover` is not a pass condition. Inspect actual crop at target viewports and block unjustified face/head/focal-subject clipping.
 
 Screenshot tồn tại nhưng không được inspect ≠ evidence.
 
@@ -180,12 +186,16 @@ Với shared/high-impact change, xác định affected matrix:
 
 ```text
 shared owner/token/component
-→ routes/templates using it
-→ states/viewports to sample
+→ all routes/templates using it for elementary sanity
+→ semantic surface contexts
+→ default/hover/focus/active/disabled states where applicable
+→ representative deep visual viewports
 → automated/manual regression evidence
 ```
 
-Ưu tiên deterministic tests cho behavior; visual snapshots/baselines cần intentional review khi thay đổi.
+Ưu tiên deterministic tests cho behavior. Với visual sanity, computed rendered style/contrast checks có thể bổ sung screenshot evidence; không được dùng chúng thay cho human inspection khi screenshot obvious broken.
+
+Nếu user/reviewer bắt được lỗi obvious mà test plan bỏ lọt, promote failure đó thành regression coverage trước khi đóng remediation khi feasible.
 
 ## 12. Evidence record
 
@@ -212,6 +222,7 @@ Cho substantial work, tạo `docs/test-plan.md` hoặc `docs/verification-matrix
 ## Browser / responsive matrix
 ## Verification matrix
 ## Accessibility evidence
+## Visual sanity / shared-owner coverage
 ## Performance evidence
 ## Regression coverage
 ## Failures / unresolved P0-P1
@@ -222,10 +233,13 @@ Cho substantial work, tạo `docs/test-plan.md` hoặc `docs/verification-matrix
 
 - [ ] Critical journeys/risk drive test priority.
 - [ ] Happy path + material recovery states covered.
-- [ ] Responsive tested at pressure widths.
+- [ ] Responsive tested at pressure widths within declared scope.
 - [ ] Browser matrix matches project or is explicitly proposed.
 - [ ] Accessibility evidence level reported accurately.
 - [ ] Visual changes visually inspected.
+- [ ] Shared-owner visual changes have all-affected-route elementary sanity coverage.
+- [ ] Changed interactive states remain readable/perceptible in actual rendered state.
+- [ ] Human/focal media crop verified at target viewports when applicable.
 - [ ] Performance uses budgets/conditions, not vanity score alone.
 - [ ] Mock/simulated behavior not reported as real system pass.
 - [ ] P0/P1 failures explicit.
@@ -239,3 +253,5 @@ Cho substantial work, tạo `docs/test-plan.md` hoặc `docs/verification-matrix
 - One Lighthouse run = field performance.
 - Success toast = backend test pass.
 - Testing only demo/happy-path content.
+- One representative page = enough after changing a shared footer/header/theme owner.
+- CSS declaration says correct color = rendered contrast verified.
