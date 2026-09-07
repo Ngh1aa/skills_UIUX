@@ -12,6 +12,7 @@ if str(ROOT) not in sys.path:
 
 from runtime.agent import ProviderNeutralAgentHarness
 from runtime.manager import DevelopmentManagerAgent
+from runtime.providers import ProviderError, create_provider
 
 
 def _managed_overrides(args: argparse.Namespace) -> dict[str, object]:
@@ -32,8 +33,20 @@ def _actions_from_plan(path: str | None) -> list[dict[str, object]]:
     return list(payload.get("actions", []))
 
 
+def _provider_from_args(args: argparse.Namespace):
+    return create_provider(
+        args.provider or "auto",
+        ROOT,
+        model=args.model,
+        command=args.provider_command,
+        timeout=args.provider_timeout,
+        max_tokens=args.provider_max_tokens,
+        context_chars=args.provider_context_chars,
+    )
+
+
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Provider-neutral skills_UIUX agent harness")
+    parser = argparse.ArgumentParser(description="skills_UIUX Flow Agent OS runtime")
     parser.add_argument("--project", required=True)
     parser.add_argument("--task", default="UIUX task")
     parser.add_argument("--agent", choices=["development", "research", "implementation", "qa"], default="research")
@@ -41,7 +54,7 @@ def main() -> int:
     parser.add_argument("--skill", action="append", default=[])
     parser.add_argument("--exclude-skill", action="append", default=[])
     parser.add_argument("--source", action="append", default=[])
-    parser.add_argument("--plan", help="JSON file containing an actions array")
+    parser.add_argument("--plan", help="Legacy/manual JSON file containing an actions array")
     parser.add_argument("--run-id")
     parser.add_argument("--resume")
     parser.add_argument("--dry-run", action="store_true")
@@ -57,12 +70,29 @@ def main() -> int:
     parser.add_argument("--approve-gate", help="Approve a human gate on the active managed stage")
     parser.add_argument("--stage", help="Start or complete a resolved specialist stage; defaults to active stage")
     parser.add_argument("--complete-stage", action="store_true", help="Mark the selected/active managed stage gate as complete and advance")
-    parser.add_argument("--advance-on-success", action="store_true", help="After a successfully executed managed stage plan, mark it complete and advance")
+    parser.add_argument("--advance-on-success", action="store_true", help="After a successfully executed legacy/manual stage plan, mark it complete and advance")
     parser.add_argument("--replan-signal")
     parser.add_argument("--current-stage")
     parser.add_argument("--replan-count", type=int, help="Override persisted replan count for diagnostics")
     parser.add_argument("--no-apply-replan", action="store_true", help="Return a replan decision without mutating the managed run")
+
+    parser.add_argument("--auto-run", action="store_true", help="Let Development Manager call the configured provider for every active stage until completion or a real pause condition")
+    parser.add_argument("--provider", choices=["auto", "openai", "anthropic", "command", "mock"], help="Provider adapter used by --auto-run; auto detects one configured provider")
+    parser.add_argument("--model", help="Optional provider model override")
+    parser.add_argument("--provider-command", help="Command adapter executable string; prompt is passed on stdin")
+    parser.add_argument("--provider-timeout", type=int, default=180)
+    parser.add_argument("--provider-max-tokens", type=int, default=24000)
+    parser.add_argument("--provider-context-chars", type=int, default=140000)
+    parser.add_argument("--provider-max-rounds", type=int, default=8, help="Maximum model/tool rounds inside one active stage")
+    parser.add_argument("--provider-max-cycles", type=int, default=24, help="Maximum stage/replan cycles for one auto-run invocation")
     args = parser.parse_args()
+
+    if args.auto_run and args.plan:
+        parser.error("--auto-run and --plan are mutually exclusive")
+    if args.provider and not args.auto_run:
+        parser.error("--provider requires --auto-run")
+    if args.auto_run and not (args.managed or args.managed_run_id):
+        parser.error("--auto-run requires --managed or --managed-run-id")
 
     harness = ProviderNeutralAgentHarness(ROOT, Path(args.project))
 
@@ -81,8 +111,9 @@ def main() -> int:
 
         if args.approve_gate:
             manager.approve_gate(managed, args.approve_gate)
-            print(json.dumps({"managed": managed.to_dict(), "approved_gate": args.approve_gate}, ensure_ascii=False, indent=2))
-            return 0
+            if not args.auto_run:
+                print(json.dumps({"managed": managed.to_dict(), "approved_gate": args.approve_gate}, ensure_ascii=False, indent=2))
+                return 0
 
         if args.replan_signal:
             decision = manager.replan(
@@ -99,6 +130,23 @@ def main() -> int:
             next_stage = manager.complete_stage(managed, args.stage)
             print(json.dumps({"managed": managed.to_dict(), "next_stage": next_stage}, ensure_ascii=False, indent=2))
             return 0
+
+        if args.auto_run:
+            try:
+                provider = _provider_from_args(args)
+            except ProviderError as exc:
+                print(json.dumps({"status": "PROVIDER_CONFIG_ERROR", "error": str(exc)}, ensure_ascii=False, indent=2), file=sys.stderr)
+                return 2
+            result = manager.run_with_provider(
+                managed,
+                provider,
+                explicit_sources=args.source,
+                dry_run=args.dry_run,
+                max_rounds=args.provider_max_rounds,
+                max_cycles=args.provider_max_cycles,
+            )
+            print(json.dumps(result, ensure_ascii=False, indent=2))
+            return 0 if result.get("status") in {"COMPLETED", "AWAITING_APPROVAL", "AWAITING_AUTHORITY"} else 2
 
         if not args.stage and not args.plan:
             print(json.dumps(managed.to_dict(), ensure_ascii=False, indent=2))
