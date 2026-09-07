@@ -1,19 +1,27 @@
 # Skill Version Lock
 
-Checked: 2026-09-06 (Asia/Ho_Chi_Minh)
+Checked: 2026-09-07 (Asia/Ho_Chi_Minh)
 
-## V5.2 agent runtime foundation candidate
+## Released V5.2 agent runtime foundation
 
-- Latest observed `main` at phase start: `f098e6a94aaf3f026a810bc30073df67eb653cc2`
-- `main` recovery dependency: PR `#16`, head `7373bf9201b7ad3d52eea2753a78809beb5b1562`
-- Candidate branch: `feat/v5-2-agent-runtime-foundation`
-- Candidate PR: `#17` (stacked on PR #16 recovery branch)
+- Phase-start `main`: `f098e6a94aaf3f026a810bc30073df67eb653cc2`
+- Recovery PR: `#16`
+- Recovery head: `7373bf9201b7ad3d52eea2753a78809beb5b1562`
+- Recovery merge commit: `c8a2d07ad360bc887b687288beff1d3d7aa7f76e`
+- Recovery post-merge validation: GitHub Actions `34073614108` = `success`
+- V5.2 branch: `feat/v5-2-agent-runtime-foundation`
+- V5.2 PR: `#17`
 - Implementation commit: `69724b9fd65a8df0f56ae2c8231da2054da73346`
+- Final PR head: `a6cc9997fc15246c67894fcebfeff3f9e46a9e70`
+- Merge commit: `49e5ad978cbce21df2398385b2a58b019252923b`
 - Implementation push validation: GitHub Actions `34045466501` = `success`
-- Runtime mode: provider-neutral; no model SDK required by core validation.
-- MCP compatibility check: official MCP Python SDK v2 documentation reviewed 2026-09-06; candidate adapter uses `MCPServer` and keeps MCP optional.
+- Final-head push validation: GitHub Actions `34045571288` = `success`
+- Final-head PR validation: GitHub Actions `34045573762` = `success`
+- Post-merge validation: GitHub Actions `34073654070` = `success`
+- Runtime mode: provider-neutral; core validation does not require a model SDK.
+- MCP compatibility check: official MCP Python SDK v2 documentation reviewed 2026-09-06; adapter uses `MCPServer` and keeps MCP optional.
 - Figma integration check: official Figma MCP / Code Connect documentation reviewed 2026-09-06; Figma remains external context rather than project source-of-truth.
-- Release authorization: `no_release`; this candidate does not change the released library lock on `main`.
+- Release authorization: explicitly authorized by user on 2026-09-07.
 
 ## Released cross-functional intelligence upgrade
 
