@@ -24,6 +24,26 @@ Mỗi skill phải **discoverable, actionable, composable, testable và context-
 8. Run structural validators + representative agent evals trước merge.
 9. Update catalog/profile nếu capability cần được routed/cài.
 
+## Reliability feedback rule
+
+Khi một project/user/reviewer phát hiện **obvious generalizable failure** mà skill/routine hiện tại lẽ ra phải ngăn được, skill maintenance không được dừng ở việc sửa wording chung chung.
+
+Phải review theo chain:
+
+```text
+observed failure
+→ owning skill/checklist/gate
+→ why existing wording/gate allowed skip behavior
+→ concrete hardening
+→ regression eval/task
+→ validator/eval execution
+→ release note / version update when material
+```
+
+Nếu failure có thể tái tạo bằng deterministic check (ví dụ rendered visibility/state contrast/shared-route coverage), ưu tiên thêm deterministic guard/checklist contract bên cạnh judgment guidance.
+
+Không được tuyên bố “đã ngăn tái diễn” nếu chưa có ít nhất một regression mechanism có thể exercise lại failure mode. Skill instruction giúp giảm rủi ro; nó không tạo guarantee tuyệt đối nếu project không chạy required verification.
+
 ## Package pattern
 
 ```text
@@ -80,6 +100,7 @@ Good examples:
 | “Build pass nên không cần screenshot.” | Build verifies compilation, not rendered pixels. |
 | “Task nhỏ nên khỏi đọc project truth.” | Small edits can still violate tokens/behavior/brand. |
 | “Retry thêm lần nữa chắc được.” | A repeated identical failure needs diagnosis, not wording changes. |
+| “Rule đã có rồi nên user-caught regression chỉ cần sửa project.” | Nếu QA vẫn bỏ lọt một obvious generalizable defect, rule/gate/eval chưa đủ reliable. |
 
 Do not add these sections mechanically when there is no real skip/failure pattern.
 
@@ -91,7 +112,7 @@ Chấm outcome hơn exact path. Evals nên có:
 - must-not failure modes;
 - deterministic assertions khi có thể;
 - rubric cho judgment dimensions;
-- regression cases cho behavior đã ổn.
+- regression cases cho behavior đã ổn hoặc failure đã được harden.
 
 For material skill changes, prefer a controlled comparison when feasible:
 
@@ -119,5 +140,6 @@ Use multiple trials when variance matters. Keep the environment comparable and d
 - Không duplicate capability vô lý.
 - Progressive resources có reason và link rõ.
 - Relevant eval/profile/catalog được cập nhật.
+- Generalizable user-caught regression có concrete prevention mechanism + regression eval khi applicable.
 - External source có pin/license/provenance nếu material guidance được adopt.
 - `python scripts/validate-skills.py` và `python scripts/validate-v2.py` pass.
