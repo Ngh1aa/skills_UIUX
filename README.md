@@ -1,8 +1,29 @@
-# skills_UIUX V5 — Evidence, Reference Intelligence & Production Reliability Agent OS
+# skills_UIUX V5.4 — Evidence, Reference Intelligence & Production Reliability Agent OS
 
 Bộ skill cho AI coding agent xây dựng/nâng cấp website theo pipeline chuyên nghiệp từ project truth → research → audience/journey/IA → reference intelligence → design intelligence → Design Contract → implementation → rendered QA → release/production verification.
 
-V5 là **library/agent-OS version**. Các prompt có version riêng; không suy ra library version từ prompt version.
+V5.4 là **library/agent-OS version**. Các prompt có version riêng; không suy ra library version từ prompt version.
+
+## V5.4 visual-sanity reliability hardening
+
+V5.4 bổ sung hard gate để chặn các lỗi rendered sơ đẳng nhưng có thể lọt qua build/CI/screenshot-generation:
+
+- important text chỉ thấy khi bôi đen/select vì foreground/background gần như trùng nhau;
+- shared surface đổi light↔dark nhưng text/link/icon/button vẫn inherit contract cũ;
+- button/CTA label biến mất ở hover/focus/active/disabled do state hoặc specificity;
+- CSS declaration nhìn đúng nhưng computed browser style bị cascade/selector khác override;
+- hero/feature media dùng `cover` nhưng cắt mất face/head/primary focal subject;
+- shared header/footer/theme/button owner chỉ được QA trên một route representative rồi làm hỏng toàn site.
+
+Canonical hard gate: [ui-craft-and-visual-qa/checklists/elementary-visual-sanity-gate.md](ui-craft-and-visual-qa/checklists/elementary-visual-sanity-gate.md).
+
+Rule mới phân biệt rõ:
+
+- **deep visual review** có thể representative theo role/risk;
+- **elementary sanity của shared owner** phải phủ mọi affected route/template;
+- automated contrast/computed-style checks là regression signals, không thay human screenshot inspection và không tự tạo WCAG conformance claim.
+
+Nếu user/reviewer bắt được một obvious generalizable defect mà QA lẽ ra phải thấy, project fix chưa đủ: failure phải được promote thành project regression + owning skill/checklist + regression eval khi applicable.
 
 ## Canonical entrypoints
 
@@ -222,6 +243,10 @@ For release-critical consumers, prefer immutable tag/commit SHA over floating `m
 - mock/simulated integration → not production-ready;
 - build/CI success → not rendered visual QA;
 - screenshot existence → not visual inspection;
+- obvious broken screenshot → FAIL even if build/CI/DOM/pixel-diff checks pass;
+- shared visual owner changed → elementary sanity must cover all affected routes/templates, not one representative route;
+- CSS declaration → not rendered color proof when cascade/specificity can override it;
+- `object-fit: cover` → not focal-crop proof;
 - deploy success → not production verification without relevant smoke.
 
 ## Eval / validation
