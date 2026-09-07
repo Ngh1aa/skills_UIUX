@@ -1,13 +1,12 @@
 from __future__ import annotations
 
-import json
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 from runtime.agent import ToolSpec, TraceRecorder
 from runtime.manager import DevelopmentManagerAgent, ManagedWebsiteRun
-from runtime.provider import ModelProvider, ProviderStageRequest, ProviderStageResponse, load_context_documents
+from runtime.provider import ModelProvider, ProviderStageRequest, load_context_documents
 
 
 @dataclass(frozen=True)
@@ -46,6 +45,10 @@ class ProviderManagedRunner:
             True,
         )
         self.write_spec.validate()
+
+    def _set_managed_terminal(self, managed: ManagedWebsiteRun, state: str) -> None:
+        managed.state = state
+        self.manager._checkpoint_managed(managed)
 
     def _safe_project_path(self, raw: str) -> Path:
         path = (self.project_root / raw).resolve()
@@ -180,6 +183,12 @@ class ProviderManagedRunner:
         dry_run: bool = False,
     ) -> ProviderRunResult:
         stage_state = self.manager.start_stage(managed)
+        stage_state.limitations = [
+            item for item in stage_state.limitations if item != "model/provider reasoning is not bundled"
+        ]
+        stage_state.limitations.append(
+            "provider execution is active; browser-rendered visual QA still requires a connected render/observation adapter"
+        )
         trace = TraceRecorder(
             self.project_root / ".uiux-agent-runs" / stage_state.run_id / "trace.jsonl",
             stage_state.run_id,
@@ -215,6 +224,7 @@ class ProviderManagedRunner:
                         self.provider.model,
                         decision.reason,
                     )
+                self._set_managed_terminal(managed, "FAILED")
                 raise
 
             trace.emit("provider.call", "OK", response=response.to_dict())
@@ -236,6 +246,7 @@ class ProviderManagedRunner:
                             self.provider.model,
                             decision.reason,
                         )
+                    self._set_managed_terminal(managed, "FAILED")
                     raise
 
             stage_state.context["provider"] = {"name": self.provider.name, "model": self.provider.model}
@@ -245,6 +256,7 @@ class ProviderManagedRunner:
 
             if response.status == "CONTINUE":
                 if not response.actions:
+                    self._set_managed_terminal(managed, "FAILED")
                     raise ValueError("provider returned CONTINUE without actions")
                 continue
 
@@ -286,6 +298,7 @@ class ProviderManagedRunner:
                     self.provider.model,
                     decision.reason,
                 )
+            self._set_managed_terminal(managed, response.status)
             return ProviderRunResult(
                 response.status,
                 managed.active_stage,
@@ -296,6 +309,8 @@ class ProviderManagedRunner:
             )
 
         decision = self.manager.replan(managed, "TOOL_FAILURE") if auto_replan else None
+        if decision is None or not decision.accepted:
+            self._set_managed_terminal(managed, "FAILED")
         return ProviderRunResult(
             "REPLANNED" if decision and decision.accepted else "FAILED",
             managed.active_stage,
@@ -345,6 +360,7 @@ class ProviderManagedRunner:
                     self.provider.model,
                     last.message,
                 )
+        self._set_managed_terminal(managed, "FAILED")
         return ProviderRunResult(
             "FAILED",
             managed.active_stage,
