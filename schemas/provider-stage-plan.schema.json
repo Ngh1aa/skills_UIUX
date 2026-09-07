@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://skills-uiux.local/schemas/provider-stage-plan.schema.json",
+  "title": "Provider Stage Plan",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "summary", "status", "signal", "reason", "actions", "gate_evidence"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "summary": {"type": "string", "minLength": 1},
+    "status": {"enum": ["CONTINUE", "PASS", "BLOCKED", "GATE_FAIL"]},
+    "signal": {
+      "type": ["string", "null"],
+      "enum": [null, "GATE_FAIL", "BLOCKED", "NEW_RISK", "INVALID_ASSUMPTION", "TOOL_FAILURE", "CONTEXT_DRIFT"]
+    },
+    "reason": {"type": "string"},
+    "actions": {
+      "type": "array",
+      "maxItems": 32,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["tool", "args"],
+        "properties": {
+          "tool": {"type": "string", "minLength": 1},
+          "args": {"type": "object"}
+        }
+      }
+    },
+    "gate_evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["gate_id", "kind", "ref", "summary"],
+        "properties": {
+          "gate_id": {"type": "string", "minLength": 1},
+          "kind": {"enum": ["artifact", "tool_observation", "human"]},
+          "ref": {"type": "string", "minLength": 1},
+          "summary": {"type": "string", "minLength": 1}
+        }
+      }
+    }
+  }
+}
