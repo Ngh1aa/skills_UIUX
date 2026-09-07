@@ -1,19 +1,26 @@
 # Agent Runtime Foundation Upgrade
 
-Checked: 2026-09-06 (Asia/Ho_Chi_Minh)
+Checked: 2026-09-07 (Asia/Ho_Chi_Minh)
 
 ## Phase classification
 
 - Scope: `system`
-- Type: `implementation / QA`
+- Type: `implementation / QA / release / post-release verification`
 - Risk: `medium`
-- Mode: `production_candidate`
-- Latest observed `main` at phase start: `f098e6a94aaf3f026a810bc30073df67eb653cc2`
-- Green recovery dependency: PR `#16`, head `7373bf9201b7ad3d52eea2753a78809beb5b1562`
+- Mode: `production`
+- Phase-start `main`: `f098e6a94aaf3f026a810bc30073df67eb653cc2`
+- Recovery PR: `#16`, head `7373bf9201b7ad3d52eea2753a78809beb5b1562`
+- Recovery merge commit: `c8a2d07ad360bc887b687288beff1d3d7aa7f76e`
+- Recovery post-merge validation: GitHub Actions `34073614108` = `success`
 - Implementation branch: `feat/v5-2-agent-runtime-foundation`
-- Release authorization: `no_release`
+- V5.2 PR: `#17`
+- Implementation commit: `69724b9fd65a8df0f56ae2c8231da2054da73346`
+- Final PR head: `a6cc9997fc15246c67894fcebfeff3f9e46a9e70`
+- V5.2 merge commit: `49e5ad978cbce21df2398385b2a58b019252923b`
+- V5.2 post-merge validation: GitHub Actions `34073654070` = `success`
+- Release authorization: explicitly authorized by user on 2026-09-07.
 
-Because `main` was red while PR #16 restored validation, this candidate branch intentionally starts from the verified recovery head rather than pretending the red `main` is a healthy baseline.
+The phase intentionally recovered the red `main` first, verified that recovery, then released V5.2 from the already-validated runtime head. No core skill-tree reorganization was introduced.
 
 ## Skill Activation Plan
 
@@ -34,7 +41,7 @@ Because `main` was red while PR #16 restored validation, this candidate branch i
 |---|---|---|---|---|---|
 | `project-context` | library architecture is source-of-truth | inspect before restructure | root skills untouched; runtime added beside them | structural CI | runtime is additive |
 | `adaptive-skill-routing-and-context-budget` | context bloat risk | installed != active | explicit selected-skill context manifest + telemetry | runtime smoke | `runtime/agent.py` |
-| `website-delivery-pipeline` | system/multi-phase work | phase-aware gates, truthful system reality | candidate runtime + no-release boundary | CI + ledger | this document |
+| `website-delivery-pipeline` | system/multi-phase work | phase-aware gates, truthful system reality | release only after recovery + exact-head/post-merge validation | CI + ledger | this document |
 | `ai-agent-coding-guardrails` | executable tool/state layer | scoped writes, no destructive defaults, verify | tool registry + checkpoint + harness | runtime smoke | `runtime/agent.py` |
 | `skill-authoring-and-governance` | 13 topics could become 13 skills | do not duplicate capability | no new SKILL.md packages for tools/runtime | catalog unchanged | runtime/integration folders |
 | `agent-evaluation-and-reliability` | new agent behavior | capability + regression coverage | 4 runtime eval tasks | `validate-v2.py` | `evals/tasks/runtime-*` |
@@ -62,7 +69,7 @@ Because `main` was red while PR #16 restored validation, this candidate branch i
 | AR-15 | Real Figma MCP end-to-end test | future integration QA | PENDING_FUTURE_PHASE | requires supported client/account/project |
 | AR-16 | Real Playwright browser matrix against a consumer project | future integration QA | PENDING_FUTURE_PHASE | requires runnable consumer project |
 | AR-17 | Real autonomous model-provider adapter | future adapter phase | PENDING_FUTURE_PHASE | provider selection intentionally not imposed |
-| AR-18 | Merge/release to `main` | release | N/A_JUSTIFIED | user has not authorized release |
+| AR-18 | Merge/release to `main` | release | DONE_VERIFIED | PR #17 merged as `49e5ad978cbce21df2398385b2a58b019252923b`; post-merge run `34073654070` succeeded |
 
 ## Decision Log
 
@@ -93,6 +100,13 @@ Because `main` was red while PR #16 restored validation, this candidate branch i
 
 **Impact:** useful failure recovery without false production claim.
 
+### D-06 — Release sequencing
+**FACT:** `main` was red before recovery PR #16.
+
+**Decision:** merge and verify #16 first, then retarget #17 to `main`, merge #17 with an expected-head guard, then require post-merge validation.
+
+**Impact:** the released V5.2 state is based on a green recovery baseline and a separately verified runtime release.
+
 ## System Reality
 
 | Surface | Reality |
@@ -108,11 +122,10 @@ Because `main` was red while PR #16 restored validation, this candidate branch i
 
 ## Phase gate
 
-Candidate implementation may be `PASSED` only when:
-- structural skill validation passes;
-- V5 validation passes;
-- runtime foundation validator passes;
-- eval harness smoke passes;
-- no due-now blocker remains.
+`PASSED`.
 
-Release remains `N/A_JUSTIFIED` until explicit authorization.
+Evidence:
+- recovery merge `c8a2d07ad360bc887b687288beff1d3d7aa7f76e` → GitHub Actions `34073614108` = `success`;
+- V5.2 exact head `a6cc9997fc15246c67894fcebfeff3f9e46a9e70` → push/PR validation = `success`;
+- V5.2 merge `49e5ad978cbce21df2398385b2a58b019252923b` → GitHub Actions `34073654070` = `success`;
+- DUE-NOW blockers = 0.
