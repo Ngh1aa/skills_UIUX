@@ -27,7 +27,6 @@ ROOT = Path(__file__).resolve().parents[1]
 PINNED_COMMIT = "314307f156aeab0c6b567bbaa1ce4e7aabd5a636"
 UPSTREAM_REPO = "nextlevelbuilder/ui-ux-pro-max-skill"
 
-# Path patterns for risk classification
 CRITICAL_PATHS = {"LICENSE", "NOTICE", "COPYING"}
 HIGH_PATHS_PATTERNS = [
     "src/ui-ux-pro-max/scripts/",
@@ -51,38 +50,52 @@ def classify_file_risk(path: str) -> str:
     """Classify a changed file into a risk level."""
     basename = Path(path).name
 
-    # CRITICAL: license/provenance
     if basename.upper() in CRITICAL_PATHS:
         return "CRITICAL"
 
-    # HIGH: schema, search API, skill structure
     for pattern in HIGH_PATHS_PATTERNS:
         if pattern in path:
             return "HIGH"
 
-    # MEDIUM: data content
     for pattern in MEDIUM_PATHS_PATTERNS:
         if pattern in path:
             return "MEDIUM"
 
-    # LOW: docs, CI, config
     for pattern in LOW_PATHS_PATTERNS:
         if pattern.lower() in path.lower():
             return "LOW"
 
-    return "MEDIUM"  # default to medium for unknown paths
+    return "MEDIUM"
 
 
 def get_upstream_head(clone_dir: Path) -> str | None:
-    """Get the HEAD commit of the upstream repo (requires clone)."""
+    """Get the HEAD commit of the upstream repo."""
     try:
         result = subprocess.run(
             ["git", "rev-parse", "HEAD"],
-            capture_output=True, text=True, cwd=clone_dir, check=True,
+            capture_output=True,
+            text=True,
+            cwd=clone_dir,
+            check=True,
         )
         return result.stdout.strip()
     except (subprocess.CalledProcessError, FileNotFoundError):
         return None
+
+
+def revision_exists(clone_dir: Path, revision: str) -> bool:
+    """Return True only when revision resolves to a commit in the checkout."""
+    try:
+        subprocess.run(
+            ["git", "cat-file", "-e", f"{revision}^{{commit}}"],
+            capture_output=True,
+            text=True,
+            cwd=clone_dir,
+            check=True,
+        )
+        return True
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return False
 
 
 def get_commits_between(clone_dir: Path, old_commit: str, new_commit: str) -> int:
@@ -90,7 +103,10 @@ def get_commits_between(clone_dir: Path, old_commit: str, new_commit: str) -> in
     try:
         result = subprocess.run(
             ["git", "rev-list", "--count", f"{old_commit}..{new_commit}"],
-            capture_output=True, text=True, cwd=clone_dir, check=True,
+            capture_output=True,
+            text=True,
+            cwd=clone_dir,
+            check=True,
         )
         return int(result.stdout.strip())
     except (subprocess.CalledProcessError, FileNotFoundError, ValueError):
@@ -102,7 +118,10 @@ def get_changed_files(clone_dir: Path, old_commit: str, new_commit: str) -> list
     try:
         result = subprocess.run(
             ["git", "diff", "--name-only", old_commit, new_commit],
-            capture_output=True, text=True, cwd=clone_dir, check=True,
+            capture_output=True,
+            text=True,
+            cwd=clone_dir,
+            check=True,
         )
         return [f for f in result.stdout.strip().split("\n") if f]
     except (subprocess.CalledProcessError, FileNotFoundError):
@@ -114,7 +133,10 @@ def get_diff_stat(clone_dir: Path, old_commit: str, new_commit: str) -> str:
     try:
         result = subprocess.run(
             ["git", "diff", "--stat", old_commit, new_commit],
-            capture_output=True, text=True, cwd=clone_dir, check=True,
+            capture_output=True,
+            text=True,
+            cwd=clone_dir,
+            check=True,
         )
         return result.stdout.strip()
     except (subprocess.CalledProcessError, FileNotFoundError):
@@ -130,6 +152,14 @@ def generate_report(
     if not upstream_head:
         return {"error": "cannot determine upstream HEAD"}
 
+    if not revision_exists(clone_dir, pinned):
+        return {
+            "error": (
+                f"pinned commit {pinned} is not available in the upstream checkout; "
+                "fetch full history before classifying drift"
+            )
+        }
+
     if upstream_head == pinned:
         return {
             "pinned_commit": pinned,
@@ -143,7 +173,16 @@ def generate_report(
     changed_files = get_changed_files(clone_dir, pinned, upstream_head)
     diff_stat = get_diff_stat(clone_dir, pinned, upstream_head)
 
-    # Classify files by risk
+    if commits_behind < 0:
+        return {"error": "cannot compute commit distance between pinned commit and upstream HEAD"}
+    if commits_behind > 0 and not changed_files:
+        return {
+            "error": (
+                "upstream is ahead but changed-file diff is empty; refusing to classify "
+                "an incomplete drift report"
+            )
+        }
+
     file_risks: dict[str, str] = {}
     risk_counts: dict[str, int] = {"CRITICAL": 0, "HIGH": 0, "MEDIUM": 0, "LOW": 0}
     for f in changed_files:
@@ -151,21 +190,16 @@ def generate_report(
         file_risks[f] = risk
         risk_counts[risk] += 1
 
-    # Identify specific concerns
     data_schema_changed = any(
         "catalog-summary.json" in f or "data-provenance.json" in f
         for f in changed_files
     )
     search_api_changed = any("scripts/search.py" in f for f in changed_files)
     skill_changes = [f for f in changed_files if ".claude/skills/" in f]
-    skills_added = [
-        f for f in skill_changes
-        if "SKILL.md" in f and f not in get_changed_files(clone_dir, upstream_head, pinned)
-    ]
-    skills_removed: list[str] = []  # would need reverse diff
+    skills_added = [f for f in skill_changes if "SKILL.md" in f]
+    skills_removed: list[str] = []
     license_changed = any(Path(f).name.upper() in CRITICAL_PATHS for f in changed_files)
 
-    # Overall risk
     if risk_counts["CRITICAL"] > 0:
         overall_risk = "CRITICAL"
     elif risk_counts["HIGH"] > 0:
@@ -175,7 +209,6 @@ def generate_report(
     else:
         overall_risk = "LOW"
 
-    # Recommendation
     recommendations = {
         "CRITICAL": "License or provenance change detected. Review IMMEDIATELY before any update.",
         "HIGH": "Schema, search API, or skill structure changed. Full test suite + manual review required before updating pin.",
@@ -218,12 +251,12 @@ def format_issue_body(report: dict[str, Any]) -> str:
         f"**Upstream HEAD:** `{report['upstream_head'][:12]}`",
         f"**Commits behind:** {report['commits_behind']}",
         "",
-        f"### Recommendation",
+        "### Recommendation",
         f"> {report['recommendation']}",
         "",
         "### Risk Breakdown",
-        f"| Level | Count |",
-        f"|---|---|",
+        "| Level | Count |",
+        "|---|---|",
     ]
     for level in ("CRITICAL", "HIGH", "MEDIUM", "LOW"):
         count = report["risk_counts"].get(level, 0)
@@ -279,7 +312,7 @@ def cmd_report(args: argparse.Namespace) -> int:
             return 0
 
         risk = report["overall_risk"]
-        print(f"Vendor Drift Report")
+        print("Vendor Drift Report")
         print(f"{'=' * 50}")
         print(f"Status:           {report['commits_behind']} commits behind")
         print(f"Overall risk:     {risk}")

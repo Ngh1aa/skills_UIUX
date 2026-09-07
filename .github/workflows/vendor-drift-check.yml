@@ -22,6 +22,7 @@ jobs:
           repository: nextlevelbuilder/ui-ux-pro-max-skill
           path: .upstream-check
           persist-credentials: false
+          fetch-depth: 0
 
       - name: Compare pinned vs upstream HEAD
         id: drift
@@ -45,7 +46,8 @@ jobs:
             echo "Drift detected: pinned=$PINNED upstream=$UPSTREAM_HEAD"
             echo "drifted=true" >> "$GITHUB_OUTPUT"
 
-            # Generate structured report
+            # Generate structured report. Missing/unresolvable pinned history is a hard error,
+            # never a LOW-risk drift result.
             python scripts/vendor-drift-diff.py .upstream-check --json > /tmp/drift-report.json
             python scripts/vendor-drift-diff.py .upstream-check --issue-body > /tmp/drift-issue-body.md
 
@@ -87,7 +89,6 @@ jobs:
             const title = `[vendor-drift] ui-ux-pro-max: upstream ${risk} changes detected`;
 
             if ('${{ steps.find_issue.outputs.exists }}' === 'true') {
-              // Update existing issue
               const issueNumber = parseInt('${{ steps.find_issue.outputs.issue_number }}');
               await github.rest.issues.update({
                 owner: context.repo.owner,
@@ -98,7 +99,6 @@ jobs:
               });
               console.log(`Updated existing issue #${issueNumber}`);
             } else {
-              // Create new issue
               await github.rest.issues.create({
                 owner: context.repo.owner,
                 repo: context.repo.repo,

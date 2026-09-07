@@ -8,7 +8,7 @@
     "asset-media-and-art-direction",
     "design-system-and-components",
     "responsive-and-device-strategy",
-    "ecommerce-conversion-and-checkout"
+    "ecommerce-website"
   ],
   "routing": {
     "required_owners": ["project-context", "visual-design-direction", "ui-craft-and-visual-qa"],
@@ -16,8 +16,8 @@
       "asset-media-and-art-direction",
       "design-system-and-components",
       "responsive-and-device-strategy",
-      "ecommerce-conversion-and-checkout",
-      "typography-and-typesetting"
+      "ecommerce-website",
+      "conversion-and-content"
     ],
     "forbidden_without_trigger": [
       "product-discovery",
