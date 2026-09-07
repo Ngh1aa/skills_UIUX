@@ -1,10 +1,18 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any
 
 from runtime.agent import ProviderNeutralAgentHarness, RunState
 from runtime.flow import DevelopmentManager, ReplanDecision, ResolvedFlow, ResolvedStage
+from runtime.providers import (
+    ProviderAdapter,
+    ProviderError,
+    ProviderStagePlan,
+    ProviderStageRequest,
+    tool_contracts,
+)
 from runtime.task_context import GoalInterpreter
 
 
@@ -21,6 +29,8 @@ class ManagedWebsiteRun:
     stage_runs: dict[str, list[str]] = field(default_factory=dict)
     replan_history: list[dict[str, Any]] = field(default_factory=list)
     approved_gates: list[str] = field(default_factory=list)
+    gate_evidence: dict[str, list[dict[str, Any]]] = field(default_factory=dict)
+    provider_history: list[dict[str, Any]] = field(default_factory=list)
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> "ManagedWebsiteRun":
@@ -39,6 +49,11 @@ class ManagedWebsiteRun:
             stage_runs={key: list(value) for key, value in dict(payload.get("stage_runs", {})).items()},
             replan_history=list(payload.get("replan_history", [])),
             approved_gates=list(payload.get("approved_gates", [])),
+            gate_evidence={
+                key: [dict(item) for item in value]
+                for key, value in dict(payload.get("gate_evidence", {})).items()
+            },
+            provider_history=[dict(item) for item in payload.get("provider_history", [])],
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -54,16 +69,20 @@ class ManagedWebsiteRun:
             "stage_runs": {key: list(value) for key, value in self.stage_runs.items()},
             "replan_history": list(self.replan_history),
             "approved_gates": list(self.approved_gates),
+            "gate_evidence": {
+                key: [dict(item) for item in value] for key, value in self.gate_evidence.items()
+            },
+            "provider_history": [dict(item) for item in self.provider_history],
         }
 
 
 class DevelopmentManagerAgent:
     """Owns end-to-end website routing while specialist agents own execution stages.
 
-    The manager does not absorb UI/UX knowledge. It interprets the user's goal,
-    resolves a declarative flow, activates specialist runs, records stage progress,
-    enforces configured human approval gates, and applies bounded replans when
-    explicit evidence signals a failure, new risk or invalid assumption.
+    The manager interprets the user's goal, resolves a declarative flow, activates
+    specialist runs, asks a configured provider to execute only the active stage,
+    verifies provider gate evidence, enforces human approvals, checkpoints state,
+    and applies bounded replans instead of blind retries.
     """
 
     def __init__(self, harness: ProviderNeutralAgentHarness) -> None:
@@ -77,6 +96,7 @@ class DevelopmentManagerAgent:
         overrides: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         context = self.goal_interpreter.interpret(goal).to_context()
+        context["goal"] = goal
         for key, value in dict(overrides or {}).items():
             if value is None:
                 continue
@@ -306,6 +326,316 @@ class DevelopmentManagerAgent:
                 for item in managed.completed_stages
                 if stage_ids.index(item) < target_index
             ]
+            managed.gate_evidence = {
+                key: value
+                for key, value in managed.gate_evidence.items()
+                if key in stage_ids and stage_ids.index(key) < target_index
+            }
             self._checkpoint_managed(managed)
 
         return decision
+
+    def _provider_request(
+        self,
+        managed: ManagedWebsiteRun,
+        state: RunState,
+        *,
+        round_index: int,
+        max_rounds: int,
+    ) -> ProviderStageRequest:
+        stage = self._stage(managed, managed.active_stage)
+        return ProviderStageRequest(
+            goal=str(managed.task_context.get("goal", "UIUX website task")),
+            flow_id=managed.flow.id,
+            flow_revision=managed.flow.revision,
+            stage_id=stage.id,
+            agent=stage.agent,
+            authority=state.authority,
+            purpose=stage.purpose,
+            skills=list(stage.skills),
+            gates=list(stage.gates),
+            task_context=dict(managed.task_context),
+            project_root=str(self.harness.project_root),
+            context_manifest=dict(state.context),
+            observations=[dict(item) for item in state.observations],
+            tools=tool_contracts(self.harness.registry),
+            round_index=round_index,
+            max_rounds=max_rounds,
+        )
+
+    def _record_provider_plan(
+        self,
+        managed: ManagedWebsiteRun,
+        state: RunState,
+        plan: ProviderStagePlan,
+        round_index: int,
+    ) -> None:
+        row = {
+            "stage": managed.active_stage,
+            "stage_run_id": state.run_id,
+            "flow_revision": managed.flow.revision,
+            "round": round_index,
+            "provider": plan.provider,
+            "model": plan.model,
+            "request_id": plan.request_id,
+            "status": plan.status,
+            "signal": plan.signal,
+            "summary": plan.summary,
+            "reason": plan.reason,
+            "tools": [str(action.get("tool", "")) for action in plan.actions],
+            "gate_evidence": [item.to_dict() for item in plan.gate_evidence],
+        }
+        managed.provider_history.append(row)
+        state.context["provider"] = {
+            "name": plan.provider,
+            "model": plan.model,
+            "last_request_id": plan.request_id,
+            "last_status": plan.status,
+            "round": round_index,
+        }
+        self.harness.checkpoints.save(state.run_id, state.to_dict())
+        self._checkpoint_managed(managed)
+
+    def _verify_gate_evidence(
+        self,
+        managed: ManagedWebsiteRun,
+        state: RunState,
+        plan: ProviderStagePlan,
+    ) -> list[dict[str, Any]]:
+        stage = self._stage(managed, managed.active_stage)
+        gate_ids = [str(item.get("id", "")) for item in stage.gates if item.get("id")]
+        by_gate: dict[str, list[Any]] = {gate_id: [] for gate_id in gate_ids}
+        for evidence in plan.gate_evidence:
+            if evidence.gate_id in by_gate:
+                by_gate[evidence.gate_id].append(evidence)
+
+        observations = {str(item.get("id", "")): item for item in state.observations}
+        verified: list[dict[str, Any]] = []
+        project_root = self.harness.project_root.resolve()
+
+        for gate_id in gate_ids:
+            candidates = by_gate.get(gate_id, [])
+            if not candidates:
+                raise ValueError(f"provider PASS missing evidence for gate: {gate_id}")
+
+            accepted: dict[str, Any] | None = None
+            for evidence in candidates:
+                if evidence.kind == "artifact":
+                    path = (project_root / evidence.ref).resolve()
+                    try:
+                        path.relative_to(project_root)
+                    except ValueError:
+                        continue
+                    if path.is_file():
+                        accepted = evidence.to_dict()
+                        break
+                elif evidence.kind == "tool_observation":
+                    observation = observations.get(evidence.ref)
+                    if observation and observation.get("status") == "success":
+                        accepted = evidence.to_dict()
+                        break
+                elif evidence.kind == "human":
+                    if evidence.ref in managed.approved_gates:
+                        accepted = evidence.to_dict()
+                        break
+
+            if accepted is None:
+                raise ValueError(
+                    f"provider PASS evidence for gate {gate_id} does not resolve to a real artifact, "
+                    "successful tool observation, or approved human gate"
+                )
+            verified.append(accepted)
+
+        return verified
+
+    def execute_active_stage_with_provider(
+        self,
+        managed: ManagedWebsiteRun,
+        provider: ProviderAdapter,
+        *,
+        explicit_sources: list[str] | None = None,
+        dry_run: bool = False,
+        max_rounds: int = 8,
+    ) -> dict[str, Any]:
+        if max_rounds < 1:
+            raise ValueError("max_rounds must be at least 1")
+
+        stage_id = managed.active_stage
+        state = self.start_stage(managed, stage_id, explicit_sources=explicit_sources)
+        last_plan: ProviderStagePlan | None = None
+
+        for round_index in range(1, max_rounds + 1):
+            request = self._provider_request(
+                managed,
+                state,
+                round_index=round_index,
+                max_rounds=max_rounds,
+            )
+            try:
+                plan = provider.plan_stage(request)
+            except ProviderError as exc:
+                state.state = "FAILED"
+                state.limitations.append(f"provider error: {exc}")
+                self.harness.checkpoints.save(state.run_id, state.to_dict())
+                decision = self.replan(
+                    managed,
+                    signal="TOOL_FAILURE",
+                    context_updates={"provider_error": str(exc)},
+                )
+                return {
+                    "status": "PROVIDER_ERROR",
+                    "stage_state": state.to_dict(),
+                    "provider_error": str(exc),
+                    "replan": decision.to_dict(),
+                }
+
+            last_plan = plan
+            self._record_provider_plan(managed, state, plan, round_index)
+
+            if plan.status in {"BLOCKED", "GATE_FAIL"}:
+                state.state = "BLOCKED" if plan.status == "BLOCKED" else "FAILED"
+                self.harness.checkpoints.save(state.run_id, state.to_dict())
+                decision = self.replan(
+                    managed,
+                    signal=plan.signal or ("BLOCKED" if plan.status == "BLOCKED" else "GATE_FAIL"),
+                    context_updates={"provider_reason": plan.reason, "provider_summary": plan.summary},
+                )
+                return {
+                    "status": "REPLANNED" if decision.accepted else plan.status,
+                    "stage_state": state.to_dict(),
+                    "plan": plan.to_dict(),
+                    "replan": decision.to_dict(),
+                }
+
+            if plan.actions:
+                try:
+                    state = self.harness.execute_plan(state, plan.actions, dry_run=dry_run)
+                except Exception as exc:
+                    decision = self.replan(
+                        managed,
+                        signal="TOOL_FAILURE",
+                        context_updates={"tool_error": f"{type(exc).__name__}: {exc}"},
+                    )
+                    return {
+                        "status": "REPLANNED" if decision.accepted else "TOOL_FAILURE",
+                        "stage_state": state.to_dict(),
+                        "plan": plan.to_dict(),
+                        "tool_error": f"{type(exc).__name__}: {exc}",
+                        "replan": decision.to_dict(),
+                    }
+                if state.state == "BLOCKED":
+                    managed.state = "AWAITING_AUTHORITY"
+                    self._checkpoint_managed(managed)
+                    return {
+                        "status": "AWAITING_AUTHORITY",
+                        "stage_state": state.to_dict(),
+                        "plan": plan.to_dict(),
+                    }
+
+            if plan.status == "CONTINUE":
+                continue
+
+            if plan.status == "PASS":
+                try:
+                    verified = self._verify_gate_evidence(managed, state, plan)
+                except ValueError as exc:
+                    decision = self.replan(
+                        managed,
+                        signal="GATE_FAIL",
+                        context_updates={"gate_evidence_error": str(exc)},
+                    )
+                    return {
+                        "status": "REPLANNED" if decision.accepted else "GATE_FAIL",
+                        "stage_state": state.to_dict(),
+                        "plan": plan.to_dict(),
+                        "gate_evidence_error": str(exc),
+                        "replan": decision.to_dict(),
+                    }
+
+                managed.gate_evidence[stage_id] = verified
+                self._checkpoint_managed(managed)
+                try:
+                    next_stage = self.complete_stage(managed, stage_id)
+                except ValueError:
+                    if managed.state == "AWAITING_APPROVAL":
+                        return {
+                            "status": "AWAITING_APPROVAL",
+                            "stage_state": state.to_dict(),
+                            "plan": plan.to_dict(),
+                            "required_approvals": self.required_human_approvals(managed, stage_id),
+                        }
+                    raise
+                return {
+                    "status": "COMPLETED" if next_stage is None else "ADVANCED",
+                    "stage_state": state.to_dict(),
+                    "plan": plan.to_dict(),
+                    "next_stage": next_stage,
+                }
+
+        decision = self.replan(
+            managed,
+            signal="TOOL_FAILURE",
+            context_updates={"provider_round_budget": max_rounds},
+        )
+        return {
+            "status": "ROUND_BUDGET_EXHAUSTED",
+            "stage_state": state.to_dict(),
+            "plan": last_plan.to_dict() if last_plan else None,
+            "replan": decision.to_dict(),
+        }
+
+    def run_with_provider(
+        self,
+        managed: ManagedWebsiteRun,
+        provider: ProviderAdapter,
+        *,
+        explicit_sources: list[str] | None = None,
+        dry_run: bool = False,
+        max_rounds: int = 8,
+        max_cycles: int = 24,
+    ) -> dict[str, Any]:
+        events: list[dict[str, Any]] = []
+
+        for _ in range(max_cycles):
+            if managed.state == "COMPLETED":
+                return {"status": "COMPLETED", "managed": managed.to_dict(), "events": events}
+
+            if managed.state == "AWAITING_APPROVAL":
+                pending = self.required_human_approvals(managed)
+                if pending:
+                    return {
+                        "status": "AWAITING_APPROVAL",
+                        "managed": managed.to_dict(),
+                        "required_approvals": pending,
+                        "events": events,
+                    }
+                self.complete_stage(managed)
+                continue
+
+            if managed.state == "AWAITING_AUTHORITY":
+                return {"status": "AWAITING_AUTHORITY", "managed": managed.to_dict(), "events": events}
+
+            result = self.execute_active_stage_with_provider(
+                managed,
+                provider,
+                explicit_sources=explicit_sources,
+                dry_run=dry_run,
+                max_rounds=max_rounds,
+            )
+            events.append(result)
+            status = str(result.get("status", ""))
+
+            if status in {"ADVANCED", "REPLANNED"}:
+                continue
+            if status == "COMPLETED":
+                return {"status": "COMPLETED", "managed": managed.to_dict(), "events": events}
+            return {"status": status, "managed": managed.to_dict(), "events": events}
+
+        managed.state = "BLOCKED"
+        self._checkpoint_managed(managed)
+        return {
+            "status": "CYCLE_BUDGET_EXHAUSTED",
+            "managed": managed.to_dict(),
+            "events": events,
+            "reason": f"provider execution exceeded max_cycles={max_cycles}",
+        }
