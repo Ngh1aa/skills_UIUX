@@ -25,19 +25,35 @@ Nếu không thể render/capture/inspect implementation:
 - không gọi UI `finished`, `polished`, `visually verified` hoặc `production-grade`;
 - không dùng static assertions/CSS grep thay cho nhìn giao diện thật.
 
+## Mandatory elementary visual sanity gate
+
+Trước khi chấm craft/aesthetic sâu hơn, chạy [Elementary Visual Sanity Gate](checklists/elementary-visual-sanity-gate.md) khi task là substantial visual work, multi-page/whole-site, production-candidate/release, hoặc remediation của một lỗi obvious mà QA trước đã bỏ lọt.
+
+Các failure sau là **hard blockers** dù build/CI/screenshot generation xanh:
+
+- important text chỉ nhìn thấy khi bôi đen/select;
+- foreground và rendered surface gần như cùng màu (`1:1` hoặc visually equivalent);
+- button/CTA label biến mất ở hover/focus/active/disabled;
+- shared surface đổi light↔dark nhưng descendant foreground/link/icon/button không được audit lại;
+- CSS intended color đúng nhưng computed color bị selector/cascade layer khác override;
+- hero/feature media cắt mất face/head/focal subject một cách không có chủ đích.
+
+Deep review có thể dùng representative routes, nhưng **shared-owner elementary sanity không được chỉ sample**. Nếu header/footer/nav/button token/theme/shared surface bị đổi, phải smoke/check mọi route/template mà owner đó render.
+
 ## Review order
 
 Không bắt đầu bằng shadow/radius. Review từ macro đến micro:
 
-1. Page purpose và visual hierarchy.
-2. Cross-page composition / template monotony.
-3. Section rhythm và density.
-4. Grid/alignment.
-5. Typography/readability.
-6. Components/states.
-7. Imagery/icon consistency + native asset quality.
-8. Text-on-image legibility.
-9. Micro-details/motion.
+1. Elementary visual sanity: visibility, state contrast, cascade/specificity, focal crop.
+2. Page purpose và visual hierarchy.
+3. Cross-page composition / template monotony.
+4. Section rhythm và density.
+5. Grid/alignment.
+6. Typography/readability.
+7. Components/states.
+8. Imagery/icon consistency + native asset quality.
+9. Text-on-image legibility.
+10. Micro-details/motion.
 
 ## Mandatory cross-page review
 
@@ -115,6 +131,19 @@ Không chỉ check palette tồn tại. Kiểm actual rendered states:
 
 Một logo hoặc CTA biến mất vì white-on-white / low contrast là P0/P1 visual defect tùy mức ảnh hưởng và phải chặn handoff.
 
+### Surface-pair integrity
+
+`background/surface` và `foreground/content` là **một contract**, không phải hai chỉnh sửa độc lập.
+
+Khi một shared surface đổi màu/theme:
+
+- audit computed text/link/icon/divider/control colors trong cùng commit/change set;
+- kiểm cascade layer và specificity thắng thật trong browser;
+- không coi source declaration là evidence nếu computed style khác;
+- nếu shared owner xuất hiện trên nhiều route, elementary visibility scan phải phủ mọi affected route/template.
+
+Một fix đổi `background` nhưng không xét foreground descendants là incomplete và phải FAIL gate.
+
 ## Text-on-image legibility gate — hard gate
 
 Text đặt trên photography/video/variable imagery phải được kiểm ở **actual crop hiện tại**, không dựa trên average image brightness hay một screenshot đẹp duy nhất.
@@ -148,6 +177,18 @@ Các anti-pattern phải FAIL:
 
 Nếu nội dung quan trọng không đọc được ngay → P0/P1 tùy task impact.
 
+## Human-subject / focal-crop gate — hard gate when applicable
+
+Nếu hero/feature media có người hoặc focal subject rõ:
+
+- inspect actual rendered crop ở mọi viewport/pressure point trong declared scope;
+- `object-fit: cover` hoặc một giá trị `object-position` không phải evidence;
+- face, eyes, top of head hoặc primary identifying feature không được bị cắt vô lý;
+- kiểm overlay/panel có che subject không;
+- nếu một asset không sống được qua các crop cần thiết, dùng responsive art direction/alternate crop/layout thay vì ép một `cover` crop.
+
+Crop obvious sai ở primary hero/decision media là P1; nếu làm mất nội dung quyết định chính có thể P0.
+
 ## Raster native-resolution / media-quality gate — hard gate
 
 Trước khi dùng raster asset làm hero, diagram, floor plan, map, card lớn hoặc full-width object:
@@ -178,9 +219,11 @@ Blur/pixelation obvious ở target viewport là P1 visual-quality defect; nếu 
 
 Mọi interactive component kiểm: default, hover, focus-visible, active, disabled, loading, error và selected/expanded nếu có.
 
+Không chỉ nhìn xem state “có CSS”. Kiểm label/icon thực tế vẫn nhìn thấy được trên rendered surface và selector winning state đúng như intended contract.
+
 ## Responsive visual QA
 
-Tại mobile/tablet/desktop kiểm riêng:
+Tại mobile/tablet/desktop kiểm riêng theo declared scope:
 
 - Reading order.
 - Crop ảnh.
@@ -198,15 +241,16 @@ Tại mobile/tablet/desktop kiểm riêng:
 
 Trước done, với substantial multi-page website nên có tối thiểu:
 
-- desktop representative captures (thường 1280/1440 hoặc project target);
-- mobile representative captures (thường 375/390 hoặc project target);
-- tablet/intermediate width khi layout có risk;
+- desktop representative captures theo project target;
+- mobile representative captures khi mobile nằm trong scope;
+- tablet/intermediate width khi layout có risk và nằm trong scope;
 - cross-page top-of-page montage/contact sheet;
 - changed interactive state capture nếu state visual quan trọng;
 - text-on-image examples có actual crop;
-- large media/diagram examples đủ để đánh giá sharpness.
+- large media/diagram examples đủ để đánh giá sharpness;
+- all-affected-route elementary sanity scan khi shared owner thay đổi.
 
-Không bắt buộc một viewport cố định cho mọi project; chọn theo audience/device evidence. Nhưng không được chỉ inspect một desktop screenshot rồi gọi site responsive/finished.
+Không bắt buộc một viewport cố định cho mọi project; chọn theo audience/device evidence. Nhưng không được inspect ngoài declared scope rồi suy ra `fully responsive`.
 
 Ghi issue severity P0/P1/P2 và phân biệt:
 
@@ -215,25 +259,29 @@ Ghi issue severity P0/P1/P2 và phân biệt:
 
 ## Fix loop
 
-`capture → inspect macro → log P0/P1/P2 → fix owning component/token/composition/media source → recapture → compare`
+`capture → inspect elementary sanity → inspect macro → log P0/P1/P2 → fix owning component/token/composition/media source → recapture → compare`
 
 - P0/P1 phải được xử lý hoặc ghi rõ blocker trước handoff.
 - Không sửa micro-detail P2 trong khi composition/hierarchy P1 còn sai.
-- Nếu user phải chỉ ra một lỗi obvious mà rendered evidence lẽ ra đã phát hiện, thêm lỗi đó thành regression check/checklist cho skill/project thay vì chỉ vá project.
+- Nếu user phải chỉ ra một lỗi obvious mà rendered evidence lẽ ra đã phát hiện, thêm lỗi đó thành regression check/checklist cho **project và owning skill/eval** thay vì chỉ vá project.
 - Nếu defect do media source không đủ chất lượng, sửa source/media strategy trước khi thêm visual effect để che lỗi.
 
 ## Acceptance criteria
 
 - [ ] Actual rendered implementation đã được mở/inspect; nếu không thì status là BLOCKED/UNVERIFIED, không PASS.
+- [ ] Elementary Visual Sanity Gate đã chạy khi applicable và không còn DUE-NOW P0/P1.
+- [ ] Shared surface/background changes có matched foreground/state audit và không còn cascade/specificity mismatch.
+- [ ] Shared owner change có all-affected-route sanity coverage.
 - [ ] Không có spacing/alignment inconsistency rõ ràng.
 - [ ] Không có component variant trùng chức năng.
 - [ ] Visual hierarchy đọc được trong 5–10 giây.
 - [ ] Cross-page composition không rơi vào template monotony vô lý.
 - [ ] Primary page roles có first visual anchor phù hợp user task.
-- [ ] Mobile không bị “compressed desktop”.
+- [ ] Responsive claims đúng declared scope; mobile không bị “compressed desktop” khi mobile in-scope.
 - [ ] Focus/error/loading states nhìn thấy được.
 - [ ] Logo/nav/CTA vẫn rõ ở các background/state thực tế.
 - [ ] Text-on-image có stable local contrast ở representative crops/viewports.
+- [ ] Human/focal-subject media không bị crop vô lý ở declared viewports.
 - [ ] Large raster/media không bị obvious upscaling blur ở target viewport.
-- [ ] Overlay/pseudo labels không overlap/clip ở mobile/intermediate widths.
+- [ ] Overlay/pseudo labels không overlap/clip ở mobile/intermediate widths khi in-scope.
 - [ ] UI phản ánh brand/domain thay vì generic template.
