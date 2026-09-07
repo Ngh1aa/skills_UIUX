@@ -15,11 +15,14 @@ if str(ROOT) not in sys.path:
 REQUIRED = [
     ROOT / "RUNTIME-FOUNDATION.md",
     ROOT / "runtime" / "README.md",
+    ROOT / "runtime" / "TOOL-OBSERVATION-CONTRACT.md",
     ROOT / "runtime" / "runtime-policy.json",
     ROOT / "runtime" / "agent.py",
     ROOT / "runtime" / "mcp_server.py",
     ROOT / "integrations" / "playwright" / "capture.mjs",
     ROOT / "integrations" / "figma" / "component-map.example.json",
+    ROOT / "vendor" / "agent-runtime-intelligence" / "SOURCE-LOCKS.md",
+    ROOT / "scripts" / "build-skill-discovery-index.py",
 ]
 
 
@@ -45,6 +48,7 @@ def main() -> int:
         ROOT / "scripts" / "context-manifest.py",
         ROOT / "scripts" / "uiux-agent.py",
         ROOT / "scripts" / "summarize-agent-trace.py",
+        ROOT / "scripts" / "build-skill-discovery-index.py",
     ]:
         try:
             ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
@@ -96,12 +100,56 @@ def main() -> int:
     except FileNotFoundError:
         print("WARNING: node not available; Playwright adapter syntax check skipped")
 
+    if not errors:
+        try:
+            with tempfile.TemporaryDirectory() as tmp:
+                discovery = subprocess.run(
+                    [
+                        sys.executable,
+                        "-B",
+                        str(ROOT / "scripts" / "build-skill-discovery-index.py"),
+                        "--output",
+                        tmp,
+                        "--base-url",
+                        "https://example.invalid/skills",
+                    ],
+                    cwd=ROOT,
+                    capture_output=True,
+                    text=True,
+                    timeout=120,
+                )
+                if discovery.returncode != 0:
+                    errors.append(
+                        "skill discovery index smoke failed: "
+                        + (discovery.stderr.strip() or discovery.stdout.strip())
+                    )
+                else:
+                    index_path = Path(tmp) / "index.json"
+                    if not index_path.exists():
+                        errors.append("skill discovery index smoke did not create index.json")
+                    else:
+                        index = json.loads(index_path.read_text(encoding="utf-8"))
+                        skills = index.get("skills", [])
+                        expected = sum(
+                            1
+                            for path in ROOT.iterdir()
+                            if path.is_dir() and (path / "SKILL.md").is_file()
+                        )
+                        if len(skills) != expected:
+                            errors.append(
+                                f"skill discovery index count mismatch: expected {expected}, got {len(skills)}"
+                            )
+                        if any(not str(item.get("digest", "")).startswith("sha256:") for item in skills):
+                            errors.append("skill discovery index has missing/invalid SHA-256 digest")
+        except Exception as exc:
+            errors.append(f"skill discovery smoke exception: {type(exc).__name__}: {exc}")
+
     print("Agent runtime foundation validation")
     if errors:
         for error in errors:
             print(f"ERROR: {error}", file=sys.stderr)
         return 1
-    print("Runtime foundation passed: context + permissions + trace/checkpoint + harness + adapter syntax")
+    print("Runtime foundation passed: context + permissions + trace/checkpoint + harness + adapter/discovery syntax")
     print("NOTE: MCP/Figma/Playwright external integrations require environment-specific end-to-end verification before production claims")
     return 0
 
