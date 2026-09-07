@@ -58,6 +58,7 @@ success
 validation error
 server/network error
 empty / filtered-empty
+populated
 partial/stale
 permission/auth failure
 timeout/retry
@@ -66,6 +67,27 @@ cancel/undo/back navigation where relevant
 ```
 
 Form success chỉ pass khi system reality cho phép biết operation thật sự thành công. Prototype simulation phải được label simulated.
+
+### Conditional-state coverage rule
+
+A rendered control that only exists after data/selection/auth/error state is **not tested** by opening the default/empty page.
+
+For material UI verification:
+
+```text
+route/template
+× viewport/pressure width
+× data state required to expose the UI
+× interaction state required to expose the defect
+```
+
+Examples:
+
+- Cart must be seeded/populated before claiming Checkout CTA state coverage.
+- Order detail must load a deterministic order before its action/status styles are covered.
+- Error/recovery control must be put into the error state before visual/state verification.
+
+Seeded/mock data may expose UI deterministically, but remains `MOCK/SIMULATED` evidence and does not prove backend success.
 
 ## 5. Responsive testing
 
@@ -159,7 +181,16 @@ Check:
 
 For shared header/footer/nav/theme/button/surface changes, representative sampling is insufficient for elementary sanity. Map the shared owner to **all affected routes/templates** and run the sanity check everywhere it renders; deeper visual/aesthetic inspection may remain representative.
 
-For human/primary-subject hero media, `object-fit: cover` is not a pass condition. Inspect actual crop at target viewports and block unjustified face/head/focal-subject clipping.
+For production/release or user-caught CSS regressions, prefer semantic discovery over a fragile selector whitelist:
+
+- scan all visible text-bearing elements outside variable-media contexts for catastrophic foreground/surface collapse;
+- discover rendered interactive elements (`a`, `button`, form actions, role-based controls) and inspect state contrast;
+- seed/populate conditional states so hidden controls actually render;
+- record route × viewport × data-state × interaction-state coverage.
+
+A green test that never rendered the broken control is a **false green**.
+
+For human/primary-subject hero media, `object-fit: cover` is not a pass condition. Primary/focal `cover` should be unsafe by default until a verified crop contract identifies focal subject/no-cut zone, target viewports and inspected rendered evidence.
 
 Screenshot tồn tại nhưng không được inspect ≠ evidence.
 
@@ -187,15 +218,25 @@ Với shared/high-impact change, xác định affected matrix:
 ```text
 shared owner/token/component
 → all routes/templates using it for elementary sanity
+→ declared viewports + pressure widths
+→ material data states needed to expose conditional UI
 → semantic surface contexts
 → default/hover/focus/active/disabled states where applicable
-→ representative deep visual viewports
+→ representative deep visual evidence
 → automated/manual regression evidence
 ```
 
 Ưu tiên deterministic tests cho behavior. Với visual sanity, computed rendered style/contrast checks có thể bổ sung screenshot evidence; không được dùng chúng thay cho human inspection khi screenshot obvious broken.
 
-Nếu user/reviewer bắt được lỗi obvious mà test plan bỏ lọt, promote failure đó thành regression coverage trước khi đóng remediation khi feasible.
+For CSS visibility regressions, project-level deterministic guards should fail on:
+
+- catastrophic foreground/background collapse on visible text;
+- interactive label contrast failure in exercised states;
+- shared owner failure on any affected route/template;
+- primary/focal `cover` media without an explicit verified crop contract;
+- missing conditional data-state coverage when that state is required to render the changed control.
+
+Nếu user/reviewer bắt được lỗi obvious mà test plan bỏ lọt, promote failure đó thành regression coverage trước khi đóng remediation khi feasible, và ghi rõ **why the previous run was falsely green**.
 
 ## 12. Evidence record
 
@@ -204,6 +245,8 @@ Cho test đã chạy, ghi:
 ```text
 method
 environment/browser/viewport when material
+data state / seeded state when material
+interaction state when material
 result
 evidence/artifact reference if available
 limitations
@@ -220,6 +263,7 @@ Cho substantial work, tạo `docs/test-plan.md` hoặc `docs/verification-matrix
 ## Scope / risks
 ## Critical journeys
 ## Browser / responsive matrix
+## Data/state coverage matrix
 ## Verification matrix
 ## Accessibility evidence
 ## Visual sanity / shared-owner coverage
@@ -233,13 +277,16 @@ Cho substantial work, tạo `docs/test-plan.md` hoặc `docs/verification-matrix
 
 - [ ] Critical journeys/risk drive test priority.
 - [ ] Happy path + material recovery states covered.
+- [ ] Conditional controls are rendered with deterministic data/state before being called covered.
 - [ ] Responsive tested at pressure widths within declared scope.
 - [ ] Browser matrix matches project or is explicitly proposed.
 - [ ] Accessibility evidence level reported accurately.
 - [ ] Visual changes visually inspected.
 - [ ] Shared-owner visual changes have all-affected-route elementary sanity coverage.
+- [ ] Visible-text sanity is not limited to an unjustified small selector whitelist.
 - [ ] Changed interactive states remain readable/perceptible in actual rendered state.
 - [ ] Human/focal media crop verified at target viewports when applicable.
+- [ ] Primary/focal `cover` has verified crop contract or safer art direction.
 - [ ] Performance uses budgets/conditions, not vanity score alone.
 - [ ] Mock/simulated behavior not reported as real system pass.
 - [ ] P0/P1 failures explicit.
@@ -253,5 +300,8 @@ Cho substantial work, tạo `docs/test-plan.md` hoặc `docs/verification-matrix
 - One Lighthouse run = field performance.
 - Success toast = backend test pass.
 - Testing only demo/happy-path content.
+- Empty Cart = Checkout CTA tested.
 - One representative page = enough after changing a shared footer/header/theme owner.
 - CSS declaration says correct color = rendered contrast verified.
+- Hand-picked button selector list = all interactive states covered.
+- `object-position: top` = focal crop verified.

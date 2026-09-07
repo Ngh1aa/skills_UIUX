@@ -45,12 +45,37 @@ Khi hero/feature media có người, khuôn mặt, sản phẩm hoặc focal sub
 1. Xác định **focal subject + no-cut zone** trước khi code crop.
 2. Inspect actual rendered crop ở mọi declared target viewport/pressure point.
 3. `object-fit: cover`, `object-position: center`, `20%`, `top`... chỉ là implementation candidate; không phải bằng chứng crop đúng.
-4. Không cắt qua mắt, khuôn mặt, đỉnh đầu hoặc identifying feature chính nếu art direction không cố ý yêu cầu như vậy.
-5. Kiểm cả overlay/panel/copy block có che subject không.
-6. Nếu một source asset không sống được qua các ratio cần thiết, dùng `<picture>`, alternate crop/asset, source-aware `object-position`, hoặc đổi composition; không ép một crop universal.
-7. Sau fix phải recapture và **mở ảnh kiểm bằng mắt**. Screenshot tồn tại nhưng chưa inspect không tính là evidence.
+4. Với primary human/focal media, `cover` là **unsafe by default** cho đến khi crop contract được verify.
+5. Không cắt qua mắt, khuôn mặt, đỉnh đầu hoặc identifying feature chính nếu art direction không cố ý yêu cầu như vậy.
+6. Kiểm cả overlay/panel/copy block có che subject không.
+7. Nếu một source asset không sống được qua các ratio cần thiết, ưu tiên `contain`, đổi composition, `<picture>`, alternate crop/asset hoặc source-aware layout; không ép một crop universal.
+8. Sau fix phải recapture và **mở ảnh kiểm bằng mắt**. Screenshot tồn tại nhưng chưa inspect không tính là evidence.
 
 Primary hero crop làm mất face/head/focal subject là P1 visual defect; nếu làm mất nội dung quyết định chính có thể P0 và phải chặn handoff/release.
+
+### Crop contract for regression
+
+Nếu production/release vẫn dùng `cover` cho primary/feature media, project phải có traceable crop contract gồm:
+
+```text
+asset / media owner
+focal subject
+no-cut zone / safe area
+target viewports + pressure widths
+intended fit/position or responsive art direction
+rendered evidence inspected
+```
+
+Khi tooling cho phép, expose contract bằng machine-readable metadata hoặc deterministic mapping để regression có thể phát hiện `cover` mới chưa được verify.
+
+Default regression policy:
+
+```text
+primary/focal media + computed object-fit: cover + no verified crop contract
+→ BLOCKED
+```
+
+Metadata không tự chứng minh crop đẹp; nó chỉ ngăn một `cover` ngẫu nhiên lọt qua mà không có owner/evidence.
 
 ## Icons
 
@@ -84,6 +109,7 @@ Chọn format/size theo browser/framework project. Luôn khai báo dimensions ho
 - [ ] Image style nhất quán với brand.
 - [ ] Crop được kiểm ở mọi viewport nằm trong declared scope.
 - [ ] Human/primary focal subject có safe zone và không bị crop vô lý.
+- [ ] Primary/focal `cover` có verified crop contract hoặc đã đổi sang safer art direction.
 - [ ] `object-fit/object-position` đã được verified trên actual render, không chỉ đọc source.
 - [ ] Alt/caption đúng vai trò.
 - [ ] Dimensions/aspect ratio reserve layout.

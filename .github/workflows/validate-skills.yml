@@ -14,6 +14,8 @@ jobs:
           python-version: '3.12'
       - name: Validate SKILL.md structure
         run: python scripts/validate-skills.py
+      - name: Validate reusable visual integrity runner syntax
+        run: node --check ui-craft-and-visual-qa/scripts/elementary-visual-integrity.mjs
       - name: Validate V5 profiles, packs, project configs, evals and resources
         run: python scripts/validate-v2.py
       - name: Validate agent runtime foundation
