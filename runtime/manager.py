@@ -131,6 +131,11 @@ class DevelopmentManagerAgent:
         explicit_sources: list[str] | None = None,
     ) -> RunState:
         target = stage_id or managed.active_stage
+        if target != managed.active_stage:
+            raise ValueError(
+                f"cannot start stage {target}; active stage is {managed.active_stage}. "
+                "Complete the active stage or apply an explicit replan first."
+            )
         stage = self._stage(managed, target)
 
         role = self.harness.policy_doc["roles"][stage.agent]
@@ -161,7 +166,19 @@ class DevelopmentManagerAgent:
 
     def complete_stage(self, managed: ManagedWebsiteRun, stage_id: str | None = None) -> str | None:
         target = stage_id or managed.active_stage
+        if target != managed.active_stage:
+            raise ValueError(
+                f"cannot complete stage {target}; active stage is {managed.active_stage}"
+            )
         self._stage(managed, target)
+        runs = managed.stage_runs.get(target, [])
+        if not runs:
+            raise ValueError(f"cannot complete stage {target}; no specialist run has been started")
+        latest = self.harness.resume(runs[-1])
+        if latest.state != "COMPLETED":
+            raise ValueError(
+                f"cannot complete stage {target}; latest specialist run is {latest.state}"
+            )
         if target not in managed.completed_stages:
             managed.completed_stages.append(target)
 
