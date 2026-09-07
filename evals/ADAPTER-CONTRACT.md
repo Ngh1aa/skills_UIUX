@@ -1,6 +1,6 @@
 # V5 Eval Adapter Contract
 
-`skills_UIUX` stays model/provider-neutral. A Claude Code, Copilot, Antigravity or other runner may execute a task differently, but it should emit one JSON object per trial to a JSONL results file.
+`skills_UIUX` stays model/provider-neutral. A Claude Code, Copilot, Codex, Antigravity or other runner may execute a task differently, but it should emit one JSON object per trial to a JSONL results file.
 
 ## Trial result
 
@@ -30,7 +30,9 @@ Optional recommended fields:
 }
 ```
 
-Optional routing telemetry (recommended for routing benchmark tasks):
+## Routing/context telemetry
+
+Recommended for routing/context benchmark tasks:
 
 ```json
 {
@@ -48,7 +50,29 @@ Optional routing telemetry (recommended for routing benchmark tasks):
 }
 ```
 
-Routing telemetry enables measuring actual context overhead — not just skill count, but total characters/tokens loaded. This answers "does the 100+ skill library cause context bloat?" with data rather than assumptions.
+Installed skills are availability, not active context. Context telemetry should measure what was actually loaded.
+
+## Runtime/tool telemetry
+
+When an adapter uses the V5.2 runtime foundation, it may also emit:
+
+```json
+{
+  "runtime": {
+    "run_id": "abc123",
+    "agent_role": "implementation",
+    "authority": "branch_write",
+    "tool_calls": 4,
+    "permission_blocks": 0,
+    "checkpoint_resumes": 1,
+    "trace_artifact": ".uiux-agent-runs/abc123/trace.jsonl"
+  }
+}
+```
+
+Do not put secrets, auth headers, personal data or full sensitive payloads in eval telemetry.
+
+A `permission_blocks` count is not automatically a failure: blocking an unauthorized critical action can be the expected correct outcome.
 
 ## Adapter responsibilities
 
@@ -59,6 +83,7 @@ Routing telemetry enables measuring actual context overhead — not just skill c
 5. Run rubric/model/human graders only for dimensions that need judgment.
 6. Emit `passed` using the task's declared release threshold/hard-fail policy.
 7. Preserve detailed grader evidence outside the aggregate score when useful.
+8. Preserve runtime authority and system-reality truth; never report a contract-only action as a real external side effect.
 
 ## Harness responsibilities
 
