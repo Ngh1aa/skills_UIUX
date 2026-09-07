@@ -6,6 +6,7 @@ Checked: 2026-09-07 (Asia/Ho_Chi_Minh)
 
 - Phase-start `main`: `2faf3370a1d858a87557590a19aa3bddc286c08d`
 - Branch: `feat/v5-3-selective-learning`
+- PR: `#19`
 - Scope: `system`
 - Type: `implementation / QA`
 - Risk: `medium`
@@ -16,7 +17,11 @@ Checked: 2026-09-07 (Asia/Ho_Chi_Minh)
   - `mattpocock/skills`: `3cca18b368ae95cdbdebbff572ccafa662551015` (MIT)
   - `anthropics/skills`: `41bbe19d1a1a7eaab5e7bb9050a417e5c6cffc8f` (reviewed skills Apache-2.0 individually)
   - `vercel-labs/agent-skills`: `063bee94c3f4df8453406c830b0a7df0f2860278` (MIT)
-- Candidate status: implementation in progress; authoritative PASS requires exact-head repository validation.
+- Initial implementation commit: `eadf071304d7e4de493241f9af88a69d74fbc476`
+- Corrected implementation head: `fb2b4e2d2b0ab12b021602d5ad8ea1cd1b3e74a2`
+- Push validation: GitHub Actions `34075756104` = `success`
+- PR validation: GitHub Actions `34075758482` = `success`
+- Candidate implementation/QA result: `PASSED`; release remains `N/A_JUSTIFIED` until separately authorized.
 
 ## Released V5.2 agent runtime foundation
 
