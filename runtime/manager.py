@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
 
 from runtime.agent import ProviderNeutralAgentHarness, RunState
-from runtime.flow import DevelopmentManager, ReplanDecision, ResolvedFlow
+from runtime.flow import DevelopmentManager, ReplanDecision, ResolvedFlow, ResolvedStage
 
 
 @dataclass
@@ -13,6 +13,12 @@ class ManagedWebsiteRun:
     flow: ResolvedFlow
     task_context: dict[str, Any]
     authority: str
+    active_stage: str
+    state: str = "READY"
+    replan_count: int = 0
+    completed_stages: list[str] = field(default_factory=list)
+    stage_runs: dict[str, list[str]] = field(default_factory=dict)
+    replan_history: list[dict[str, Any]] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -20,15 +26,21 @@ class ManagedWebsiteRun:
             "flow": self.flow.to_dict(),
             "task_context": self.task_context,
             "authority": self.authority,
+            "active_stage": self.active_stage,
+            "state": self.state,
+            "replan_count": self.replan_count,
+            "completed_stages": list(self.completed_stages),
+            "stage_runs": {key: list(value) for key, value in self.stage_runs.items()},
+            "replan_history": list(self.replan_history),
         }
 
 
 class DevelopmentManagerAgent:
     """Owns end-to-end website routing while specialist agents own execution stages.
 
-    The manager deliberately does not absorb UI/UX knowledge. It resolves a declarative
-    flow, selects stage skills, starts specialist runs and asks the replanner for bounded
-    changes when explicit evidence signals a failure/risk/context change.
+    The manager does not absorb UI/UX knowledge. It resolves a declarative flow,
+    activates specialist runs, records stage progress, and applies bounded replans
+    when explicit evidence signals a failure, new risk or invalid assumption.
     """
 
     def __init__(self, harness: ProviderNeutralAgentHarness) -> None:
@@ -47,6 +59,20 @@ class DevelopmentManagerAgent:
             exclude_skills=exclude_skills,
         )
 
+    def _stage(self, managed: ManagedWebsiteRun, stage_id: str) -> ResolvedStage:
+        stage = next((item for item in managed.flow.stages if item.id == stage_id), None)
+        if stage is None:
+            raise ValueError(f"unknown stage for flow {managed.flow.id}: {stage_id}")
+        return stage
+
+    def _checkpoint_managed(self, managed: ManagedWebsiteRun) -> None:
+        state = self.harness.resume(managed.manager_run_id)
+        state.state = managed.state
+        state.context["flow_plan"] = managed.flow.to_dict()
+        state.context["task_context"] = dict(managed.task_context)
+        state.context["managed_run"] = managed.to_dict()
+        self.harness.checkpoints.save(state.run_id, state.to_dict())
+
     def start(
         self,
         task: str,
@@ -63,25 +89,24 @@ class DevelopmentManagerAgent:
             selected_skills=[],
             explicit_sources=[],
         )
-        manager_state.context["flow_plan"] = flow.to_dict()
-        manager_state.context["task_context"] = dict(task_context)
-        self.harness.checkpoints.save(manager_state.run_id, manager_state.to_dict())
-        return ManagedWebsiteRun(
+        managed = ManagedWebsiteRun(
             manager_run_id=manager_state.run_id,
             flow=flow,
             task_context=dict(task_context),
             authority=authority,
+            active_stage=flow.stages[0].id,
         )
+        self._checkpoint_managed(managed)
+        return managed
 
     def start_stage(
         self,
         managed: ManagedWebsiteRun,
-        stage_id: str,
+        stage_id: str | None = None,
         explicit_sources: list[str] | None = None,
     ) -> RunState:
-        stage = next((item for item in managed.flow.stages if item.id == stage_id), None)
-        if stage is None:
-            raise ValueError(f"unknown stage for flow {managed.flow.id}: {stage_id}")
+        target = stage_id or managed.active_stage
+        stage = self._stage(managed, target)
 
         role = self.harness.policy_doc["roles"][stage.agent]
         order = tuple(self.harness.permissions.order)
@@ -98,25 +123,74 @@ class DevelopmentManagerAgent:
         )
         state.context["manager_run_id"] = managed.manager_run_id
         state.context["flow_id"] = managed.flow.id
+        state.context["flow_revision"] = managed.flow.revision
         state.context["stage_id"] = stage.id
         state.context["stage_gates"] = list(stage.gates)
         self.harness.checkpoints.save(state.run_id, state.to_dict())
+
+        managed.active_stage = stage.id
+        managed.state = "RUNNING"
+        managed.stage_runs.setdefault(stage.id, []).append(state.run_id)
+        self._checkpoint_managed(managed)
         return state
+
+    def complete_stage(self, managed: ManagedWebsiteRun, stage_id: str | None = None) -> str | None:
+        target = stage_id or managed.active_stage
+        self._stage(managed, target)
+        if target not in managed.completed_stages:
+            managed.completed_stages.append(target)
+
+        stage_ids = [stage.id for stage in managed.flow.stages]
+        index = stage_ids.index(target)
+        if index == len(stage_ids) - 1:
+            managed.state = "COMPLETED"
+            managed.active_stage = target
+            self._checkpoint_managed(managed)
+            return None
+
+        managed.active_stage = stage_ids[index + 1]
+        managed.state = "READY"
+        self._checkpoint_managed(managed)
+        return managed.active_stage
 
     def replan(
         self,
         managed: ManagedWebsiteRun,
         signal: str,
-        current_stage: str,
-        replan_count: int,
+        current_stage: str | None = None,
+        replan_count: int | None = None,
         context_updates: dict[str, Any] | None = None,
+        apply: bool = True,
     ) -> ReplanDecision:
+        stage_id = current_stage or managed.active_stage
+        self._stage(managed, stage_id)
+
         context = dict(managed.task_context)
         context.update(context_updates or {})
-        context["current_stage"] = current_stage
-        return self.manager.replan(
+        context["current_stage"] = stage_id
+        effective_count = managed.replan_count if replan_count is None else replan_count
+        decision = self.manager.replan(
             managed.flow,
             signal=signal,
             context=context,
-            replan_count=replan_count,
+            replan_count=effective_count,
         )
+
+        if decision.accepted and apply:
+            managed.flow = self.manager.apply_replan(managed.flow, decision)
+            managed.replan_count += 1
+            managed.replan_history.append(decision.to_dict())
+            managed.state = "REPLANNED"
+
+            target = decision.target_stage or stage_id
+            managed.active_stage = target
+            stage_ids = [stage.id for stage in managed.flow.stages]
+            target_index = stage_ids.index(target)
+            managed.completed_stages = [
+                item
+                for item in managed.completed_stages
+                if stage_ids.index(item) < target_index
+            ]
+            self._checkpoint_managed(managed)
+
+        return decision
