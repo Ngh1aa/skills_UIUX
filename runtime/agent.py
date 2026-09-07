@@ -17,6 +17,17 @@ RISK_LEVELS = ("READ", "LOW_WRITE", "HIGH_WRITE", "CRITICAL")
 SENSITIVE_FRAGMENTS = ("token", "secret", "password", "authorization", "cookie", "api_key", "apikey")
 
 
+def _unique(values: list[str]) -> list[str]:
+    seen: set[str] = set()
+    result: list[str] = []
+    for value in values:
+        text = str(value).strip()
+        if text and text not in seen:
+            seen.add(text)
+            result.append(text)
+    return result
+
+
 @dataclass(frozen=True)
 class ToolSpec:
     name: str
@@ -247,6 +258,7 @@ class ToolRegistry:
             "validate-skills": self.repo_root / "scripts" / "validate-skills.py",
             "validate-v2": self.repo_root / "scripts" / "validate-v2.py",
             "validate-runtime": self.repo_root / "scripts" / "validate-runtime-foundation.py",
+            "validate-flows": self.repo_root / "scripts" / "validate-flows.py",
         }
         script = allowlist.get(name)
         if not script:
@@ -311,6 +323,7 @@ class ProviderNeutralAgentHarness:
         if order.index(authority) > order.index(role["max_authority"]):
             raise ValueError(f"role {agent} caps authority at {role['max_authority']}")
 
+        effective_skills = _unique(list(role.get("default_skills", [])) + list(selected_skills or []))
         state = RunState(
             run_id=run_id or uuid.uuid4().hex[:16],
             task=task,
@@ -321,7 +334,7 @@ class ProviderNeutralAgentHarness:
             context=build_context_manifest(
                 self.project_root,
                 self.repo_root,
-                selected_skills=selected_skills,
+                selected_skills=effective_skills,
                 explicit_sources=explicit_sources,
             ),
             limitations=[
@@ -346,14 +359,36 @@ class ProviderNeutralAgentHarness:
             for index, action in enumerate(actions):
                 if "handoff" in action:
                     target = str(action["handoff"])
-                    target_role = self._role(target)
                     source_role = state.active_role
+                    source = self._role(source_role)
+                    allowed_targets = set(source.get("handoff_targets", []))
+                    if target not in allowed_targets:
+                        raise ValueError(
+                            f"handoff {source_role} -> {target} is not allowed; "
+                            f"allowed targets: {', '.join(sorted(allowed_targets)) or '(none)'}"
+                        )
+                    target_role = self._role(target)
                     order = tuple(self.permissions.order)
                     if order.index(state.authority) > order.index(target_role["max_authority"]):
                         state.authority = target_role["max_authority"]
                     state.active_role = target
+                    target_defaults = list(target_role.get("default_skills", []))
+                    loaded_sources = list(state.context.get("loaded_sources", []))
+                    state.context = build_context_manifest(
+                        self.project_root,
+                        self.repo_root,
+                        selected_skills=target_defaults,
+                        explicit_sources=loaded_sources,
+                    )
                     state.completed_actions.append(f"handoff:{target}")
-                    trace.emit("agent.handoff", "OK", source=source_role, target=target, effective_authority=state.authority)
+                    trace.emit(
+                        "agent.handoff",
+                        "OK",
+                        source=source_role,
+                        target=target,
+                        effective_authority=state.authority,
+                        active_skills=target_defaults,
+                    )
                     self.checkpoints.save(state.run_id, state.to_dict())
                     continue
 

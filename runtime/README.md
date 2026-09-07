@@ -5,10 +5,12 @@ The runtime is deliberately separate from the root `*/SKILL.md` packages.
 ## What belongs here
 
 - context manifests and token/character budget telemetry;
+- declarative Flow Resolver + Skill Resolver;
+- Development Manager lifecycle + bounded Replanning Engine;
 - tool registry metadata and permission gates;
 - provider-neutral action execution;
 - trace and checkpoint infrastructure;
-- agent-role manifests and handoff boundaries;
+- agent-role manifests and enforced handoff boundaries;
 - optional MCP adapter;
 - shared tool/observation contracts used by adapters.
 
@@ -19,6 +21,23 @@ The runtime is deliberately separate from the root `*/SKILL.md` packages.
 - provider credentials;
 - production secrets;
 - uncontrolled shell/deploy/merge tools.
+
+## Flow OS boundary
+
+```text
+project task/context
+→ Development Manager
+→ FlowResolver
+→ SkillResolver(role defaults + flow routing)
+→ active specialist stage
+→ provider/tool actions
+→ gate evidence
+→ PASS: advance | FAIL/RISK: bounded replan
+```
+
+The manager persists lifecycle state in the existing local checkpoint store. It blocks out-of-order stages, enforces role authority caps, preserves role `default_skills`, and only applies replans from the active stage.
+
+Replanning mutates the resolved flow revision rather than blindly retrying. Mandatory/default skills cannot be dropped, and returning to an earlier stage invalidates only that stage and downstream completion.
 
 ## Tool and observation quality
 
@@ -43,8 +62,23 @@ Repeated tool failures, retry loops, stale environment state or context drift sh
 ## Quick smoke
 
 ```bash
+python -B scripts/validate-flows.py
 python -B scripts/validate-runtime-foundation.py
 python -B scripts/uiux-agent.py --project . --task "Inspect runtime foundation" --agent research --dry-run
 ```
+
+Managed website example:
+
+```bash
+python -B scripts/uiux-agent.py \
+  --project . \
+  --managed \
+  --task "Redesign ecommerce website" \
+  --website-type ecommerce \
+  --feature search \
+  --authority branch_write
+```
+
+Resume the returned `manager_run_id` with `--managed-run-id` to continue the active stage across processes.
 
 A real model/provider may sit in front of the harness and emit an action plan. The core repository does not require or assume a specific model SDK.
