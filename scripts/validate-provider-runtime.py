@@ -112,23 +112,28 @@ def main() -> int:
                         {
                             "status": "CONTINUE",
                             "actions": [{"tool": "read_text", "args": {"path": "src/index.html"}}],
-                            "summary": "inspect implementation",
+                            "summary": "inspect implementation source",
                             "evidence": [],
                             "replan_signal": None,
                         },
                         {
-                            "status": "PASS",
+                            "status": "BLOCKED",
                             "actions": [],
-                            "summary": "QA evidence recorded",
-                            "evidence": ["renderable implementation source inspected; truthful limitation remains that browser-rendered QA needs a browser adapter"],
-                            "replan_signal": None,
+                            "summary": "rendered QA cannot be proven from source inspection alone; browser/render observation adapter is required",
+                            "evidence": ["source was inspected but no rendered-pixel observation exists"],
+                            "replan_signal": "BLOCKED",
                         },
                     ]
                 )
                 runner = ProviderManagedRunner(manager, provider)
-                result = runner.run_to_boundary(managed, max_cycles=8, max_turns_per_stage=4)
-                if result.state != "COMPLETED" or managed.state != "COMPLETED":
-                    errors.append(f"provider managed run did not complete: result={result.state}, managed={managed.state}")
+                result = runner.run_to_boundary(
+                    managed,
+                    max_cycles=8,
+                    max_turns_per_stage=4,
+                    auto_replan=False,
+                )
+                if result.state != "BLOCKED" or managed.active_stage != "qa":
+                    errors.append(f"provider run did not stop truthfully at rendered QA boundary: {result.state}/{managed.active_stage}")
                 if not (project / "src" / "index.html").exists():
                     errors.append("provider implementation did not write project source")
                 stages = [request.stage_id for request in provider.requests]
@@ -174,7 +179,7 @@ def main() -> int:
         for error in errors:
             print(f"ERROR: {error}", file=sys.stderr)
         return 1
-    print("Provider runtime passed: structured provider contract + model/tool observation loop + manager routing + approval boundary")
+    print("Provider runtime passed: structured provider contract + model/tool observation loop + manager routing + truthful QA boundary + approval boundary")
     return 0
 
 
