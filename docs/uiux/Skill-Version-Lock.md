@@ -2,6 +2,22 @@
 
 Checked: 2026-09-07 (Asia/Ho_Chi_Minh)
 
+## V5.3 selective-learning candidate
+
+- Phase-start `main`: `2faf3370a1d858a87557590a19aa3bddc286c08d`
+- Branch: `feat/v5-3-selective-learning`
+- Scope: `system`
+- Type: `implementation / QA`
+- Risk: `medium`
+- Mode: `production_candidate`
+- Release authorization: `no_release`; this phase may open a PR but must not merge to `main` without explicit authorization.
+- Reviewed upstream locks:
+  - `affaan-m/ECC`: `e04ea0b9cc8248686edf5ac751cadff550e162b8` (MIT)
+  - `mattpocock/skills`: `3cca18b368ae95cdbdebbff572ccafa662551015` (MIT)
+  - `anthropics/skills`: `41bbe19d1a1a7eaab5e7bb9050a417e5c6cffc8f` (reviewed skills Apache-2.0 individually)
+  - `vercel-labs/agent-skills`: `063bee94c3f4df8453406c830b0a7df0f2860278` (MIT)
+- Candidate status: implementation in progress; authoritative PASS requires exact-head repository validation.
+
 ## Released V5.2 agent runtime foundation
 
 - Phase-start `main`: `f098e6a94aaf3f026a810bc30073df67eb653cc2`
@@ -44,7 +60,7 @@ Checked: 2026-09-07 (Asia/Ho_Chi_Minh)
 |---|---|---|
 | `nextlevelbuilder/ui-ux-pro-max-skill` | vendored design-intelligence skill/data source | `314307f156aeab0c6b567bbaa1ce4e7aabd5a636` |
 | `anthropics/claude-plugins-official` | Frontend Design visual-taste source | `85cce0381e7860082641b59d961a2b8c368b8b79` |
-| `vercel-labs/agent-skills` | Web Design Guidelines + React Best Practices source | `063bee94c3f4df8453406c830b0a7df0f2860278` |
+| `vercel-labs/agent-skills` | Web Design Guidelines + React Best Practices + reviewed discovery-index source | `063bee94c3f4df8453406c830b0a7df0f2860278` |
 | `vercel-labs/web-interface-guidelines` | pinned web-interface rule source | `e3d624baaf29dc1fc645aff3e38f03e564d2d6b1` |
 | `billhector/design-skills` | design extraction/audit source | `afee427d8f1e2d9deb004a96bcaa8391c572c9f5` |
 | `hueyexe/frontend-agent-skills` | UX writing/content-design source | `2841c079dd8a9c634882227194dc42e25227710d` |
@@ -54,9 +70,13 @@ Checked: 2026-09-07 (Asia/Ho_Chi_Minh)
 | `rampstackco/claude-skills` | experimentation result-interpretation source | `a67dd34c609f034c0cfd736a348659bbdf1605bf` |
 | `addyosmani/agent-skills` | coding context/planning/vertical-slice source | `48cb1168aeaaa70dfc2bbf709eddfa2a8ed8129a` |
 | `mblode/agent-skills` | search-demand/content-briefing source | `0a639b1ef3b75aa6cc945e778fb1486def1d41bf` |
+| `affaan-m/ECC` | agent harness/recovery/browser-QA source | `e04ea0b9cc8248686edf5ac751cadff550e162b8` |
+| `mattpocock/skills` | debugging/review/spec/glossary source | `3cca18b368ae95cdbdebbff572ccafa662551015` |
+| `anthropics/skills` | reviewed MCP/webapp-testing/skill-eval source; per-skill license applies | `41bbe19d1a1a7eaab5e7bb9050a417e5c6cffc8f` |
 
 Detailed existing UI/UX provenance: `vendor/external-uiux/SOURCE-LOCKS.md`.
 Detailed cross-functional provenance: `vendor/cross-functional-intelligence/SOURCE-LOCKS.md`.
+Detailed agent-runtime provenance: `vendor/agent-runtime-intelligence/SOURCE-LOCKS.md`.
 
 ## Released UI UX Pro Max integration
 

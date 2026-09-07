@@ -50,10 +50,38 @@ Không tạo folder/resource rỗng để “đúng template”.
 - Main file phải đủ để agent quyết định bước tiếp theo mà chưa cần load encyclopedia.
 - Resource file có tên mô tả nội dung; tránh `notes.md`, `misc.md`.
 - Scripts nên giải quyết deterministic work, không chỉ wrap prompt khác.
+- Helper script lớn nên được gọi như black box (`--help`/documented contract) trước khi đọc source; chỉ load source khi cần sửa/diagnose nó.
 
 ## Overlap test
 
 Tạo skill mới chỉ khi capability boundary khác rõ. Nếu >70% workflow/rules trùng skill hiện có, ưu tiên extend/refactor.
+
+Trước khi import một external skill, ghi rõ:
+
+```text
+capability gap
+local owner hiện tại
+upstream source + immutable ref + license
+ADOPT / ADAPT / REJECT
+context cost
+verification/eval
+```
+
+Không bulk-copy vì repo upstream nổi tiếng; curation > collection.
+
+## Anti-rationalization and red flags
+
+For high-consequence workflow skills, add a short `Common rationalizations` or `Red flags` section when it materially prevents skip behavior.
+
+Good examples:
+
+| Rationalization | Reality |
+|---|---|
+| “Build pass nên không cần screenshot.” | Build verifies compilation, not rendered pixels. |
+| “Task nhỏ nên khỏi đọc project truth.” | Small edits can still violate tokens/behavior/brand. |
+| “Retry thêm lần nữa chắc được.” | A repeated identical failure needs diagnosis, not wording changes. |
+
+Do not add these sections mechanically when there is no real skip/failure pattern.
 
 ## Evaluation
 
@@ -64,6 +92,18 @@ Chấm outcome hơn exact path. Evals nên có:
 - deterministic assertions khi có thể;
 - rubric cho judgment dimensions;
 - regression cases cho behavior đã ổn.
+
+For material skill changes, prefer a controlled comparison when feasible:
+
+```text
+new skill vs old skill
+or
+with skill vs without skill
+```
+
+Track pass rate/score first; then compare tokens/context, duration, retries and tool calls. A skill is not better merely because it produces a longer workflow.
+
+Use multiple trials when variance matters. Keep the environment comparable and do not tune the grader to a preferred choreography.
 
 ## V2 resources
 
@@ -79,4 +119,5 @@ Chấm outcome hơn exact path. Evals nên có:
 - Không duplicate capability vô lý.
 - Progressive resources có reason và link rõ.
 - Relevant eval/profile/catalog được cập nhật.
+- External source có pin/license/provenance nếu material guidance được adopt.
 - `python scripts/validate-skills.py` và `python scripts/validate-v2.py` pass.

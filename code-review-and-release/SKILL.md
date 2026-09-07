@@ -3,22 +3,23 @@ name: code-review-and-release
 description: |
   Code review, release-readiness, deploy/rollback và post-deploy verification theo scope/risk.
   Dùng khi substantial change chuẩn bị merge/release hoặc user yêu cầu production readiness.
-  Tách spec compliance khỏi code quality, dùng project-specific gates và tránh destructive rollback mặc định.
+  Tách requirement/spec fidelity, project/code standards và rendered/system evidence; dùng project-specific gates và tránh destructive rollback mặc định.
 ---
 
 # Code Review & Release
 
 ## Principle
 
-`review intent → review implementation → verify evidence → assess release risk → release safely → smoke production → monitor`
+`review intent → review standards → review rendered/system evidence → assess release risk → release safely → smoke production → monitor`
 
 Release gate phải phản ánh project thật; không bắt mọi site cùng Lighthouse/browser/test thresholds.
 
-## 1. Scope the release
+## 1. Scope the review/release
 
 Ghi:
 
 ```text
+Fixed point / merge-base when reviewing a diff
 Project mode
 Target environment
 Changed routes/features
@@ -30,36 +31,58 @@ Known P0/P1 risks
 Rollback mechanism
 ```
 
+Khi review branch/PR, resolve fixed point trước và xác nhận diff không rỗng. Bad ref/empty diff phải fail sớm thay vì để reviewer suy luận trên change-set sai.
+
 Không release production nếu không biết target/dependency critical trong scope.
 
-## 2. Two-stage review
+## 2. Three independent review axes
 
-### Stage A — Spec / intent compliance
+Không để một axis “bù điểm” cho axis khác. Code sạch có thể implement sai spec; đúng spec có thể vi phạm project standards; cả hai có thể pass source review nhưng rendered behavior vẫn hỏng.
+
+### Axis A — Requirement / spec fidelity
 
 - Change có giải quyết đúng request/problem?
+- Requirement Coverage / Design Contract / source-of-truth nào sở hữu quyết định?
 - Project truth/brand/business/user constraints được preserve?
-- Có scope creep/unrelated refactor?
+- Có missing requirement, false success, scope creep/unrelated refactor?
 - System reality có truthful không: REAL/MOCK/STATIC/SIMULATED/PARTIAL/UNKNOWN?
 - Acceptance conditions ban đầu đã đạt?
 
-Stage A fail → không approve chỉ vì code clean.
+Axis A fail → không approve chỉ vì code clean.
 
-### Stage B — Code / experience quality
+### Axis B — Project / code standards
 
-Review theo affected surface:
+Review theo affected surface và documented project conventions trước generic heuristic:
 
 - correct owner/reuse/architecture;
 - semantic HTML/state logic;
 - component/token drift;
-- responsive/browser behavior;
-- accessibility;
+- dependency/config conventions;
+- accessibility/security/privacy rules when applicable;
 - data/error/recovery behavior;
-- performance budget/regression;
-- security/privacy when applicable;
-- SEO/content integrity when applicable;
-- tests/verification coverage.
+- performance/SEO implementation when applicable;
+- tests/verification seams;
+- obvious smells such as duplication, speculative abstraction or shotgun edits only as judgment signals, never as automatic hard violations unless project standards say so.
 
-Không yêu cầu một checklist không liên quan chỉ để “đủ mục”.
+Repo/project standards override generic style heuristics.
+
+### Axis C — Rendered / runtime evidence
+
+For UI or behavior changes inspect the real execution surface when due in this phase:
+
+- required routes render;
+- screenshot/visual comparison at representative declared viewports;
+- no broken/poor media crop, overflow or hierarchy regression;
+- relevant interaction/state path works;
+- console/network/API evidence when behavior depends on runtime;
+- keyboard/accessibility checks appropriate to scope;
+- browser/device/performance evidence when material.
+
+Build/CI success cannot substitute for Axis C when the claim is visual/runtime. No baseline means visual regression is `INCONCLUSIVE`/unverified, not silent PASS.
+
+### Parallel review option
+
+For substantial/high-risk diffs, Axis A and Axis B may be reviewed in separate contexts/sub-agents to reduce cross-contamination, then aggregated without reranking one axis over another. Axis C should consume rendered/runtime evidence rather than only the source diff.
 
 ## 3. Verification matrix
 
@@ -80,7 +103,7 @@ Possible evidence:
 - performance/security checks;
 - deployed-environment smoke.
 
-`PASS` chỉ khi evidence phù hợp exact claim. Dùng `PARTIAL`, `UNVERIFIED`, `N/A` khi đúng thực tế.
+Map results into the project Requirement Coverage Ledger: `DONE_VERIFIED`, `BLOCKED`, `N/A_JUSTIFIED`, or phase-aware `PENDING_FUTURE_PHASE` where the repository contract allows it. Do not invent a PARTIAL PASS.
 
 ## 4. Release blockers
 
@@ -95,9 +118,10 @@ Mặc định block release nếu applicable:
 - destructive data/schema change không có migration/rollback plan;
 - critical accessibility blocker;
 - redirect/SEO migration có nguy cơ mất critical URLs mà chưa map;
-- không có cách rollback/recover hợp lý cho high-risk release.
+- không có cách rollback/recover hợp lý cho high-risk release;
+- due-now Axis A/B/C evidence còn BLOCKED.
 
-Không block prototype vì production-only requirement nếu project mode không phải production-candidate/production; thay vào đó ghi gap.
+Không block prototype vì production-only requirement nếu project mode không phải production-candidate/production; thay vào đó ghi owner phase/gap.
 
 ## 5. Pre-release checklist
 
@@ -183,7 +207,7 @@ Define what to watch:
 - support/user feedback;
 - security/abuse signals when available.
 
-Production incident/failure material phải feed về tests, regression coverage, design/system docs hoặc research.
+Production incident/failure material phải feed về tests, regression coverage, design/system docs hoặc research. Repeated agent/tool failures should use the failure-diagnosis reference owned by `agent-evaluation-and-reliability` before blind retry.
 
 ## Output
 
@@ -191,9 +215,10 @@ Cho substantial release, tạo `docs/release-readiness.md` hoặc equivalent:
 
 ```md
 # Release Readiness
-## Scope
-## Stage A — Spec compliance
-## Stage B — Quality review
+## Scope / fixed point
+## Axis A — Requirement/spec fidelity
+## Axis B — Project/code standards
+## Axis C — Rendered/runtime evidence
 ## Verification matrix
 ## Blockers / known risks
 ## Release dependencies
@@ -204,7 +229,7 @@ Cho substantial release, tạo `docs/release-readiness.md` hoặc equivalent:
 
 ## Quality gate
 
-- [ ] Stage A và B tách rõ.
+- [ ] Axis A/B/C được report riêng và không mask lẫn nhau.
 - [ ] Material changes có verification evidence.
 - [ ] P0/P1 được xử lý hoặc reported/accepted rõ.
 - [ ] System reality không bị phóng đại.
@@ -215,8 +240,11 @@ Cho substantial release, tạo `docs/release-readiness.md` hoặc equivalent:
 ## Anti-patterns
 
 - “CI green” = release success.
+- Code quality PASS masking spec FAIL.
+- Spec PASS masking project-standard violations.
+- Source review masking visibly broken rendered UI.
+- No visual baseline silently treated as regression PASS.
 - Force-push rollback mặc định.
 - Universal Lighthouse threshold làm release gate cho mọi project.
 - Review style/naming nhưng bỏ qua broken behavior.
-- Self-review chỉ nhìn diff, không inspect rendered/runtime result khi UI changed.
 - Ship mock/fake data như production truth.
