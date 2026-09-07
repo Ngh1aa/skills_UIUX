@@ -5,6 +5,7 @@ from typing import Any
 
 from runtime.agent import ProviderNeutralAgentHarness, RunState
 from runtime.flow import DevelopmentManager, ReplanDecision, ResolvedFlow, ResolvedStage
+from runtime.task_context import GoalInterpreter
 
 
 @dataclass
@@ -19,6 +20,7 @@ class ManagedWebsiteRun:
     completed_stages: list[str] = field(default_factory=list)
     stage_runs: dict[str, list[str]] = field(default_factory=dict)
     replan_history: list[dict[str, Any]] = field(default_factory=list)
+    approved_gates: list[str] = field(default_factory=list)
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> "ManagedWebsiteRun":
@@ -36,6 +38,7 @@ class ManagedWebsiteRun:
             completed_stages=list(payload.get("completed_stages", [])),
             stage_runs={key: list(value) for key, value in dict(payload.get("stage_runs", {})).items()},
             replan_history=list(payload.get("replan_history", [])),
+            approved_gates=list(payload.get("approved_gates", [])),
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -50,20 +53,40 @@ class ManagedWebsiteRun:
             "completed_stages": list(self.completed_stages),
             "stage_runs": {key: list(value) for key, value in self.stage_runs.items()},
             "replan_history": list(self.replan_history),
+            "approved_gates": list(self.approved_gates),
         }
 
 
 class DevelopmentManagerAgent:
     """Owns end-to-end website routing while specialist agents own execution stages.
 
-    The manager does not absorb UI/UX knowledge. It resolves a declarative flow,
-    activates specialist runs, records stage progress, and applies bounded replans
-    when explicit evidence signals a failure, new risk or invalid assumption.
+    The manager does not absorb UI/UX knowledge. It interprets the user's goal,
+    resolves a declarative flow, activates specialist runs, records stage progress,
+    enforces configured human approval gates, and applies bounded replans when
+    explicit evidence signals a failure, new risk or invalid assumption.
     """
 
     def __init__(self, harness: ProviderNeutralAgentHarness) -> None:
         self.harness = harness
         self.manager = DevelopmentManager(harness.repo_root, harness.policy_doc)
+        self.goal_interpreter = GoalInterpreter()
+
+    def interpret_goal(
+        self,
+        goal: str,
+        overrides: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        context = self.goal_interpreter.interpret(goal).to_context()
+        for key, value in dict(overrides or {}).items():
+            if value is None:
+                continue
+            if key == "features":
+                if value:
+                    context[key] = list(value)
+                continue
+            context[key] = value
+        context.setdefault("approval_mode", "auto")
+        return context
 
     def resolve_flow(
         self,
@@ -97,6 +120,23 @@ class DevelopmentManagerAgent:
         if not isinstance(payload, dict):
             raise ValueError(f"checkpoint {manager_run_id} does not contain a managed website run")
         return ManagedWebsiteRun.from_dict(payload)
+
+    def start_from_goal(
+        self,
+        goal: str,
+        authority: str = "branch_write",
+        overrides: dict[str, Any] | None = None,
+        additional_skills: list[str] | None = None,
+        exclude_skills: list[str] | None = None,
+    ) -> ManagedWebsiteRun:
+        context = self.interpret_goal(goal, overrides)
+        return self.start(
+            goal,
+            context,
+            authority=authority,
+            additional_skills=additional_skills,
+            exclude_skills=exclude_skills,
+        )
 
     def start(
         self,
@@ -164,6 +204,27 @@ class DevelopmentManagerAgent:
         self._checkpoint_managed(managed)
         return state
 
+    def required_human_approvals(self, managed: ManagedWebsiteRun, stage_id: str | None = None) -> list[str]:
+        if str(managed.task_context.get("approval_mode", "auto")) != "manual":
+            return []
+        stage = self._stage(managed, stage_id or managed.active_stage)
+        required: list[str] = []
+        for gate in stage.gates:
+            if gate.get("approval") == "human" and str(gate.get("id", "")) not in managed.approved_gates:
+                required.append(str(gate["id"]))
+        return required
+
+    def approve_gate(self, managed: ManagedWebsiteRun, gate_id: str) -> None:
+        stage = self._stage(managed, managed.active_stage)
+        gate = next((item for item in stage.gates if str(item.get("id", "")) == gate_id), None)
+        if gate is None:
+            raise ValueError(f"gate {gate_id} is not part of active stage {stage.id}")
+        if gate.get("approval") != "human":
+            raise ValueError(f"gate {gate_id} does not require human approval")
+        if gate_id not in managed.approved_gates:
+            managed.approved_gates.append(gate_id)
+        self._checkpoint_managed(managed)
+
     def complete_stage(self, managed: ManagedWebsiteRun, stage_id: str | None = None) -> str | None:
         target = stage_id or managed.active_stage
         if target != managed.active_stage:
@@ -171,6 +232,14 @@ class DevelopmentManagerAgent:
                 f"cannot complete stage {target}; active stage is {managed.active_stage}"
             )
         self._stage(managed, target)
+        pending = self.required_human_approvals(managed, target)
+        if pending:
+            managed.state = "AWAITING_APPROVAL"
+            self._checkpoint_managed(managed)
+            raise ValueError(
+                f"cannot complete stage {target}; human approval required for gate(s): {', '.join(pending)}"
+            )
+
         runs = managed.stage_runs.get(target, [])
         if not runs:
             raise ValueError(f"cannot complete stage {target}; no specialist run has been started")
