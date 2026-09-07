@@ -20,6 +20,24 @@ class ManagedWebsiteRun:
     stage_runs: dict[str, list[str]] = field(default_factory=dict)
     replan_history: list[dict[str, Any]] = field(default_factory=list)
 
+    @classmethod
+    def from_dict(cls, payload: dict[str, Any]) -> "ManagedWebsiteRun":
+        flow_payload = dict(payload["flow"])
+        stages = [ResolvedStage(**dict(item)) for item in flow_payload.pop("stages", [])]
+        flow = ResolvedFlow(stages=stages, **flow_payload)
+        return cls(
+            manager_run_id=str(payload["manager_run_id"]),
+            flow=flow,
+            task_context=dict(payload.get("task_context", {})),
+            authority=str(payload["authority"]),
+            active_stage=str(payload["active_stage"]),
+            state=str(payload.get("state", "READY")),
+            replan_count=int(payload.get("replan_count", 0)),
+            completed_stages=list(payload.get("completed_stages", [])),
+            stage_runs={key: list(value) for key, value in dict(payload.get("stage_runs", {})).items()},
+            replan_history=list(payload.get("replan_history", [])),
+        )
+
     def to_dict(self) -> dict[str, Any]:
         return {
             "manager_run_id": self.manager_run_id,
@@ -72,6 +90,13 @@ class DevelopmentManagerAgent:
         state.context["task_context"] = dict(managed.task_context)
         state.context["managed_run"] = managed.to_dict()
         self.harness.checkpoints.save(state.run_id, state.to_dict())
+
+    def resume(self, manager_run_id: str) -> ManagedWebsiteRun:
+        state = self.harness.resume(manager_run_id)
+        payload = state.context.get("managed_run")
+        if not isinstance(payload, dict):
+            raise ValueError(f"checkpoint {manager_run_id} does not contain a managed website run")
+        return ManagedWebsiteRun.from_dict(payload)
 
     def start(
         self,
