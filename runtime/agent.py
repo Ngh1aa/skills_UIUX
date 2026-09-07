@@ -15,6 +15,9 @@ from typing import Any, Callable
 AUTHORITY_ORDER = ("read_only", "branch_write", "external_write", "release")
 RISK_LEVELS = ("READ", "LOW_WRITE", "HIGH_WRITE", "CRITICAL")
 SENSITIVE_FRAGMENTS = ("token", "secret", "password", "authorization", "cookie", "api_key", "apikey")
+PROTECTED_DIRS = {".git", ".uiux-agent-runs", "node_modules"}
+PROTECTED_FILE_FRAGMENTS = ("secret", "credential", "private-key", "private_key")
+ALLOWED_PROJECT_SCRIPTS = {"build", "test", "lint", "typecheck", "check", "validate"}
 
 
 def _unique(values: list[str]) -> list[str]:
@@ -54,6 +57,7 @@ class RunState:
     active_role: str = ""
     completed_actions: list[str] = field(default_factory=list)
     artifacts: list[str] = field(default_factory=list)
+    observations: list[dict[str, Any]] = field(default_factory=list)
     context: dict[str, Any] = field(default_factory=dict)
     limitations: list[str] = field(default_factory=list)
 
@@ -69,6 +73,14 @@ def _redact(value: Any, key: str = "") -> Any:
     if isinstance(value, list):
         return [_redact(item) for item in value]
     return value
+
+
+def _bounded_observation(value: Any, max_chars: int = 12000) -> Any:
+    redacted = _redact(value)
+    text = json.dumps(redacted, ensure_ascii=False, default=str)
+    if len(text) <= max_chars:
+        return redacted
+    return {"truncated": True, "preview": text[:max_chars]}
 
 
 class TraceRecorder:
@@ -208,9 +220,12 @@ class ToolRegistry:
         self.project_root = project_root
         self.specs: dict[str, ToolSpec] = {}
         self.handlers: dict[str, Handler] = {}
-        self._register("read_text", "Read a UTF-8 project file", "READ", "read_only", False, self._read_text)
+        self._register("read_text", "Read a safe UTF-8 project file", "READ", "read_only", False, self._read_text)
         self._register("list_files", "List files below a project-relative directory", "READ", "read_only", False, self._list_files)
         self._register("write_artifact", "Write a project-local UI/UX artifact", "LOW_WRITE", "branch_write", True, self._write_artifact)
+        self._register("write_project_file", "Write a safe project-local source/config file", "LOW_WRITE", "branch_write", True, self._write_project_file)
+        self._register("delete_project_file", "Delete one safe project-local file", "LOW_WRITE", "branch_write", True, self._delete_project_file)
+        self._register("run_project_script", "Run an allowlisted package.json verification script", "LOW_WRITE", "branch_write", True, self._run_project_script)
         self._register("run_validator", "Run an allowlisted skills_UIUX validator", "READ", "read_only", False, self._run_validator)
         self._register("release_action", "Contract-only release boundary", "CRITICAL", "release", True, self._release_action)
 
@@ -228,18 +243,36 @@ class ToolRegistry:
             raise ValueError(f"path escapes project root: {raw}") from exc
         return path
 
+    def _assert_safe_path(self, resolved: Path) -> None:
+        relative = resolved.relative_to(self.project_root.resolve())
+        lowered_parts = {part.lower() for part in relative.parts}
+        if lowered_parts.intersection(PROTECTED_DIRS):
+            raise ValueError(f"protected project path: {relative}")
+        name = relative.name.lower()
+        if name == ".env" or name.startswith(".env."):
+            raise ValueError(f"sensitive project path: {relative}")
+        if any(fragment in name for fragment in PROTECTED_FILE_FRAGMENTS):
+            raise ValueError(f"sensitive project path: {relative}")
+
     def _read_text(self, path: str) -> dict[str, Any]:
         resolved = self._resolve_project_path(path)
+        self._assert_safe_path(resolved)
+        if not resolved.is_file():
+            raise ValueError(f"file not found: {path}")
         return {"path": path, "content": resolved.read_text(encoding="utf-8", errors="replace")}
 
     def _list_files(self, path: str = ".") -> dict[str, Any]:
         resolved = self._resolve_project_path(path)
         if not resolved.exists() or not resolved.is_dir():
             raise ValueError(f"directory not found: {path}")
-        return {
-            "path": path,
-            "items": sorted(str(item.relative_to(self.project_root)) for item in resolved.iterdir()),
-        }
+        items: list[str] = []
+        for item in resolved.iterdir():
+            try:
+                self._assert_safe_path(item.resolve())
+            except ValueError:
+                continue
+            items.append(str(item.relative_to(self.project_root)))
+        return {"path": path, "items": sorted(items)}
 
     def _write_artifact(self, path: str, content: str) -> dict[str, Any]:
         resolved = self._resolve_project_path(path)
@@ -252,6 +285,72 @@ class ToolRegistry:
         resolved.parent.mkdir(parents=True, exist_ok=True)
         resolved.write_text(content, encoding="utf-8")
         return {"path": str(resolved.relative_to(self.project_root)), "bytes": len(content.encode("utf-8"))}
+
+    def _write_project_file(self, path: str, content: str) -> dict[str, Any]:
+        resolved = self._resolve_project_path(path)
+        self._assert_safe_path(resolved)
+        resolved.parent.mkdir(parents=True, exist_ok=True)
+        resolved.write_text(content, encoding="utf-8")
+        return {"path": str(resolved.relative_to(self.project_root)), "bytes": len(content.encode("utf-8"))}
+
+    def _delete_project_file(self, path: str) -> dict[str, Any]:
+        resolved = self._resolve_project_path(path)
+        self._assert_safe_path(resolved)
+        if not resolved.is_file():
+            raise ValueError(f"file not found: {path}")
+        resolved.unlink()
+        return {"path": str(resolved.relative_to(self.project_root)), "deleted": True}
+
+    def _run_project_script(self, script: str, args: list[str] | None = None) -> dict[str, Any]:
+        if script not in ALLOWED_PROJECT_SCRIPTS:
+            raise ValueError(
+                f"project script is not allowlisted: {script}; allowed: {', '.join(sorted(ALLOWED_PROJECT_SCRIPTS))}"
+            )
+        package_path = self.project_root / "package.json"
+        if not package_path.is_file():
+            raise ValueError("package.json not found")
+        package = json.loads(package_path.read_text(encoding="utf-8"))
+        scripts = dict(package.get("scripts", {}))
+        if script not in scripts:
+            raise ValueError(f"package.json does not declare script: {script}")
+
+        extra = [str(item) for item in list(args or [])]
+        if len(extra) > 20:
+            raise ValueError("run_project_script accepts at most 20 extra args")
+        if (self.project_root / "pnpm-lock.yaml").exists():
+            command = ["pnpm", "run", script]
+        elif (self.project_root / "yarn.lock").exists():
+            command = ["yarn", script]
+        elif (self.project_root / "bun.lock").exists() or (self.project_root / "bun.lockb").exists():
+            command = ["bun", "run", script]
+        else:
+            command = ["npm", "run", script]
+        if extra:
+            command.extend(["--", *extra])
+
+        try:
+            result = subprocess.run(
+                command,
+                cwd=self.project_root,
+                capture_output=True,
+                text=True,
+                timeout=300,
+            )
+        except FileNotFoundError as exc:
+            raise RuntimeError(f"package manager executable not found: {command[0]}") from exc
+        if result.returncode != 0:
+            stdout = result.stdout[-6000:]
+            stderr = result.stderr[-6000:]
+            raise RuntimeError(
+                f"project script {script} failed ({result.returncode})\nstdout:\n{stdout}\nstderr:\n{stderr}"
+            )
+        return {
+            "script": script,
+            "command": command,
+            "returncode": result.returncode,
+            "stdout": result.stdout[-8000:],
+            "stderr": result.stderr[-8000:],
+        }
 
     def _run_validator(self, name: str) -> dict[str, Any]:
         allowlist = {
@@ -270,6 +369,10 @@ class ToolRegistry:
             text=True,
             timeout=120,
         )
+        if result.returncode != 0:
+            raise RuntimeError(
+                f"validator {name} failed ({result.returncode})\nstdout:\n{result.stdout[-6000:]}\nstderr:\n{result.stderr[-6000:]}"
+            )
         return {
             "name": name,
             "returncode": result.returncode,
@@ -292,7 +395,7 @@ class ToolRegistry:
 
 
 class ProviderNeutralAgentHarness:
-    """Executes a provider-produced action plan under skills_UIUX guardrails."""
+    """Executes provider-produced actions under skills_UIUX guardrails."""
 
     def __init__(self, repo_root: Path, project_root: Path) -> None:
         self.repo_root = repo_root.resolve()
@@ -338,13 +441,34 @@ class ProviderNeutralAgentHarness:
                 explicit_sources=explicit_sources,
             ),
             limitations=[
-                "model/provider reasoning is not bundled",
-                "external MCP/Figma/Playwright integrations are optional adapters",
+                "provider execution requires an explicitly configured API/command adapter",
+                "external MCP/Figma/Playwright integrations remain optional adapters",
                 "local checkpoints are not distributed durable execution",
             ],
         )
         self.checkpoints.save(state.run_id, state.to_dict())
         return state
+
+    def _append_observation(
+        self,
+        state: RunState,
+        *,
+        tool: str,
+        status: str,
+        result: Any = None,
+        reason: str | None = None,
+    ) -> dict[str, Any]:
+        observation = {
+            "id": f"obs-{len(state.observations) + 1:04d}",
+            "tool": tool,
+            "status": status,
+        }
+        if result is not None:
+            observation["result"] = _bounded_observation(result)
+        if reason:
+            observation["reason"] = reason
+        state.observations.append(observation)
+        return observation
 
     def execute_plan(self, state: RunState, actions: list[dict[str, Any]], dry_run: bool = False) -> RunState:
         trace = TraceRecorder(
@@ -407,6 +531,7 @@ class ProviderNeutralAgentHarness:
                     reason=reason,
                 )
                 if not allowed:
+                    self._append_observation(state, tool=name, status="blocked", reason=reason)
                     state.state = "BLOCKED"
                     self.checkpoints.save(state.run_id, state.to_dict())
                     return state
@@ -415,10 +540,26 @@ class ProviderNeutralAgentHarness:
                     result = {"dry_run": True, "tool": name}
                 else:
                     trace.emit("tool.call", "START", tool=name, args=args)
-                    result = self.registry.execute(name, args)
+                    try:
+                        result = self.registry.execute(name, args)
+                    except Exception as exc:
+                        self._append_observation(
+                            state,
+                            tool=name,
+                            status="error",
+                            reason=f"{type(exc).__name__}: {exc}",
+                        )
+                        self.checkpoints.save(state.run_id, state.to_dict())
+                        raise
                     trace.emit("tool.call", "OK", tool=name, result=result)
 
+                observation = self._append_observation(state, tool=name, status="success", result=result)
+                if isinstance(result, dict) and isinstance(result.get("path"), str):
+                    path_value = str(result["path"])
+                    if path_value not in state.artifacts:
+                        state.artifacts.append(path_value)
                 state.completed_actions.append(f"{index}:{name}")
+                trace.emit("tool.observation", "OK", observation=observation)
                 self.checkpoints.save(state.run_id, state.to_dict())
 
             state.state = "COMPLETED"
@@ -432,4 +573,6 @@ class ProviderNeutralAgentHarness:
             raise
 
     def resume(self, run_id: str) -> RunState:
-        return RunState(**self.checkpoints.load(run_id))
+        payload = self.checkpoints.load(run_id)
+        payload.setdefault("observations", [])
+        return RunState(**payload)
