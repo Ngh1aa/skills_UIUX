@@ -3,22 +3,30 @@
 ## Current phase
 
 - Scope: `system`
-- Type: `implementation / QA`
+- Type: `implementation / QA / release / post-release verification`
 - Risk: `medium`
-- Mode: `production_candidate`
-- Latest observed `main` at phase start: `f098e6a94aaf3f026a810bc30073df67eb653cc2`
-- Green recovery dependency: PR `#16`, head `7373bf9201b7ad3d52eea2753a78809beb5b1562`
-- Branch: `feat/v5-2-agent-runtime-foundation`
-- PR: `#17` — open, stacked on recovery branch
+- Mode: `production`
+- Phase-start `main`: `f098e6a94aaf3f026a810bc30073df67eb653cc2`
+- Recovery PR: `#16`
+- Recovery head: `7373bf9201b7ad3d52eea2753a78809beb5b1562`
+- Recovery merge commit: `c8a2d07ad360bc887b687288beff1d3d7aa7f76e`
+- Recovery post-merge validation: GitHub Actions `34073614108` = `success`
+- V5.2 branch: `feat/v5-2-agent-runtime-foundation`
+- V5.2 PR: `#17` — merged to `main`
 - Implementation commit: `69724b9fd65a8df0f56ae2c8231da2054da73346`
+- Final PR head: `a6cc9997fc15246c67894fcebfeff3f9e46a9e70`
+- V5.2 merge commit: `49e5ad978cbce21df2398385b2a58b019252923b`
 - Implementation push validation: GitHub Actions `34045466501` = `success`
-- Release authorization: `no_release`
+- Final-head push validation: GitHub Actions `34045571288` = `success`
+- Final-head PR validation: GitHub Actions `34045573762` = `success`
+- V5.2 post-merge validation: GitHub Actions `34073654070` = `success`
+- Release authorization: explicitly authorized by user on 2026-09-07.
 
 ## Phase result
 
 `PASSED`
 
-Rationale: the provider-neutral runtime foundation was added without reorganizing or duplicating the existing skill tree; the exact implementation commit passed the full repository validation suite including the new runtime smoke; critical actions fail closed without explicit release authority; local checkpoint/resume and trace behavior are verified; optional external adapters are truthfully labeled and remain future integration evidence rather than fake production claims.
+Rationale: recovery PR #16 restored `main` to a green state before V5.2 release; the provider-neutral runtime foundation preserved the existing skill-tree/install contracts; the exact V5.2 head passed branch and PR validation; PR #17 was then merged with an expected-head guard; and the resulting `main` merge commit passed the complete validation workflow including the runtime-foundation smoke.
 
 ## Gate accounting
 
@@ -36,12 +44,14 @@ Rationale: the provider-neutral runtime foundation was added without reorganizin
 - Figma MCP / Code Connect integration boundary: `DONE_VERIFIED`
 - n8n automation authority boundary: `DONE_VERIFIED`
 - Full structural/profile/pack/eval/vendor/install/bootstrap validation: `DONE_VERIFIED`
+- Recovery merge to `main`: `DONE_VERIFIED`
+- V5.2 merge to `main`: `DONE_VERIFIED`
+- Post-merge validation: `DONE_VERIFIED`
 - Real model-provider adapter: `PENDING_FUTURE_PHASE`
 - Real MCP dependency/runtime E2E: `PENDING_FUTURE_PHASE`
 - Real Playwright browser matrix on a consumer project: `PENDING_FUTURE_PHASE`
 - Real Figma MCP/Code Connect project E2E: `PENDING_FUTURE_PHASE`
 - Distributed durable workflow runtime: `PENDING_FUTURE_PHASE`
-- Merge/release to `main`: `N/A_JUSTIFIED` — no release authorization
 
 ## Verified evidence
 
@@ -51,8 +61,9 @@ Rationale: the provider-neutral runtime foundation was added without reorganizin
 - `integrations/playwright/`: optional rendered screenshot + DOM + console/request evidence capture; Node syntax checked in CI.
 - `integrations/figma/`: Figma MCP/Code Connect source-of-truth and reuse boundary.
 - `integrations/n8n/`: external automation payload/authority boundary.
-- Four new `runtime-*` capability/regression eval tasks.
-- `scripts/validate-runtime-foundation.py`: real runtime smoke, critical-action denial and checkpoint-resume verification.
-- GitHub Actions `34045466501` = `success` for implementation commit `69724b9fd65a8df0f56ae2c8231da2054da73346`.
+- Four `runtime-*` capability/regression eval tasks.
+- `scripts/validate-runtime-foundation.py`: runtime smoke, critical-action denial and checkpoint-resume verification.
+- Recovery `main` commit `c8a2d07ad360bc887b687288beff1d3d7aa7f76e` passed run `34073614108`.
+- V5.2 `main` commit `49e5ad978cbce21df2398385b2a58b019252923b` passed run `34073654070`.
 
 Detailed decisions and requirement coverage: `docs/uiux/Agent-Runtime-Foundation-Upgrade.md`.
