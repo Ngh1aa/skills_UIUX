@@ -130,8 +130,15 @@ def main() -> int:
                     else:
                         index = json.loads(index_path.read_text(encoding="utf-8"))
                         skills = index.get("skills", [])
-                        if len(skills) < 100:
-                            errors.append(f"skill discovery index unexpectedly small: {len(skills)}")
+                        expected = sum(
+                            1
+                            for path in ROOT.iterdir()
+                            if path.is_dir() and (path / "SKILL.md").is_file()
+                        )
+                        if len(skills) != expected:
+                            errors.append(
+                                f"skill discovery index count mismatch: expected {expected}, got {len(skills)}"
+                            )
                         if any(not str(item.get("digest", "")).startswith("sha256:") for item in skills):
                             errors.append("skill discovery index has missing/invalid SHA-256 digest")
         except Exception as exc:
