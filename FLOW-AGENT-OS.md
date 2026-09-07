@@ -2,6 +2,16 @@
 
 This layer turns `skills_UIUX` from a large skill library into a declarative professional-website workflow runtime.
 
+## Core operating principle
+
+> **The user states the goal. The Development Manager chooses the Flow. The Flow determines the Agents and Skills. Agents use Tools to produce evidence and artifacts. Gates decide whether work may advance. Failures go to the Replanning Engine instead of blind retries. The user only intervenes at approval gates that materially require human judgment or authorization.**
+
+In Vietnamese, the product principle is:
+
+> **User chỉ nói mục tiêu. Development Manager quyết định Flow. Flow quyết định Agent và Skill. Agent sử dụng Tool để tạo evidence/artifact. Gate quyết định có được đi tiếp hay không. Failure đi vào Replanning Engine thay vì retry mù. User chỉ can thiệp ở những approval gate thực sự cần thiết.**
+
+This principle is the source of truth for orchestration decisions. Runtime code, flows, skills, tools and UI should preserve this separation of responsibility instead of collapsing the system into one monolithic agent or a fixed prompt chain.
+
 ## Contract
 
 ```text
@@ -27,10 +37,14 @@ Gate evidence
 
 ## Ownership boundaries
 
+- **User owns goals and approvals.** The user describes the desired outcome and is only asked to intervene when a gate requires human judgment, policy authorization, external-write approval or release authority.
+- **Development Manager owns orchestration.** It interprets task context, resolves the best applicable flow, manages lifecycle state and coordinates specialist stages without becoming a mega-agent.
 - **Flow owns sequence and routing.** It declares stages, role, required/conditional skills, gates and replanning policy.
 - **Agent owns role and authority.** `runtime/runtime-policy.json` declares purpose, maximum authority, default skills and legal handoffs.
 - **Skill owns capability knowledge.** Agents and flows reference `SKILL.md`; they do not copy specialist guidance into a mega prompt.
-- **Tool/script owns deterministic action.** Flow resolution never grants external/release authority.
+- **Tool/script owns deterministic action.** Agents use tools/scripts to create, inspect, transform or verify concrete artifacts. Flow resolution never grants external/release authority.
+- **Gate owns progression.** A stage advances only when the required evidence exists and the gate passes; model self-report alone is not proof.
+- **Replanning Engine owns failure recovery.** Failures, invalid assumptions, new risks, tool failures and context drift are routed through bounded replanning rather than blind retries.
 
 ## Development Manager
 
@@ -64,6 +78,20 @@ START
 ```
 
 A replan invalidates only the affected stage and downstream completed stages. Example: a QA `GATE_FAIL` can return to implementation while preserving verified research/design work.
+
+## Human intervention policy
+
+The default experience should minimize orchestration burden on the user. A normal request may begin as one natural-language goal; the system should infer the applicable website type, features, mode and risk context when confidence is sufficient, then route work automatically.
+
+Human intervention is appropriate when the decision is genuinely external to the runtime, for example:
+
+- approving a Design Contract when the project is configured for approval mode;
+- choosing between materially different brand/business directions when evidence cannot resolve the decision;
+- authorizing destructive/external writes;
+- approving production release or deployment when release authority is required;
+- resolving missing business truth that cannot be safely inferred.
+
+Do not ask the user to manually select internal skills, agents or routine retry behavior when the Flow Agent OS can resolve those decisions itself.
 
 ## Modern professional website defaults
 
