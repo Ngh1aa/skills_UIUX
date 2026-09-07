@@ -15,9 +15,16 @@ This principle is the source of truth for orchestration decisions. Runtime code,
 ## Contract
 
 ```text
-User/project task
+Natural-language goal
   ↓
 Development Manager
+  ↓
+GoalInterpreter
+  ├─ intent
+  ├─ website type
+  ├─ features
+  ├─ mode
+  └─ risk
   ↓
 FlowResolver(task context)
   ↓
@@ -28,6 +35,7 @@ Resolved Flow
   ↓
 Gate evidence
   ├─ PASS → complete active stage → next stage
+  ├─ HUMAN APPROVAL → pause only when approval_mode=manual
   └─ explicit failure/risk signal → ReplanningEngine
                                       ↓
                               apply bounded flow delta
@@ -46,9 +54,15 @@ Gate evidence
 - **Gate owns progression.** A stage advances only when the required evidence exists and the gate passes; model self-report alone is not proof.
 - **Replanning Engine owns failure recovery.** Failures, invalid assumptions, new risks, tool failures and context drift are routed through bounded replanning rather than blind retries.
 
+## Goal interpretation
+
+`runtime/task_context.py::GoalInterpreter` provides a conservative deterministic first pass over the user's natural-language goal. It can infer common website types (corporate, ecommerce, education, government, hospitality, news, real estate, SaaS, startup, portfolio, nonprofit, landing), common features (search, forms, auth, dashboard, motion, i18n), lifecycle intent, mode and risk.
+
+Explicit CLI/config values always override inferred values. When the domain cannot be inferred safely, the interpreter uses `generic` instead of fabricating business truth. The resolved context records confidence and evidence so routing remains inspectable.
+
 ## Development Manager
 
-`runtime/manager.py::DevelopmentManagerAgent` is an A→Z manager, not a monolithic designer/developer. It resolves a flow, creates a manager checkpoint, starts only the active specialist stage, records stage runs, advances only after a completed stage run, resumes across processes, and applies bounded replans when evidence signals a failure or new risk.
+`runtime/manager.py::DevelopmentManagerAgent` is an A→Z manager, not a monolithic designer/developer. It can start directly from a natural-language goal, resolves a flow, creates a manager checkpoint, starts only the active specialist stage, records stage runs, advances only after a completed stage run, resumes across processes, enforces configured approval gates and applies bounded replans when evidence signals a failure or new risk.
 
 The manager blocks out-of-order stage execution. A caller cannot jump from research directly to QA or apply a replan from a stage that is not currently active.
 
@@ -60,11 +74,13 @@ A managed run persists:
 
 - `manager_run_id`;
 - resolved flow + flow revision;
+- inferred/overridden task context;
 - active stage;
 - completed stages;
 - specialist stage run IDs;
 - replan count and history;
-- task context and authority.
+- approved human gates;
+- authority.
 
 The normal lifecycle is:
 
@@ -81,17 +97,19 @@ A replan invalidates only the affected stage and downstream completed stages. Ex
 
 ## Human intervention policy
 
-The default experience should minimize orchestration burden on the user. A normal request may begin as one natural-language goal; the system should infer the applicable website type, features, mode and risk context when confidence is sufficient, then route work automatically.
+The default experience minimizes orchestration burden on the user. A normal request may begin as one natural-language goal; the system infers applicable website type, features, mode and risk when confidence is sufficient, then routes work automatically.
 
 Human intervention is appropriate when the decision is genuinely external to the runtime, for example:
 
-- approving a Design Contract when the project is configured for approval mode;
+- approving a Design Contract when the project uses `approval_mode=manual`;
 - choosing between materially different brand/business directions when evidence cannot resolve the decision;
 - authorizing destructive/external writes;
 - approving production release or deployment when release authority is required;
 - resolving missing business truth that cannot be safely inferred.
 
 Do not ask the user to manually select internal skills, agents or routine retry behavior when the Flow Agent OS can resolve those decisions itself.
+
+`professional-website-redesign` marks the `design-contract` gate as human-approvable. In `auto` mode the runtime does not stop there. In `manual` mode the managed run moves to `AWAITING_APPROVAL` and cannot enter implementation until the gate is explicitly approved.
 
 ## Modern professional website defaults
 
@@ -121,45 +139,99 @@ An accepted replan can target an earlier stage, add/drop non-mandatory skills, i
 
 ## CLI lifecycle
 
-Start a professional ecommerce redesign flow:
+### 1. Start from one natural-language goal
+
+No website type or skill selection is required for common cases:
 
 ```bash
 python -B scripts/uiux-agent.py \
-  --project . \
+  --project ../my-site \
   --managed \
-  --task "Redesign ecommerce website" \
+  --task "Tạo website bán giày thể thao hiện đại, có giỏ hàng, checkout và tìm kiếm" \
+  --authority branch_write
+```
+
+The output contains `manager_run_id`, inferred `task_context`, the resolved flow, active stage and stage-specific skills.
+
+Use explicit overrides only when project truth is known and inference should not decide it:
+
+```bash
+python -B scripts/uiux-agent.py \
+  --project ../my-site \
+  --managed \
+  --task "Redesign website" \
   --website-type ecommerce \
-  --mode interactive-prototype \
+  --mode production-candidate \
   --feature search \
   --authority branch_write
 ```
 
-The output includes `manager_run_id`. Resume and run the active stage:
+### 2. Run the active stage with a provider-generated action plan
+
+The core runtime remains provider-neutral. A model/provider adapter is responsible for producing the JSON `actions` plan; the runtime enforces roles, tools, authority, checkpoints and lifecycle.
 
 ```bash
 python -B scripts/uiux-agent.py \
-  --project . \
+  --project ../my-site \
   --managed-run-id <manager_run_id> \
   --plan path/to/provider-plan.json \
   --advance-on-success
 ```
 
-Inspect without executing:
+Repeat for the next active stage. The manager prevents stage skipping.
 
-```bash
-python -B scripts/uiux-agent.py --project . --managed-run-id <manager_run_id>
-```
+### 3. Optional Design Contract approval
 
-Apply a QA failure replan:
+Start in manual approval mode:
 
 ```bash
 python -B scripts/uiux-agent.py \
-  --project . \
+  --project ../my-site \
+  --managed \
+  --task "Tạo website công ty công nghệ hiện đại" \
+  --approval-mode manual \
+  --authority branch_write
+```
+
+After the design stage produces and verifies its Design Contract, approve the gate:
+
+```bash
+python -B scripts/uiux-agent.py \
+  --project ../my-site \
+  --managed-run-id <manager_run_id> \
+  --approve-gate design-contract
+```
+
+Then complete/advance the design stage as normal.
+
+### 4. Inspect status
+
+```bash
+python -B scripts/uiux-agent.py \
+  --project ../my-site \
+  --managed-run-id <manager_run_id>
+```
+
+### 5. Replan from failure instead of blind retry
+
+For a QA failure:
+
+```bash
+python -B scripts/uiux-agent.py \
+  --project ../my-site \
   --managed-run-id <manager_run_id> \
   --replan-signal GATE_FAIL
 ```
 
+The configured flow can route the run back to implementation, add corrective skills, increment the flow revision and preserve upstream verified stages.
+
 Use `--no-apply-replan` for diagnostic what-if routing without mutating the persisted managed run.
+
+## Important execution boundary
+
+The Flow Agent OS now handles goal interpretation, flow selection, agent/skill routing, lifecycle checkpoints, approval gates, bounded replanning and tool permission enforcement. It does **not** pretend that provider reasoning is bundled into the core runtime. To generate code autonomously from the single goal, connect a provider adapter that turns each active stage context into a valid action plan and feeds it back to the runtime.
+
+This separation is intentional: Flow OS remains portable across Anthropic, OpenAI, Gemini or local providers rather than hard-coding one vendor API into orchestration logic.
 
 ## Validation
 

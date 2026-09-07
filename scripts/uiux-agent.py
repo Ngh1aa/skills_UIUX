@@ -14,15 +14,14 @@ from runtime.agent import ProviderNeutralAgentHarness
 from runtime.manager import DevelopmentManagerAgent
 
 
-def _managed_context(args: argparse.Namespace) -> dict[str, object]:
-    if not args.website_type:
-        raise ValueError("new --managed runs require --website-type")
+def _managed_overrides(args: argparse.Namespace) -> dict[str, object]:
     return {
         "intent": args.intent,
         "website_type": args.website_type,
         "mode": args.mode,
         "risk": args.risk,
         "features": args.feature,
+        "approval_mode": args.approval_mode,
     }
 
 
@@ -49,11 +48,13 @@ def main() -> int:
 
     parser.add_argument("--managed", action="store_true", help="Use the Development Manager declarative Flow OS")
     parser.add_argument("--managed-run-id", help="Resume an existing managed website run")
-    parser.add_argument("--intent", default="redesign")
-    parser.add_argument("--website-type")
-    parser.add_argument("--mode", choices=["visual-prototype", "interactive-prototype", "production-candidate", "production"], default="interactive-prototype")
-    parser.add_argument("--risk", default="standard")
-    parser.add_argument("--feature", action="append", default=[])
+    parser.add_argument("--intent", choices=["build", "redesign", "rebuild"], help="Optional override; otherwise inferred from --task")
+    parser.add_argument("--website-type", help="Optional override; otherwise inferred from --task")
+    parser.add_argument("--mode", choices=["visual-prototype", "interactive-prototype", "production-candidate", "production"], help="Optional override; otherwise inferred from --task")
+    parser.add_argument("--risk", help="Optional override; otherwise inferred from --task")
+    parser.add_argument("--feature", action="append", default=[], help="Optional feature override(s); otherwise inferred from --task")
+    parser.add_argument("--approval-mode", choices=["auto", "manual"], default="auto", help="Require explicit human approval for human-marked gates when set to manual")
+    parser.add_argument("--approve-gate", help="Approve a human gate on the active managed stage")
     parser.add_argument("--stage", help="Start or complete a resolved specialist stage; defaults to active stage")
     parser.add_argument("--complete-stage", action="store_true", help="Mark the selected/active managed stage gate as complete and advance")
     parser.add_argument("--advance-on-success", action="store_true", help="After a successfully executed managed stage plan, mark it complete and advance")
@@ -70,13 +71,18 @@ def main() -> int:
         if args.managed_run_id:
             managed = manager.resume(args.managed_run_id)
         else:
-            managed = manager.start(
+            managed = manager.start_from_goal(
                 args.task,
-                _managed_context(args),
                 authority=args.authority,
+                overrides=_managed_overrides(args),
                 additional_skills=args.skill,
                 exclude_skills=args.exclude_skill,
             )
+
+        if args.approve_gate:
+            manager.approve_gate(managed, args.approve_gate)
+            print(json.dumps({"managed": managed.to_dict(), "approved_gate": args.approve_gate}, ensure_ascii=False, indent=2))
+            return 0
 
         if args.replan_signal:
             decision = manager.replan(

@@ -20,6 +20,7 @@ REQUIRED = [
     ROOT / "runtime" / "agent.py",
     ROOT / "runtime" / "flow.py",
     ROOT / "runtime" / "manager.py",
+    ROOT / "runtime" / "task_context.py",
     ROOT / "runtime" / "mcp_server.py",
     ROOT / "schemas" / "flow.schema.json",
     ROOT / "flows" / "professional-website-redesign.json",
@@ -44,6 +45,7 @@ PYTHON_FILES = [
     ROOT / "runtime" / "agent.py",
     ROOT / "runtime" / "flow.py",
     ROOT / "runtime" / "manager.py",
+    ROOT / "runtime" / "task_context.py",
     ROOT / "runtime" / "mcp_server.py",
     ROOT / "scripts" / "context-manifest.py",
     ROOT / "scripts" / "uiux-agent.py",
@@ -98,21 +100,19 @@ def _run_flow_os_smoke(errors: list[str]) -> None:
                 errors.append(f"illegal handoff failed for unexpected reason: {exc}")
 
         manager = DevelopmentManagerAgent(harness)
-        managed = manager.start(
-            "redesign ecommerce",
-            {
-                "intent": "redesign",
-                "website_type": "ecommerce",
-                "mode": "interactive-prototype",
-                "risk": "standard",
-                "features": ["search"],
-            },
+        managed = manager.start_from_goal(
+            "Tạo website bán giày thể thao hiện đại, có giỏ hàng, checkout và tìm kiếm",
             authority="branch_write",
         )
         if managed.flow.id != "professional-website-redesign":
             errors.append(f"development manager resolved wrong flow: {managed.flow.id}")
         if managed.active_stage != "research":
             errors.append(f"managed run did not start at research: {managed.active_stage}")
+        if managed.task_context.get("website_type") != "ecommerce":
+            errors.append("goal interpreter failed to infer ecommerce website type")
+        inferred_features = set(managed.task_context.get("features", []))
+        if not {"forms", "search"}.issubset(inferred_features):
+            errors.append(f"goal interpreter missed expected features: {sorted(inferred_features)}")
 
         research_stage = next(stage for stage in managed.flow.stages if stage.id == "research")
         if "ecommerce-website" not in research_stage.skills:
@@ -161,6 +161,29 @@ def _run_flow_os_smoke(errors: list[str]) -> None:
         resumed = manager.resume(managed.manager_run_id)
         if resumed.active_stage != managed.active_stage or resumed.flow.revision != managed.flow.revision:
             errors.append("managed checkpoint resume did not preserve lifecycle/replan state")
+
+        manual = manager.start_from_goal(
+            "Tạo website công ty hiện đại",
+            authority="branch_write",
+            overrides={"approval_mode": "manual"},
+        )
+        research_run = harness.execute_plan(manager.start_stage(manual), [])
+        manager.complete_stage(manual)
+        design_run = harness.execute_plan(manager.start_stage(manual), [])
+        if research_run.state != "COMPLETED" or design_run.state != "COMPLETED":
+            errors.append("manual approval smoke specialist stage did not complete")
+        try:
+            manager.complete_stage(manual)
+            errors.append("manual approval mode allowed design to advance without approval")
+        except ValueError as exc:
+            if "human approval required" not in str(exc):
+                errors.append(f"manual approval blocked for unexpected reason: {exc}")
+        if manual.state != "AWAITING_APPROVAL":
+            errors.append("manual approval mode did not persist AWAITING_APPROVAL state")
+        manager.approve_gate(manual, "design-contract")
+        manager.complete_stage(manual)
+        if manual.active_stage != "implementation":
+            errors.append("approved design contract did not advance to implementation")
 
         registry = ToolRegistry(ROOT, project)
         gate = PermissionGate(ROOT / "runtime" / "runtime-policy.json")
@@ -271,8 +294,8 @@ def main() -> int:
         return 1
 
     print(
-        "Runtime foundation passed: Flow OS + managed lifecycle/replanning + enforced "
-        "role defaults/handoffs + context/permissions/trace/checkpoint + adapter/discovery syntax"
+        "Runtime foundation passed: goal-driven Flow OS + managed lifecycle/replanning + human approval gates + "
+        "enforced role defaults/handoffs + context/permissions/trace/checkpoint + adapter/discovery syntax"
     )
     print(
         "NOTE: provider reasoning and external integrations still require environment-specific "

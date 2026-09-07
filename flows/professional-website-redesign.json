@@ -44,7 +44,7 @@
         {"when": {"features": ["i18n"]}, "skills": ["localization-and-i18n"]}
       ],
       "gates": [
-        {"id": "design-contract", "require": "page-role compositions, typography, imagery, interaction, mobile transformation and do/don't rules are concrete before broad implementation"}
+        {"id": "design-contract", "approval": "human", "require": "page-role compositions, typography, imagery, interaction, mobile transformation and do/don't rules are concrete before broad implementation"}
       ]
     },
     {
