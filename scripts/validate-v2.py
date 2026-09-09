@@ -12,6 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 REQUIRED_EVAL_KEYS = {"id", "category", "prompt", "recommended_skills", "expected_outcomes", "must_not", "rubric"}
 LINK_RE = re.compile(r"\[[^\]]+\]\((?!https?://|#|mailto:)([^)]+)\)")
 FENCE_RE = re.compile(r"```.*?```|~~~.*?~~~", re.DOTALL)
+DELIVERY_POLICIES = {"adaptive-prompt-os-v4", "custom"}
 
 
 def load_profile(name: str, stack: tuple[str, ...] = ()) -> list[str]:
@@ -64,6 +65,11 @@ def validate_project_config(path: Path, profile_names: set[str], pack_names: set
     profile = data.get("profile")
     if profile not in profile_names:
         errors.append(f"{path.relative_to(ROOT)}: unknown profile {profile}")
+    delivery_policy = data.get("delivery_policy", "adaptive-prompt-os-v4")
+    if delivery_policy not in DELIVERY_POLICIES:
+        errors.append(
+            f"{path.relative_to(ROOT)}: delivery_policy must be one of {sorted(DELIVERY_POLICIES)}, got {delivery_policy!r}"
+        )
     packs = data.get("packs", [])
     if not isinstance(packs, list) or not all(isinstance(item, str) for item in packs):
         errors.append(f"{path.relative_to(ROOT)}: packs must be an array of strings")

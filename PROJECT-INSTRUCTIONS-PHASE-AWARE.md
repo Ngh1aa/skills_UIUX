@@ -3,24 +3,51 @@
 Mọi công việc UI/UX trong Project này phải sử dụng bộ skill:
 https://github.com/Ngh1aa/skills_UIUX
 
+## DEFAULT DELIVERY POLICY
+
+Với website work, delivery policy mặc định cross-project là:
+
+```text
+adaptive-prompt-os-v4
+```
+
+Canonical contract: `DEFAULT-WEBSITE-DELIVERY-POLICY.md`.
+
+- Substantial build/redesign/multi-page/journey/whole-site/system work → dùng full Prompt OS `0 → 4`.
+- Local/component low-risk work → dùng lightweight lane + smallest applicable skill graph.
+- Lightweight lane phải escalate sang full Prompt OS nếu phát hiện shared-owner, structural, cross-route, art-direction, production/high-risk hoặc material regression concern.
+- `.uiux-profile.json` có thể override bằng `delivery_policy: "custom"` khi user/project truth yêu cầu; override phải explicit và không silently hạ system-reality, evidence, rendered-inspection hoặc release-authorization rules.
+
+Full lane mặc định:
+
+```text
+Prompt 0 — Project Config
+→ Prompt 1 — Research / Audit / Design Contract (no broad code before PASS)
+→ Prompt 2 — Representative-first structural implementation
+→ Prompt 3 — Final rendered QA + remediation + human visual veto
+→ Prompt 4 — Release + production smoke only when authorized
+```
+
 ## QUY TRÌNH KHỞI ĐỘNG
 
 1. Đọc project truth trước: README, AGENTS/project instructions, source code, route, component, token, data/API, build/test/deploy convention và các tài liệu được cung cấp.
 2. Từ `skills_UIUX`, với task page/multi-page/whole-site phải đọc tối thiểu:
    - `README.md`
+   - `DEFAULT-WEBSITE-DELIVERY-POLICY.md`
    - `SKILL-CATALOG.md`
    - `website-delivery-pipeline/SKILL.md`
    - `adaptive-skill-routing-and-context-budget/SKILL.md`
    - `project-context/SKILL.md`
-3. Resolve phiên bản mới nhất trên `main` tại thời điểm bắt đầu project. Nếu `docs/uiux/Skill-Version-Lock.md` chưa tồn tại, PHASE 1 có authority tạo file này; việc file chưa tồn tại trước PHASE 1 KHÔNG phải blocker.
-4. Ghi version, exact commit SHA, ngày kiểm tra và nguồn vào `docs/uiux/Skill-Version-Lock.md`.
-5. Các phase sau phải dùng cùng commit SHA đã khóa. Chỉ đổi phiên bản giữa project khi đã review conflict/migration, cập nhật Decision Log và Requirement Coverage Ledger.
-6. Trước mỗi phase, phân loại:
+3. Resolve `delivery_policy` từ `.uiux-profile.json`. Nếu không khai báo và task là website work, dùng `adaptive-prompt-os-v4`.
+4. Resolve phiên bản mới nhất trên `main` tại thời điểm bắt đầu project. Nếu `docs/uiux/Skill-Version-Lock.md` chưa tồn tại, PHASE 1 có authority tạo file này; việc file chưa tồn tại trước PHASE 1 KHÔNG phải blocker.
+5. Ghi version, exact commit SHA, ngày kiểm tra và nguồn vào `docs/uiux/Skill-Version-Lock.md`.
+6. Các phase sau phải dùng cùng commit SHA đã khóa. Chỉ đổi phiên bản giữa project khi đã review conflict/migration, cập nhật Decision Log và Requirement Coverage Ledger.
+7. Trước mỗi phase, phân loại:
    - Scope: `local | component | page | multi-page | journey | whole-site | system`
    - Type: `research | audit | redesign | build | remediation | implementation | QA | release`
    - Risk: `low | medium | high | critical`
    - Mode: `strategy | visual_prototype | interactive_prototype | production_candidate | production`
-7. Route smallest applicable skill graph theo scope, phase, risk và mode. Không load toàn bộ skill library.
+8. Chọn execution lane theo policy + scope/risk. Route smallest applicable skill graph; không load toàn bộ skill library.
 
 ## SKILL DISCIPLINE
 
@@ -36,9 +63,11 @@ https://github.com/Ngh1aa/skills_UIUX
 Thứ tự ưu tiên:
 1. Yêu cầu hiện tại của user.
 2. Project truth và source code thực tế.
-3. Design Contract và artifact đã PASS.
-4. Skill đã route.
-5. Nguồn chính thức, nghiên cứu và reference bên ngoài.
+3. `.uiux-profile.json` và source-of-truth documents.
+4. Design Contract và artifact đã PASS.
+5. `DEFAULT-WEBSITE-DELIVERY-POLICY.md`.
+6. Skill đã route.
+7. Nguồn chính thức, nghiên cứu và reference bên ngoài.
 
 Nếu phát hiện conflict, không silently chọn một phía. Ghi conflict, evidence, quyết định và ảnh hưởng vào Decision Log.
 `UNKNOWN` phải giữ là `UNKNOWN`; không tự biến thành fact.
@@ -115,7 +144,9 @@ Không tạo false success state. UI thành công không chứng minh request/AP
 
 ## IMPLEMENTATION SAFETY
 
-- Research và Design Contract phải PASS trước khi code đối với redesign/new full-site.
+- Với substantial website build/redesign, Research + Audit/Design Contract phải PASS trước broad implementation.
+- Với local/component low-risk work, lightweight lane được phép nhưng phải inspect project truth/root owner và escalate khi scope thực tế lớn hơn dự kiến.
+- Prompt 2 multi-page/journey/whole-site phải implement + render representative pages/surfaces trước broad rollout.
 - Inspect trước khi edit; xác định root owner trước khi sửa.
 - Reuse trước khi create; extend trước khi duplicate.
 - Preserve user changes và behavior ngoài scope.
@@ -135,6 +166,8 @@ Không tạo false success state. UI thành công không chứng minh request/AP
 - Không tuyên bố whole-site redesign nếu primary route còn legacy/drift mà không có rationale.
 - Accessibility automated scan không thay thế manual review hoặc formal conformance evaluation.
 - Missing rendered evidence chỉ `BLOCKED` khi phase hiện tại đang claim visual completion. Phase 1 có thể để future NEW-render QA ở `PENDING_FUTURE_PHASE`; Phase 2 representative gate và Final QA thì rendered evidence là DUE NOW.
+- Substantial visual work phải có human/Creative-Director verdict `KEEP | REVISE | REMOVE` sau latest material visual change.
+- `REVISE`/`REMOVE` material phải quay về owner stage và re-render; automated score không được override screenshot lỗi.
 
 ## RESPONSIVE SCOPE
 
@@ -155,7 +188,8 @@ Không tạo false success state. UI thành công không chứng minh request/AP
 - Nếu user yêu cầu release nhưng authority cần thiết thiếu hoặc mơ hồ: release action = `BLOCKED`.
 - `create_pr_only`: chỉ tạo/kiểm tra PR.
 - `merge_only`: chỉ merge sau khi gate/protection/status/review PASS; không deploy ngoài authorization.
-- `merge_and_deploy`: merge an toàn, theo dõi deployment và production smoke.
+- `merge_and_deploy`: merge an toàn, theo dõi deployment và **production smoke trên URL thật**.
+- Deploy/CI success không thay production smoke khi release scope yêu cầu nó; stale asset/version hoặc live visual defect = chưa PASS.
 
 ## CONTEXT VÀ TOKEN
 

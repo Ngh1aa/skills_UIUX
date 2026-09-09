@@ -18,6 +18,19 @@ jobs:
         run: node --check ui-craft-and-visual-qa/scripts/elementary-visual-integrity.mjs
       - name: Validate V5 profiles, packs, project configs, evals and resources
         run: python scripts/validate-v2.py
+      - name: Validate default website delivery policy contract
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          policy = json.loads(Path('policies/adaptive-prompt-os-v4.json').read_text(encoding='utf-8'))
+          assert policy['id'] == 'adaptive-prompt-os-v4'
+          assert [phase['id'] for phase in policy['full_prompt_os']['phases']] == [0, 1, 2, 3, 4]
+          assert policy['full_prompt_os']['representative_gate']['requires_opened_rendered_evidence'] is True
+          assert policy['full_prompt_os']['human_visual_veto']['required_for_substantial_visual_work'] is True
+          assert policy['release']['production_smoke_required_when_deployed'] is True
+          assert policy['non_negotiable']['visible_broken_screenshot_is_failure'] is True
+          PY
       - name: Validate agent runtime foundation
         run: python -B scripts/validate-runtime-foundation.py
       - name: Validate vendored design intelligence
@@ -44,9 +57,11 @@ jobs:
         run: python scripts/install-project.py examples/projects/qtsc --dry-run
       - name: Smoke project bootstrap and sync template
         run: |
+          rm -rf /tmp/skills-uiux-bootstrap
           python scripts/bootstrap-project.py /tmp/skills-uiux-bootstrap --dry-run
           python scripts/bootstrap-project.py /tmp/skills-uiux-bootstrap
           test -f /tmp/skills-uiux-bootstrap/.github/workflows/sync-uiux-skills.yml
+          grep -q '"delivery_policy": "adaptive-prompt-os-v4"' /tmp/skills-uiux-bootstrap/.uiux-profile.json
           python scripts/install-project.py /tmp/skills-uiux-bootstrap --dry-run
       - name: Smoke V5 provider-neutral eval harness
         run: python scripts/eval-harness.py smoke
