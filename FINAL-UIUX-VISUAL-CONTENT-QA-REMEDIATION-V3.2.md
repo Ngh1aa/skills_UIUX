@@ -1,9 +1,9 @@
 # FINAL UI/UX / VISUAL / CONTENT QA & REMEDIATION V3.2
-## V3.1 + PHASE-AWARE / RESPONSIVE-SCOPE / DOMAIN-ROLE CORRECTIONS + ELEMENTARY VISUAL SANITY HARDENING
+## V3.1 + PHASE-AWARE / RESPONSIVE-SCOPE / DOMAIN-ROLE CORRECTIONS + ELEMENTARY VISUAL SANITY + LANGUAGE COHERENCE HARDENING
 
 > Kế nhiệm `FINAL-UIUX-VISUAL-CONTENT-QA-REMEDIATION-V3.1.md`. Đọc và giữ V3.1/V3.0/V2.0 **trừ các rule được override rõ dưới đây**.
 >
-> Bắt buộc đọc `PHASE-AWARE-GATING.md`, Design Contract, Requirement Coverage Ledger, `docs/uiux/Phase-State.md` và khi visual work substantial/shared thì `ui-craft-and-visual-qa/checklists/elementary-visual-sanity-gate.md`.
+> Bắt buộc đọc `PHASE-AWARE-GATING.md`, Design Contract, Requirement Coverage Ledger, `docs/uiux/Phase-State.md` và khi visual work substantial/shared thì `ui-craft-and-visual-qa/checklists/elementary-visual-sanity-gate.md`. Khi project có target locale/content language rõ, phải route `localization-and-i18n` và áp dụng language-coherence gate bên dưới.
 
 ## 1. FINAL-QA REQUIREMENT ACCOUNTING
 
@@ -25,6 +25,7 @@ Final QA chỉ PASS khi:
 - `UNACCOUNTED = 0`;
 - no unresolved DUE-NOW P0/P1 macro/critical issue;
 - elementary visual sanity gate PASS khi applicable;
+- language coherence gate PASS khi project có explicit/inferable target locale;
 - mọi release-only item chưa đến hạn có owner phase rõ.
 
 ## 2. RESPONSIVE SCOPE OVERRIDE
@@ -81,14 +82,16 @@ Representative sampling **không đủ** cho elementary sanity nếu thay đổi
 - header/nav/footer;
 - theme/surface token hoặc cascade layer;
 - shared button/CTA/link variant;
-- typography/color role ảnh hưởng nhiều template.
+- typography/color role ảnh hưởng nhiều template;
+- shared content/chrome locale như navigation, search, footer, toast hoặc global labels.
 
 Khi đó phải:
 
 1. map owner → **all affected routes/templates**;
 2. smoke/check visibility trên mọi affected route/template;
 3. inspect ít nhất một rendered instance cho mỗi semantic state/context khác biệt (light, dark/inverse, image overlay, disabled, selected...);
-4. deep aesthetic review vẫn có thể representative, nhưng elementary visibility/state sanity phải phủ hết affected surface.
+4. với content/locale owner, exercise ít nhất một state sinh copy bằng runtime nếu applicable;
+5. deep aesthetic review vẫn có thể representative, nhưng elementary visibility/state/language sanity phải phủ hết affected surface.
 
 ## 6. ELEMENTARY VISUAL SANITY — HARD GATE
 
@@ -130,7 +133,56 @@ Screenshot tồn tại nhưng chưa mở/inspect = **không có visual evidence*
 
 Nếu screenshot nhìn hỏng nhưng CI/build/DOM metrics xanh, screenshot thắng và phase FAIL/BLOCKED.
 
-## 7. USER-CAUGHT OBVIOUS DEFECT PROMOTION
+## 7. LANGUAGE COHERENCE — HARD GATE
+
+Áp dụng khi project có target locale/content language explicit hoặc có thể suy ra đáng tin cậy từ requirement, `html[lang]`, content strategy, route locale hoặc product contract. **Single-locale site vẫn applicable.**
+
+### 7.1 Resolve locale contract
+
+Trước khi PASS phải biết:
+
+- primary locale / language;
+- shared UI copy nào phải theo locale;
+- domain/proper-name exceptions nào được giữ nguyên;
+- page/flow nào tạo copy bằng runtime;
+- locale-aware formatting có nằm trong scope không.
+
+Không được coi `html[lang="vi"]` là metadata trang trí rồi để generic UI chrome tiếng Anh nếu requirement là Vietnamese-first.
+
+### 7.2 Generic UI consistency
+
+P1 release blocker nếu không có documented exception:
+
+- header/nav/search/footer lệch ngôn ngữ với page body;
+- heading/helper/button/form label/validation/empty/error/success state code-switch ngoài chủ đích;
+- progress labels hoặc recommendation/result copy dùng ngôn ngữ khác trong cùng journey;
+- accessibility label/alt text mang meaning quyết định chính bị bỏ sót locale;
+- migrated component giữ copy legacy ngôn ngữ cũ;
+- static HTML đúng locale nhưng JS-generated state lại sai locale.
+
+Nâng thành P0 nếu language mismatch làm user không hiểu critical action, consent, payment, error recovery hoặc safety/legal decision.
+
+### 7.3 Domain vocabulary exceptions
+
+Không ép dịch brand/product/proper names, established domain vocabulary hoặc technical abbreviations chỉ để đạt “100% translated”. Nhưng exception phải:
+
+- có rationale trong language/content contract;
+- không mở rộng thành generic English UI;
+- không tạo câu code-switch khó đọc nếu có cách diễn đạt tự nhiên hơn.
+
+### 7.4 Rendered verification
+
+Source scan không đủ. Final QA phải:
+
+1. render shared chrome + representative routes;
+2. exercise generated interaction states có copy mới;
+3. kiểm tra critical forms, validation, empty/error/success states khi applicable;
+4. lưu screenshot/evidence cho defect class đã biết;
+5. dùng automated string heuristic/allowlist nếu hữu ích nhưng human reviewer vẫn có quyền veto.
+
+Nếu user bắt được một mixed-language defect obvious trên rendered screen mà QA đã PASS, đó là failure của QA owner và phải promotion theo Section 8.
+
+## 8. USER-CAUGHT OBVIOUS DEFECT PROMOTION
 
 Nếu user/reviewer bắt được lỗi obvious mà QA lẽ ra phải thấy:
 
@@ -142,7 +194,7 @@ Nếu user/reviewer bắt được lỗi obvious mà QA lẽ ra phải thấy:
 
 Không coi việc vá project một lần là reliability fix hoàn chỉnh.
 
-## 8. RELEASE / DEPLOYMENT
+## 9. RELEASE / DEPLOYMENT
 
 Release verification chỉ DUE NOW khi release được user yêu cầu và authority cho phép.
 
@@ -153,17 +205,21 @@ Release verification chỉ DUE NOW khi release được user yêu cầu và auth
 
 Không trả `BLOCKED` chỉ vì config chủ động cấm release.
 
-## 9. FINAL REPORT
+## 10. FINAL REPORT
 
 Report tối thiểu:
 
 ```text
 Final QA result: PASSED / BLOCKED
 Declared responsive scope
+Primary locale / language contract
+Language coherence: PASS / FAIL / N/A_JUSTIFIED
+Language/domain exceptions reviewed
 Representative roles reviewed
 Shared-owner all-route sanity coverage
 Elementary visual sanity: PASS / FAIL / N/A_JUSTIFIED
 Interactive state visibility status
+Generated-copy state audit status
 Human/focal crop status when applicable
 OLD→NEW: PASS / FAIL / N/A_JUSTIFIED / BLOCKED
 NEW→DESIGN CONTRACT
@@ -174,10 +230,12 @@ Pending release-only requirements by owner
 Release status / N/A_JUSTIFIED
 ```
 
-## 10. HUMAN VISUAL VETO RETAINED
+## 11. HUMAN VISUAL / CONTENT VETO RETAINED
 
 Screenshot obvious broken vẫn FAIL dù CI/build/DOM metrics xanh.
 
+Rendered screen có accidental mixed-language generic UI vẫn FAIL dù static translation files hoặc source grep trông đầy đủ.
+
 Phase-aware/scope-aware không được dùng để hạ tiêu chuẩn của verification thực sự DUE NOW.
 
-> **Core principle:** Final QA phải chặn lỗi thật trên scope thật. Invisible text, disappearing CTA states, shared cascade regressions và unjustified focal crop là lỗi release-blocking cơ bản, không phải “polish phụ”.
+> **Core principle:** Final QA phải chặn lỗi thật trên scope thật. Invisible text, disappearing CTA states, shared cascade regressions, accidental language mixing và unjustified focal crop là lỗi release-blocking cơ bản, không phải “polish phụ”.

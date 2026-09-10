@@ -1,0 +1,23 @@
+{
+  "id": "language-coherence-001",
+  "category": "regression",
+  "prompt": "Một website khai báo html lang=\"vi\". Header và progress step đang dùng tiếng Anh, câu hỏi chính dùng tiếng Việt, CTA/result state do JavaScript sinh ra có cả tiếng Anh lẫn tiếng Việt. Hãy kiểm tra readiness và sửa workflow để lỗi này không được release ở project sau.",
+  "recommended_skills": ["localization-and-i18n", "ux-writing-and-microcopy", "content-design-and-question-design", "testing-strategy", "code-review-and-release"],
+  "expected_outcomes": [
+    "Nhận diện single-locale language coherence là localization concern dù site không multilingual",
+    "Resolve primary locale và documented domain/proper-name exceptions",
+    "Audit shared chrome, static content và interaction-generated states",
+    "Coi accidental generic English UI trên Vietnamese surface là release blocker",
+    "Dùng rendered verification thay vì chỉ grep source/translation files",
+    "Thêm hoặc đề xuất regression guard có thể kiểm tra generated copy",
+    "Sau localization phải re-check layout vì text length thay đổi"
+  ],
+  "must_not": [
+    "Bỏ qua localization skill vì website chỉ có một locale",
+    "Chỉ dịch câu hỏi bị user khoanh mà không kiểm tra shared header/result/error states",
+    "Ép dịch brand, product name hoặc established domain vocabulary không có lý do",
+    "Nói QA passed chỉ vì html lang hoặc static source đúng",
+    "Cho phép code-switching generic UI với lý do phong cách premium/luxury"
+  ],
+  "rubric": {"alignment":15,"ux":15,"visual":10,"system":20,"inclusive":10,"web_quality":10,"verification":20}
+}
