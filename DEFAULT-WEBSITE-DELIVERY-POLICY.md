@@ -18,10 +18,10 @@ The strongest website outcomes require more than a sequence of styling tasks. Th
 - research/reference/design intelligence;
 - structural design decisions;
 - implementation;
-- rendered QA and human visual judgment;
+- rendered QA and human visual/content judgment;
 - release and production smoke when authorized.
 
-The policy is designed to prevent a common failure mode where an agent starts coding too early, produces a cosmetic reskin, passes build/CI, and only later discovers that hierarchy, page roles, media, journey or production delivery are still wrong.
+The policy is designed to prevent a common failure mode where an agent starts coding too early, produces a cosmetic reskin, passes build/CI, and only later discovers that hierarchy, page roles, media, journey, language coherence or production delivery are still wrong.
 
 ## Adaptive lane selection
 
@@ -57,7 +57,7 @@ WHOLE-SCOPE ROLLOUT
         ↓
 PROMPT 3 — FINAL VISUAL / CONTENT / SYSTEM QA + REMEDIATION
         ↓
-HUMAN VISUAL VETO
+HUMAN VISUAL / CONTENT VETO
         ↓
 FINAL QA PASS
         ↓
@@ -101,6 +101,8 @@ Before substantial work, resolve at minimum:
 - business/product goal;
 - critical journeys/conversion actions when applicable;
 - `must_keep`, `must_improve`, and scope boundaries;
+- **primary locale / content language when known or inferable from project truth**;
+- documented language/domain terminology exceptions when material;
 - responsive scope;
 - source of truth;
 - release authorization;
@@ -108,6 +110,8 @@ Before substantial work, resolve at minimum:
 - immutable `skills_UIUX` version lock for the active project phase.
 
 Unknown facts remain `UNKNOWN`; do not invent them to complete the template.
+
+An explicit non-English locale is not “just copy.” It is a cross-route product constraint because shared chrome, interaction-generated states, forms, errors and operational surfaces can all violate it.
 
 ## Prompt 1 — Research, Audit and Design Contract
 
@@ -124,10 +128,24 @@ Required outcomes are selected according to task scope, but substantial redesign
 - redesign delta or structural design intent;
 - brand/visual direction;
 - media/focal-point contract when media is material;
+- **language/content contract when target locale is explicit or user-facing copy is material**;
 - Design Contract;
 - representative composition proofs;
 - requirement coverage and verification plan;
 - phase state with `BLOCKED = 0` and `UNACCOUNTED = 0` for due-now requirements.
+
+### Localization routing rule
+
+Route `localization-and-i18n` when any of the following is true:
+
+- project is multilingual;
+- project is being prepared for translation;
+- target locale/language is explicit and not the implementation default;
+- a single-locale site declares a locale such as `html[lang="vi"]` and public UI copy must remain coherent;
+- shared chrome or stateful flows can generate copy in more than one language;
+- user reports mixed-language UI.
+
+Do **not** skip localization skill merely because the site has only one locale. Single-locale language coherence is still localization QA.
 
 A substantial redesign does **not** pass when the planned delta is primarily color, typography, spacing, radius, shadow, gradient, animation, or image replacement inside the same hierarchy/composition/journey.
 
@@ -141,6 +159,7 @@ composition
 → media
 → decision objects / task objects
 → interaction and states
+→ content + locale coherence
 → declared responsive transformation
 → design system / component consolidation
 → visual polish
@@ -152,10 +171,12 @@ For multi-page, journey or whole-site work:
 2. implement those first;
 3. render them at declared viewports/states;
 4. inspect actual screenshots;
-5. fix P0/P1 structural/craft issues;
+5. fix P0/P1 structural/craft/content issues;
 6. only then authorize broad rollout.
 
 Representative pages are domain-specific. Do not hard-code ecommerce roles into unrelated projects.
+
+When a locale contract exists, implementation must include runtime-generated strings and shared owners, not only static page headings. A translated screenshot with an untranslated toast, validation message, result state or global navigation is incomplete.
 
 ## Prompt 3 — Final QA and Remediation
 
@@ -166,6 +187,8 @@ At minimum, when applicable, verify:
 - critical journeys and interaction/recovery states;
 - page-role diversity and hierarchy;
 - shared-owner visual sanity across affected routes;
+- **primary locale / language coherence across shared chrome, critical journeys and generated states**;
+- documented exceptions for brand/product/domain vocabulary rather than accidental code-switching;
 - media crop/load/integrity;
 - responsive behavior inside declared scope;
 - accessibility baseline without overstating formal conformance;
@@ -180,9 +203,11 @@ At minimum, when applicable, verify:
 
 **A screenshot that exists but was not opened and inspected is not visual evidence.**
 
-**If a screenshot is visibly wrong, automated 100/100 does not override it.**
+**Static source strings are not proof that generated interaction states follow the same locale.**
 
-Human/Creative-Director visual review may return:
+**If a screenshot is visibly wrong or visibly mixes generic UI languages against the language contract, automated 100/100 does not override it.**
+
+Human/Creative-Director visual/content review may return:
 
 ```text
 KEEP
@@ -191,6 +216,8 @@ REMOVE
 ```
 
 Material `REVISE`/`REMOVE` feedback returns to the owning stage and must be re-rendered after repair.
+
+For language-sensitive projects, final QA should exercise the interaction states most likely to create late-bound copy: stepper/progress labels, filters, empty/error/success states, form validation, modal/toast/status copy and recommendation/result states.
 
 ## Prompt 4 — Release and Production Smoke
 
@@ -212,11 +239,12 @@ When deployment occurs, a successful CI/deploy job is **not** the final release 
 - representative routes;
 - critical journey entry points;
 - stylesheet/font/image/media loading;
+- **served locale/language coherence, not only repository source**;
 - console/network/runtime sanity;
 - production-only configuration differences;
 - no stale asset/build issue.
 
-A deploy can be green while production is stale or visually wrong; in that case release status is not PASS.
+A deploy can be green while production is stale, visually wrong or serving stale-language assets; in that case release status is not PASS.
 
 ## System-reality boundary
 
@@ -251,9 +279,22 @@ For substantial visual work, rendered evidence must be inspected after the lates
 - image/media coherence;
 - page-role diversity;
 - generic-template risk;
+- **language/content coherence when a locale contract exists**;
 - whether the intended brand/product feeling is actually visible, not merely documented.
 
-The Factory/process owns repeatable orchestration and deterministic gates. Routed skills own specialist rules. Creative Director review owns final visual judgment.
+The Factory/process owns repeatable orchestration and deterministic gates. Routed skills own specialist rules. Creative Director review owns final visual/content judgment.
+
+## User-caught regression promotion
+
+If a user catches an obvious rendered defect that the workflow should have prevented, do not stop at the project patch. Follow the owning final-QA policy:
+
+1. fix root owner;
+2. add project regression guard where feasible;
+3. strengthen the owning skill/checklist when generalizable;
+4. add/promote a regression eval case;
+5. exercise the new guard before closing remediation.
+
+Mixed-language generic UI on a declared single-locale surface is explicitly in this class.
 
 ## Escalation triggers
 
@@ -263,10 +304,11 @@ A lightweight task escalates to the full lane when any of these becomes true:
 - the requested change materially alters hierarchy, IA, journey or art direction;
 - a new Design Contract is needed;
 - media changes require cross-family art direction;
+- locale/content change affects shared chrome or multiple generated states;
 - regression scope expands materially;
 - a production/high-risk concern appears;
 - an assumption is invalidated;
-- visual review shows the problem is structural rather than local.
+- visual/content review shows the problem is structural rather than local.
 
 ## Project override rules
 
@@ -289,7 +331,8 @@ Project overrides must not silently weaken:
 - evidence discipline;
 - release authorization;
 - requirement accounting;
-- the rule that visual completion requires rendered inspection.
+- explicit locale/language contract;
+- the rule that visual/content completion requires rendered inspection.
 
 ## Canonical supporting documents
 
@@ -305,6 +348,7 @@ FINAL-UIUX-VISUAL-CONTENT-QA-REMEDIATION-V3.2.md
 website-delivery-pipeline/SKILL.md
 adaptive-skill-routing-and-context-budget/SKILL.md
 project-context/SKILL.md
+localization-and-i18n/SKILL.md
 ```
 
 The three canonical redesign prompts represent Prompt 1–3. Prompt 0 is project configuration/governance. Prompt 4 is the authorized release + production-smoke wrapper.
